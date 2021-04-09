@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 
 base_packages = [
-    "jupyter>=1.0.0", "ipython>=7.16.1", "pandas>=1.2.0"
+    "jupyter>=1.0.0", "ipython>=7.16.1"
 ]
 
 def read(fname):

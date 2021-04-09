@@ -16,6 +16,12 @@ Installation occurs via pip.
 python -m pip install drawdata
 ```
 
+To read the data, `pandas` is useful:
+
+```
+python -m pip install pandas
+```
+
 ## Usage 
 
 When you run this from jupyter, you should load in an iframe.
@@ -26,7 +32,8 @@ from drawdata import draw_scatter
 draw_scatter()
 ```
 
-After making the drawing and hitting the `copy csv` button, you can use pandas to read the clipboard.
+
+After making the drawing and hitting the `copy csv` button, you can use pandas to read the clipboard. if installed.
 
 ```python
 import pandas as pd 
