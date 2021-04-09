@@ -26,7 +26,7 @@ from drawdata import draw_scatter
 draw_scatter()
 ```
 
-After making the drawing, you can use pandas to read the clipboard.
+After making the drawing and hitting the `copy csv` button, you can use pandas to read the clipboard.
 
 ```python
 import pandas as pd 
