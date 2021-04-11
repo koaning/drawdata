@@ -8,7 +8,7 @@ notebook. This should be very useful when teaching machine learning algorithms.
 ![](gif.gif)
 
 You can get the same tooling from going to [drawdata.xyz](https://drawdata.xyz)
-but with this library you'll also be able to use it from within jupyter.
+but with this library you'll also be able to use it from within jupyter. This will save you a precious tab in the browser.
 
 ## Installation 
 
@@ -34,8 +34,7 @@ from drawdata import draw_scatter
 draw_scatter()
 ```
 
-
-After making the drawing and hitting the `copy csv` button, you can use pandas to read the clipboard. if installed.
+Once you're done drawing you can copy the data to the clipboard. After this you can use pandas to read the clipboard to get your drawn data into a dataframe.
 
 ```python
 import pandas as pd 
