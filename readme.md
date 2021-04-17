@@ -7,7 +7,7 @@ notebook. This should be very useful when teaching machine learning algorithms.
 
 ![](gif.gif)
 
-You can get the same tooling from going to [drawdata.xyz](https://drawdata.xyz)
+You can get the same tooling from going to [calmcode labs](https://calmcode.io/labs/drawdata.html)
 but with this library you'll also be able to use it from within jupyter. This will save you a precious tab in the browser.
 
 ## Installation 
