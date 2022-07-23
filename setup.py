@@ -28,4 +28,5 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Topic :: Scientific/Engineering",
     ],
+    license_files=["LICENSE"],
 )
