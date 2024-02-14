@@ -1,13 +1,39 @@
+from pathlib import Path
+import anywidget
+import traitlets
 from IPython.display import IFrame
 
 
 def draw_line():
+    """Deprecated line chart drawing utility that loads from an iframe"""
     return IFrame("https://drawdata.xyz/line.html", width=800, height=550)
 
 
 def draw_scatter():
+    """Deprecated scatter chart drawing utility that loads from an iframe"""
     return IFrame("https://drawdata.xyz/scatter.html", width=800, height=550)
 
 
 def draw_histogram():
+    """Deprecated histogram drawing utility that loads from an iframe"""
     return IFrame("https://drawdata.xyz/histogram.html", width=800, height=550)
+
+
+
+class ScatterWidget(anywidget.AnyWidget):
+    """
+    A scatter drawing widget that automatically can update a pandas/polars dataframe
+    as your draw data.
+    """
+    _esm = Path(__file__).parent / 'static' / 'scatter_widget.js'
+    data = traitlets.List([]).tag(sync=True)
+
+    @property
+    def as_pandas(self):
+        import pandas as pd 
+        return pd.DataFrame(self.data)
+
+    @property
+    def as_polars(self):
+        import polars as pl
+        return pl.DataFrame(self.data)
