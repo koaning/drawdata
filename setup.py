@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 
 base_packages = [
-    "jupyter>=4.0.0", "anywidget>=0.9.2", "ipython>=7.16.1"
+    "jupyterlab>=4.0.0", "anywidget>=0.9.2", "ipython>=7.16.1"
 ]
 
 def read(fname):
@@ -16,7 +16,7 @@ setup(
     description="draw a dataset from inside Jupyter",
     author="Vincent D. Warmerdam",
     packages=find_packages(exclude=["notebooks"]),
-    package_data={"drawdata": ["html/*.html"]},
+    package_data={"drawdata": ["static/*.js"]},
     long_description=read("readme.md"),
     long_description_content_type="text/markdown",
     install_requires=base_packages,
