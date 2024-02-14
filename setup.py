@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 
 base_packages = [
-    "jupyter>=1.0.0", "ipython>=7.16.1"
+    "jupyter>=4.0.0", "anywidget>=0.9.2"
 ]
 
 def read(fname):
@@ -12,7 +12,7 @@ def read(fname):
 
 setup(
     name="drawdata",
-    version="0.2.0",
+    version="0.3.0",
     description="draw a dataset from inside jupyter",
     author="Vincent D. Warmerdam",
     packages=find_packages(exclude=["notebooks"]),
@@ -25,6 +25,11 @@ setup(
         "Intended Audience :: Science/Research",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "License :: OSI Approved :: MIT License",
         "Topic :: Scientific/Engineering",
     ],
