@@ -30,6 +30,7 @@ function render({ model, el }) {
   //   d: <span id="count_d">0</span>
   // </p>
 
+  console.log("data on load", model.get("data"));
   let fieldset_radio = document.createElement("fieldset");
   fieldset_radio.setAttribute("style", "width: 200px; margin: 10px; display:inline");
   
@@ -105,12 +106,13 @@ function render({ model, el }) {
   container.appendChild(undo_btn);
 
   let div = document.createElement("div");
-  div.setAttribute("style", "display:inline");
+  div.setAttribute("style", "display:inline; padding-left: 50px;");
   
   let count_spans = {};
   ["a", "b", "c", "d"].map(function(d, i){
     let span = document.createElement("span");
     span.innerText = `${d}: 0`;
+    span.setAttribute("style", "padding-right: 2px; padding-left: 2px")
     count_spans[d] = span;
     div.appendChild(span);
   });
@@ -123,7 +125,10 @@ function render({ model, el }) {
   const height = 500;
   const width = 800;
 
-  let data = [];
+  let data = model.get("data").map(function(d){
+    d['y'] = height - d['y']; 
+    return d
+  });
   let svg = d3.select(container).append("svg").style("display", "block");
   let selected_color = colors[0];
   let batch = 0;
@@ -136,6 +141,27 @@ function render({ model, el }) {
       d3.drag().on("start", drag_start).on("drag", dragged).on("end", drag_end)
     )
     .on("mousemove", mousemove);
+
+  function redraw_from_scratch(){
+    svg.selectAll("circle.drawn").remove();
+
+    data.map(function(d){
+      svg
+          .append("circle")
+          .attr("cx", d.x)
+          .attr("cy", d.y)
+          .attr("r", 4)
+          .style("fill", d.color)
+          .attr("class", `batch_${d.batch} drawn`);
+    });
+  }
+
+  redraw_from_scratch();
+  model.on("change:data", redraw_from_scratch)
+  model.on("change:brushsize", function(){ 
+    console.log("brushsize changed")
+    circle_brush.attr("r", size_input.value)
+  })
 
   let circle_brush = svg
     .append("circle")
@@ -164,15 +190,16 @@ function render({ model, el }) {
 
   function resize_brush() {
     // We want the paintbrush to show the size param, hence this update
-    circle_brush.attr("r", size_input.value);
     model.set("brushsize", size_input.value);
   }
 
   function dragged(event) {
     // Add new datapoints to the screen, but not to the datastore just yet
+    let r1 = container.getBoundingClientRect();
+    let r2 = svg.node().getBoundingClientRect();
     let size = size_input.value;
     let new_x = event.x + (Math.random() - 0.5) * size;
-    let corrected_y = event.y;
+    let corrected_y = event.y - (r2.y - r1.y);
     let new_y = corrected_y + (Math.random() - 0.5) * size;
     svg
       .append("circle")
@@ -201,6 +228,7 @@ function render({ model, el }) {
 
   function reset() {
     data = [];
+    model.set("data", []);
     svg.selectAll("circle.drawn").remove();
     update_counts();
   }

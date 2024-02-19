@@ -9536,6 +9536,7 @@ var d3 = __toESM(require_d3_v7());
 function render({ model, el }) {
   let container = document.createElement("div");
   container.setAttribute("id", "drawhere");
+  console.log("data on load", model.get("data"));
   let fieldset_radio = document.createElement("fieldset");
   fieldset_radio.setAttribute("style", "width: 200px; margin: 10px; display:inline");
   let legend_radio = document.createElement("legend");
@@ -9597,11 +9598,12 @@ function render({ model, el }) {
   undo_btn.onclick = undo;
   container.appendChild(undo_btn);
   let div = document.createElement("div");
-  div.setAttribute("style", "display:inline");
+  div.setAttribute("style", "display:inline; padding-left: 50px;");
   let count_spans = {};
   ["a", "b", "c", "d"].map(function(d, i) {
     let span = document.createElement("span");
     span.innerText = `${d}: 0`;
+    span.setAttribute("style", "padding-right: 2px; padding-left: 2px");
     count_spans[d] = span;
     div.appendChild(span);
   });
@@ -9610,13 +9612,28 @@ function render({ model, el }) {
   const colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"];
   const height = 500;
   const width = 800;
-  let data = [];
+  let data = model.get("data").map(function(d) {
+    d["y"] = height - d["y"];
+    return d;
+  });
   let svg = d3.select(container).append("svg").style("display", "block");
   let selected_color = colors[0];
   let batch = 0;
   svg.attr("width", width).attr("height", height).style("background", "#eeeeee").call(
     d3.drag().on("start", drag_start).on("drag", dragged).on("end", drag_end)
   ).on("mousemove", mousemove);
+  function redraw_from_scratch() {
+    svg.selectAll("circle.drawn").remove();
+    data.map(function(d) {
+      svg.append("circle").attr("cx", d.x).attr("cy", d.y).attr("r", 4).style("fill", d.color).attr("class", `batch_${d.batch} drawn`);
+    });
+  }
+  redraw_from_scratch();
+  model.on("change:data", redraw_from_scratch);
+  model.on("change:brushsize", function() {
+    console.log("brushsize changed");
+    circle_brush.attr("r", size_input.value);
+  });
   let circle_brush = svg.append("circle").attr("cx", width / 2).attr("cy", height / 2).attr("r", model.get("brushsize")).style("fill-opacity", 0.1);
   function drag_start(event) {
     ["a", "b", "c", "d"].map(function(d, i) {
@@ -9630,13 +9647,14 @@ function render({ model, el }) {
     circle_brush.attr("cx", event.pageX - rect["x"] + "px").attr("cy", event.pageY - rect["top"] + "px");
   }
   function resize_brush() {
-    circle_brush.attr("r", size_input.value);
     model.set("brushsize", size_input.value);
   }
   function dragged(event) {
+    let r1 = container.getBoundingClientRect();
+    let r2 = svg.node().getBoundingClientRect();
     let size = size_input.value;
     let new_x = event.x + (Math.random() - 0.5) * size;
-    let corrected_y = event.y;
+    let corrected_y = event.y - (r2.y - r1.y);
     let new_y = corrected_y + (Math.random() - 0.5) * size;
     svg.append("circle").attr("cx", new_x).attr("cy", new_y).attr("r", 4).style("fill", selected_color).attr("class", `batch_${batch} drawn`);
     data.push({ x: new_x, y: new_y, color: selected_color, batch });
@@ -9657,6 +9675,7 @@ function render({ model, el }) {
   }
   function reset() {
     data = [];
+    model.set("data", []);
     svg.selectAll("circle.drawn").remove();
     update_counts();
   }
