@@ -3,16 +3,18 @@ import * as d3 from "./d3.v7.js";
 function render({ model, el }) {
   let container = document.createElement("div");
   container.setAttribute("id", "drawhere");
+
+
   container.innerHTML = `
     <fieldset style="width: 200px; margin: 10px; display:inline">
     <legend>Class:</legend>
-    <input type="radio" id="a" name="drone" value="0" checked onchange="selected_color = colors[0]" />
+    <input type="radio" id="radio_a" name="drone" value="0" checked/>
     <label for="a">a</label>
-    <input type="radio" id="b" name="drone" value="1" onchange="selected_color = colors[1]" />
+    <input type="radio" id="radio_b" name="drone" value="1"/>
     <label for="b">b</label>
-    <input type="radio" id="c" name="drone" value="2" onchange="selected_color = colors[2]"/>
+    <input type="radio" id="radio_c" name="drone" value="2"/>
     <label for="c">c</label>
-    <input type="radio" id="d" name="drone" value="3" onchange="selected_color = colors[3]"/>
+    <input type="radio" id="radio_d" name="drone" value="3"/>
     <label for="d">d</label>
     </fieldset>
     <fieldset style="width: 200px; margin: 10px; display:inline">
@@ -28,21 +30,20 @@ function render({ model, el }) {
       d: <span id="count_d">0</span>
     </p>
     <br><br>
-    <div id="drawhere">
-        <svg id="svg"></svg>
-    </div>
     `;
-  el.appendChild(container);
+
 
   const colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"];
   const height = 500;
   const width = 800;
 
   let data = [];
-  let svg = d3.select("#svg")
+  let svg = d3.select("#drawhere").append("svg").attr("id", "svg")
   let selected_color = colors[0];
   let brush_size = Number(document.getElementById("size").value);
   let batch = 0;
+
+  console.log("starting?", container, svg)
 
   svg
     .attr("width", width)
@@ -141,6 +142,15 @@ function render({ model, el }) {
   document.getElementById("size").oninput = resize_brush;
   document.getElementById("reset").onclick = reset;
   document.getElementById("undo").onclick = undo;
+  document.getElementById("radio_a").onchange = function(){ selected_color = colors[0] };
+  document.getElementById("radio_b").onchange = function(){ selected_color = colors[1] };
+  document.getElementById("radio_c").onchange = function(){ selected_color = colors[2] };
+  document.getElementById("radio_d").onchange = function(){ selected_color = colors[3] };
+
+  model.on("change:data", () => {
+    button.innerHTML = `count is ${getCount()}`;
+  });
+  el.appendChild(container);
 
   return () => {
     d3.select("#drawhere").remove();

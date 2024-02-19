@@ -12,4 +12,4 @@ pypi:
 	# twine upload dist/*
 
 js:
-	./esbuild --bundle --format=esm --minify --outfile=drawdata/static/scatter_widget.js js/scatter_widget.js
+	./esbuild --bundle --format=esm --outfile=drawdata/static/scatter_widget.js js/scatter_widget.js
