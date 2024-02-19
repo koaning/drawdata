@@ -1,36 +1,11 @@
 import * as d3 from "./d3.v7.js";
 
 function render({ model, el }) {
+  // First we need to generate a whole bunch of HTML elements. 
   let container = document.createElement("div");
   container.setAttribute("id", "drawhere");
 
-  // This is the HTML that we want to render. This is done via JS because we can't rely too much
-  // on HTML attributes in a notebook environment. 
-  // <fieldset style="width: 200px; margin: 10px; display:inline">
-  //   <legend>Class:</legend>
-  //   <input type="radio" id="radio_a" checked/>
-  //   <label for="a">a</label>
-  //   <input type="radio" id="radio_b"/>
-  //   <label for="b">b</label>
-  //   <input type="radio" id="radio_c"/>
-  //   <label for="c">c</label>
-  //   <input type="radio" id="radio_d"/>
-  //   <label for="d">d</label>
-  // </fieldset>
-  // <fieldset style="width: 200px; margin: 10px; display:inline">
-  //   <legend>Brushsize:</legend>
-  //   <input type='range' id='size' name='size' min='5' max='100' value='10' style="display:inline"/>
-  // </fieldset>                     
-  // <button id="reset" style="display:inline">Reset</button>
-  // <button id="undo" style="display:inline">Undo</button>
-  // <p style="display:inline">
-  //   a: <span id="count_a">0</span>
-  //   b: <span id="count_b">0</span>
-  //   c: <span id="count_c">0</span>
-  //   d: <span id="count_d">0</span>
-  // </p>
-
-  console.log("data on load", model.get("data"));
+  // Generate the class selector
   let fieldset_radio = document.createElement("fieldset");
   fieldset_radio.setAttribute("style", "width: 200px; margin: 10px; display:inline");
   
@@ -38,7 +13,6 @@ function render({ model, el }) {
   legend_radio.innerText = "Class:";  
   fieldset_radio.appendChild(legend_radio);
 
-  // Add radio buttons to the fieldset
   let radio_buttons = {};
   
   function add_label_elem(parent, id){
@@ -67,15 +41,13 @@ function render({ model, el }) {
 
   container.appendChild(fieldset_radio);
 
+  // Generate the brushsize selector
   let fieldset_size = document.createElement("fieldset");
   fieldset_size.setAttribute("style", "width: 200px; margin: 10px; display:inline");
 
   let legend_size = document.createElement("legend");
   legend_size.innerText = "Brushsize:";
   fieldset_size.appendChild(legend_size);
-
-  console.log("brushsize", model.get("brushsize"))
-  console.log("data", model.get("data"))
 
   let size_input = document.createElement("input");
   size_input.setAttribute("type", "range");
@@ -91,6 +63,7 @@ function render({ model, el }) {
   fieldset_size.appendChild(size_input);
   container.appendChild(fieldset_size);
 
+  // Generate the reset/undo buttons
   let reset_btn = document.createElement("button");
   reset_btn.setAttribute("id", "reset");
   reset_btn.setAttribute("style", "display:inline");
@@ -105,6 +78,7 @@ function render({ model, el }) {
   undo_btn.onclick = undo;
   container.appendChild(undo_btn);
 
+  // Generate the widget that contains the counts
   let div = document.createElement("div");
   div.setAttribute("style", "display:inline; padding-left: 50px;");
   
@@ -125,11 +99,8 @@ function render({ model, el }) {
   const height = 500;
   const width = 800;
 
-  let data = model.get("data").map(function(d){
-    d['y'] = height - d['y']; 
-    return d
-  });
-  let svg = d3.select(container).append("svg").style("display", "block");
+  let data = model.get("data");
+  let svg = d3.select(container).append("svg").style("display", "block").style("cursor", "crosshair");
   let selected_color = colors[0];
   let batch = 0;
 
@@ -149,17 +120,21 @@ function render({ model, el }) {
       svg
           .append("circle")
           .attr("cx", d.x)
-          .attr("cy", d.y)
+          .attr("cy", height - d.y)
           .attr("r", 4)
           .style("fill", d.color)
           .attr("class", `batch_${d.batch} drawn`);
     });
+
+    update_counts();
   }
 
   redraw_from_scratch();
-  model.on("change:data", redraw_from_scratch)
+  model.on("change:data", function(){
+    update_counts();
+  });
+
   model.on("change:brushsize", function(){ 
-    console.log("brushsize changed")
     circle_brush.attr("r", size_input.value)
   })
 
@@ -208,7 +183,7 @@ function render({ model, el }) {
       .attr("r", 4)
       .style("fill", selected_color)
       .attr("class", `batch_${batch} drawn`);
-    data.push({ x: new_x, y: new_y, color: selected_color, batch: batch });
+    data.push({ x: new_x, y: height - new_y, color: selected_color, batch: batch });
     circle_brush.attr("cx", event.x + "px").attr("cy", corrected_y + "px");
   }
 
@@ -223,12 +198,13 @@ function render({ model, el }) {
 
   function grab_data() {
     // We need to account for the fact that we draw the y-axis other way around in svg land
-    return data.map(function(d){return { x: d.x, y: height - d.y, color: d.color }});
+    return data.map(function(d){return { x: d.x, y: d.y, color: d.color }});
   }
 
   function reset() {
     data = [];
     model.set("data", []);
+    model.save_changes();
     svg.selectAll("circle.drawn").remove();
     update_counts();
   }
