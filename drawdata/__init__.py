@@ -27,7 +27,8 @@ class ScatterWidget(anywidget.AnyWidget):
     """
     _esm = Path(__file__).parent / 'static' / 'scatter_widget.js'
     data = traitlets.List([]).tag(sync=True)
-
+    brushsize = traitlets.Int(10).tag(sync=True)
+    
     @property
     def as_pandas(self):
         import pandas as pd 

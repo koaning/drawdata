@@ -9551,13 +9551,18 @@ function render({ model, el }) {
   ["a", "b", "c", "d"].map(function(d, i) {
     let radio = document.createElement("input");
     radio.setAttribute("type", "radio");
-    radio.setAttribute("id", `radio_${d}`);
+    radio.setAttribute("name", "colorselector");
+    radio.setAttribute("value", i);
     if (i == 0) {
       radio.setAttribute("checked", "true");
+      radio.click();
     }
-    fieldset_radio.appendChild(radio);
-    radio_buttons[d] = radio;
     add_label_elem(fieldset_radio, d);
+    radio.onclick = function() {
+      selected_color = colors[i];
+    };
+    radio_buttons[d] = radio;
+    fieldset_radio.appendChild(radio);
   });
   container.appendChild(fieldset_radio);
   let fieldset_size = document.createElement("fieldset");
@@ -9565,25 +9570,31 @@ function render({ model, el }) {
   let legend_size = document.createElement("legend");
   legend_size.innerText = "Brushsize:";
   fieldset_size.appendChild(legend_size);
-  let size = document.createElement("input");
-  size.setAttribute("type", "range");
-  size.setAttribute("id", "size");
-  size.setAttribute("name", "size");
-  size.setAttribute("min", "5");
-  size.setAttribute("max", "100");
-  size.setAttribute("value", "10");
-  size.setAttribute("style", "display:inline");
-  fieldset_size.appendChild(size);
+  console.log("brushsize", model.get("brushsize"));
+  console.log("data", model.get("data"));
+  let size_input = document.createElement("input");
+  size_input.setAttribute("type", "range");
+  size_input.setAttribute("id", "size");
+  size_input.setAttribute("name", "size");
+  size_input.setAttribute("min", "5");
+  size_input.setAttribute("max", "100");
+  size_input.setAttribute("value", model.get("brushsize"));
+  size_input.setAttribute("style", "display:inline");
+  size_input.onchange = resize_brush;
+  size_input.oninput = resize_brush;
+  fieldset_size.appendChild(size_input);
   container.appendChild(fieldset_size);
   let reset_btn = document.createElement("button");
   reset_btn.setAttribute("id", "reset");
   reset_btn.setAttribute("style", "display:inline");
   reset_btn.innerText = "Reset";
+  reset_btn.onclick = reset;
   container.appendChild(reset_btn);
   let undo_btn = document.createElement("button");
   undo_btn.setAttribute("id", "undo");
   undo_btn.setAttribute("style", "display:inline");
   undo_btn.innerText = "Undo";
+  undo_btn.onclick = undo;
   container.appendChild(undo_btn);
   let div = document.createElement("div");
   div.setAttribute("style", "display:inline");
@@ -9600,34 +9611,33 @@ function render({ model, el }) {
   const height = 500;
   const width = 800;
   let data = [];
-  let svg = d3.select(container).append("svg");
+  let svg = d3.select(container).append("svg").style("display", "block");
   let selected_color = colors[0];
-  let brush_size = Number(document.getElementById("size").value);
   let batch = 0;
-  console.log("starting?", container, svg);
   svg.attr("width", width).attr("height", height).style("background", "#eeeeee").call(
     d3.drag().on("start", drag_start).on("drag", dragged).on("end", drag_end)
   ).on("mousemove", mousemove);
-  let circle_brush = svg.append("circle").attr("cx", width / 2).attr("cy", height / 2).attr("r", brush_size).style("fill-opacity", 0.1);
+  let circle_brush = svg.append("circle").attr("cx", width / 2).attr("cy", height / 2).attr("r", model.get("brushsize")).style("fill-opacity", 0.1);
   function drag_start(event) {
     ["a", "b", "c", "d"].map(function(d, i) {
-      if (document.getElementById(d).checked) {
+      if (radio_buttons[d].checked) {
         selected_color = colors[i];
       }
     });
   }
   function mousemove(event) {
-    let rect = document.getElementById("svg").getBoundingClientRect();
+    let rect = svg.node().getBoundingClientRect();
     circle_brush.attr("cx", event.pageX - rect["x"] + "px").attr("cy", event.pageY - rect["top"] + "px");
   }
   function resize_brush() {
-    circle_brush.attr("r", document.getElementById("size").value);
+    circle_brush.attr("r", size_input.value);
+    model.set("brushsize", size_input.value);
   }
   function dragged(event) {
-    let size2 = Number(document.getElementById("size").value);
-    let new_x = event.x + (Math.random() - 0.5) * size2;
+    let size = size_input.value;
+    let new_x = event.x + (Math.random() - 0.5) * size;
     let corrected_y = event.y;
-    let new_y = corrected_y + (Math.random() - 0.5) * size2;
+    let new_y = corrected_y + (Math.random() - 0.5) * size;
     svg.append("circle").attr("cx", new_x).attr("cy", new_y).attr("r", 4).style("fill", selected_color).attr("class", `batch_${batch} drawn`);
     data.push({ x: new_x, y: new_y, color: selected_color, batch });
     circle_brush.attr("cx", event.x + "px").attr("cy", corrected_y + "px");
@@ -9663,36 +9673,13 @@ function render({ model, el }) {
     update_counts();
   }
   function update_counts() {
-    document.getElementById("count_a").innerText = data.filter(function(d) {
-      return d.color == colors[0];
-    }).length;
-    document.getElementById("count_b").innerText = data.filter(function(d) {
-      return d.color == colors[1];
-    }).length;
-    document.getElementById("count_c").innerText = data.filter(function(d) {
-      return d.color == colors[2];
-    }).length;
-    document.getElementById("count_d").innerText = data.filter(function(d) {
-      return d.color == colors[3];
-    }).length;
+    ["a", "b", "c", "d"].map(function(d, i) {
+      let count = data.filter(function(d2) {
+        return d2.color == colors[i];
+      }).length;
+      count_spans[d].innerText = `${d}: ${count}`;
+    });
   }
-  document.getElementById("size").onchange = resize_brush;
-  document.getElementById("size").oninput = resize_brush;
-  document.getElementById("reset").onclick = reset;
-  document.getElementById("undo").onclick = undo;
-  document.getElementById("radio_a").onchange = function() {
-    selected_color = colors[0];
-  };
-  document.getElementById("radio_b").onchange = function() {
-    selected_color = colors[1];
-  };
-  document.getElementById("radio_c").onchange = function() {
-    selected_color = colors[2];
-  };
-  document.getElementById("radio_d").onchange = function() {
-    selected_color = colors[3];
-  };
-  el.appendChild(container);
   return () => {
     d3.select(container).remove();
   };

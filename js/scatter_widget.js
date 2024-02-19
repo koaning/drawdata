@@ -16,19 +16,19 @@ function render({ model, el }) {
   //   <label for="c">c</label>
   //   <input type="radio" id="radio_d"/>
   //   <label for="d">d</label>
-  //   </fieldset>
-  //   <fieldset style="width: 200px; margin: 10px; display:inline">
+  // </fieldset>
+  // <fieldset style="width: 200px; margin: 10px; display:inline">
   //   <legend>Brushsize:</legend>
   //   <input type='range' id='size' name='size' min='5' max='100' value='10' style="display:inline"/>
-  //   </fieldset>                     
-  //   <button id="reset" style="display:inline">Reset</button>
-  //   <button id="undo" style="display:inline">Undo</button>
-  //   <p style="display:inline">
-  //     a: <span id="count_a">0</span>
-  //     b: <span id="count_b">0</span>
-  //     c: <span id="count_c">0</span>
-  //     d: <span id="count_d">0</span>
-  //   </p>
+  // </fieldset>                     
+  // <button id="reset" style="display:inline">Reset</button>
+  // <button id="undo" style="display:inline">Undo</button>
+  // <p style="display:inline">
+  //   a: <span id="count_a">0</span>
+  //   b: <span id="count_b">0</span>
+  //   c: <span id="count_c">0</span>
+  //   d: <span id="count_d">0</span>
+  // </p>
 
   let fieldset_radio = document.createElement("fieldset");
   fieldset_radio.setAttribute("style", "width: 200px; margin: 10px; display:inline");
@@ -49,14 +49,19 @@ function render({ model, el }) {
 
   ["a", "b", "c", "d"].map(function(d, i){
     let radio = document.createElement("input");
-    radio.setAttribute("type", "radio");
-    radio.setAttribute("id", `radio_${d}`);
+    radio.setAttribute("type", "radio");  
+    radio.setAttribute("name", "colorselector")
+    radio.setAttribute("value", i);
     if (i == 0){
       radio.setAttribute("checked", "true");
+      radio.click()
     }
-    fieldset_radio.appendChild(radio);
-    radio_buttons[d] = radio;
     add_label_elem(fieldset_radio, d);
+    radio.onclick = function(){
+      selected_color = colors[i];
+    }
+    radio_buttons[d] = radio;
+    fieldset_radio.appendChild(radio);
   });
 
   container.appendChild(fieldset_radio);
@@ -68,27 +73,35 @@ function render({ model, el }) {
   legend_size.innerText = "Brushsize:";
   fieldset_size.appendChild(legend_size);
 
-  let size = document.createElement("input");
-  size.setAttribute("type", "range");
-  size.setAttribute("id", "size");
-  size.setAttribute("name", "size");
-  size.setAttribute("min", "5");
-  size.setAttribute("max", "100");
-  size.setAttribute("value", "10");
-  size.setAttribute("style", "display:inline");
-  fieldset_size.appendChild(size);
+  console.log("brushsize", model.get("brushsize"))
+  console.log("data", model.get("data"))
+
+  let size_input = document.createElement("input");
+  size_input.setAttribute("type", "range");
+  size_input.setAttribute("id", "size");
+  size_input.setAttribute("name", "size");
+  size_input.setAttribute("min", "5");
+  size_input.setAttribute("max", "100");
+  size_input.setAttribute("value", model.get("brushsize"));
+  size_input.setAttribute("style", "display:inline");
+  size_input.onchange = resize_brush;
+  size_input.oninput = resize_brush;
+
+  fieldset_size.appendChild(size_input);
   container.appendChild(fieldset_size);
 
   let reset_btn = document.createElement("button");
   reset_btn.setAttribute("id", "reset");
   reset_btn.setAttribute("style", "display:inline");
   reset_btn.innerText = "Reset";
+  reset_btn.onclick = reset;
   container.appendChild(reset_btn);
 
   let undo_btn = document.createElement("button");
   undo_btn.setAttribute("id", "undo");
   undo_btn.setAttribute("style", "display:inline");
   undo_btn.innerText = "Undo";
+  undo_btn.onclick = undo;
   container.appendChild(undo_btn);
 
   let div = document.createElement("div");
@@ -103,7 +116,6 @@ function render({ model, el }) {
   });
 
   container.appendChild(div);
-
   el.appendChild(container);
 
 
@@ -112,12 +124,9 @@ function render({ model, el }) {
   const width = 800;
 
   let data = [];
-  let svg = d3.select(container).append("svg");
+  let svg = d3.select(container).append("svg").style("display", "block");
   let selected_color = colors[0];
-  let brush_size = Number(document.getElementById("size").value);
   let batch = 0;
-
-  console.log("starting?", container, svg)
 
   svg
     .attr("width", width)
@@ -132,14 +141,14 @@ function render({ model, el }) {
     .append("circle")
     .attr("cx", width / 2)
     .attr("cy", height / 2)
-    .attr("r", brush_size)
+    .attr("r", model.get("brushsize"))
     .style("fill-opacity", 0.1);
 
   function drag_start(event) {
     // You could restart the browser and the HTML may remember the
     // checked state without the JS knowing about it. Hence this check.
     ["a", "b", "c", "d"].map(function (d, i) {
-      if (document.getElementById(d).checked) {
+      if (radio_buttons[d].checked) {
         selected_color = colors[i];
       }
     });
@@ -147,7 +156,7 @@ function render({ model, el }) {
 
   function mousemove(event) {
     // The brush needs to move along with the mouse
-    let rect = document.getElementById("svg").getBoundingClientRect();
+    let rect = svg.node().getBoundingClientRect();
     circle_brush
       .attr("cx", event.pageX - rect["x"] + "px")
       .attr("cy", event.pageY - rect["top"] + "px");
@@ -155,12 +164,13 @@ function render({ model, el }) {
 
   function resize_brush() {
     // We want the paintbrush to show the size param, hence this update
-    circle_brush.attr("r", document.getElementById("size").value);
+    circle_brush.attr("r", size_input.value);
+    model.set("brushsize", size_input.value);
   }
 
   function dragged(event) {
     // Add new datapoints to the screen, but not to the datastore just yet
-    let size = Number(document.getElementById("size").value);
+    let size = size_input.value;
     let new_x = event.x + (Math.random() - 0.5) * size;
     let corrected_y = event.y;
     let new_y = corrected_y + (Math.random() - 0.5) * size;
@@ -205,23 +215,11 @@ function render({ model, el }) {
   }
 
   function update_counts(){
-    document.getElementById("count_a").innerText = data.filter(function(d){return d.color == colors[0]}).length
-    document.getElementById("count_b").innerText = data.filter(function(d){return d.color == colors[1]}).length
-    document.getElementById("count_c").innerText = data.filter(function(d){return d.color == colors[2]}).length
-    document.getElementById("count_d").innerText = data.filter(function(d){return d.color == colors[3]}).length
+    ["a", "b", "c", "d"].map(function(d, i){
+      let count = data.filter(function(d){return d.color == colors[i]}).length;
+      count_spans[d].innerText = `${d}: ${count}`
+    })
   }
-
-  // These have to be declared from JS, we can't apply it via the `innerHTML` trick.
-  document.getElementById("size").onchange = resize_brush;
-  document.getElementById("size").oninput = resize_brush;
-  document.getElementById("reset").onclick = reset;
-  document.getElementById("undo").onclick = undo;
-  document.getElementById("radio_a").onchange = function(){ selected_color = colors[0] };
-  document.getElementById("radio_b").onchange = function(){ selected_color = colors[1] };
-  document.getElementById("radio_c").onchange = function(){ selected_color = colors[2] };
-  document.getElementById("radio_d").onchange = function(){ selected_color = colors[3] };
-
-  el.appendChild(container);
 
   return () => {
     d3.select(container).remove();
