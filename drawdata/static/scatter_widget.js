@@ -9534,10 +9534,12 @@ var require_d3_v7 = __commonJS({
 // js/scatter_widget.js
 var d3 = __toESM(require_d3_v7());
 function render({ model, el }) {
+  const colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"];
+  const height = 500;
+  const width = 800;
   let container = document.createElement("div");
-  container.setAttribute("id", "drawhere");
   let fieldset_radio = document.createElement("fieldset");
-  fieldset_radio.setAttribute("style", "width: 200px; margin: 10px; display:inline");
+  fieldset_radio.setAttribute("style", "width: 170px; margin-left: 1px; margin-top: -10px; display:inline");
   let legend_radio = document.createElement("legend");
   legend_radio.innerText = "Class:";
   fieldset_radio.appendChild(legend_radio);
@@ -9545,6 +9547,10 @@ function render({ model, el }) {
   function add_label_elem(parent, id) {
     let label = document.createElement("label");
     label.setAttribute("for", id);
+    label.setAttribute("style", "padding-left: 5px;");
+    if (id == "a") {
+      label.setAttribute("style", "padding-left: 17px;");
+    }
     label.innerText = id;
     parent.appendChild(label);
   }
@@ -9577,7 +9583,7 @@ function render({ model, el }) {
   size_input.setAttribute("min", "5");
   size_input.setAttribute("max", "100");
   size_input.setAttribute("value", model.get("brushsize"));
-  size_input.setAttribute("style", "display:inline");
+  size_input.setAttribute("style", "display:inline; padding-left: 30px;");
   size_input.onchange = resize_brush;
   size_input.oninput = resize_brush;
   fieldset_size.appendChild(size_input);
@@ -9595,20 +9601,19 @@ function render({ model, el }) {
   undo_btn.onclick = undo;
   container.appendChild(undo_btn);
   let div = document.createElement("div");
-  div.setAttribute("style", "display:inline; padding-left: 50px;");
+  div.setAttribute("style", "display:inline; padding-left: 10px;");
   let count_spans = {};
   ["a", "b", "c", "d"].map(function(d, i) {
+    let background_colors = ["#a4c8e0", "#ffcb9e", "#aad8aa", "#eea8a8"];
     let span = document.createElement("span");
+    span.setAttribute("style", `background-color: ${background_colors[i]}`);
     span.innerText = `${d}: 0`;
-    span.setAttribute("style", "padding-right: 2px; padding-left: 2px");
+    span.setAttribute("class", "count");
     count_spans[d] = span;
     div.appendChild(span);
   });
   container.appendChild(div);
   el.appendChild(container);
-  const colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"];
-  const height = 500;
-  const width = 800;
   let data = model.get("data");
   let svg = d3.select(container).append("svg").style("display", "block").style("cursor", "crosshair");
   let selected_color = colors[0];
