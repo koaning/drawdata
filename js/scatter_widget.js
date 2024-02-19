@@ -4,33 +4,107 @@ function render({ model, el }) {
   let container = document.createElement("div");
   container.setAttribute("id", "drawhere");
 
+  // This is the HTML that we want to render. This is done via JS because we can't rely too much
+  // on HTML attributes in a notebook environment. 
+  // <fieldset style="width: 200px; margin: 10px; display:inline">
+  //   <legend>Class:</legend>
+  //   <input type="radio" id="radio_a" checked/>
+  //   <label for="a">a</label>
+  //   <input type="radio" id="radio_b"/>
+  //   <label for="b">b</label>
+  //   <input type="radio" id="radio_c"/>
+  //   <label for="c">c</label>
+  //   <input type="radio" id="radio_d"/>
+  //   <label for="d">d</label>
+  //   </fieldset>
+  //   <fieldset style="width: 200px; margin: 10px; display:inline">
+  //   <legend>Brushsize:</legend>
+  //   <input type='range' id='size' name='size' min='5' max='100' value='10' style="display:inline"/>
+  //   </fieldset>                     
+  //   <button id="reset" style="display:inline">Reset</button>
+  //   <button id="undo" style="display:inline">Undo</button>
+  //   <p style="display:inline">
+  //     a: <span id="count_a">0</span>
+  //     b: <span id="count_b">0</span>
+  //     c: <span id="count_c">0</span>
+  //     d: <span id="count_d">0</span>
+  //   </p>
 
-  container.innerHTML = `
-    <fieldset style="width: 200px; margin: 10px; display:inline">
-    <legend>Class:</legend>
-    <input type="radio" id="radio_a" name="drone" value="0" checked/>
-    <label for="a">a</label>
-    <input type="radio" id="radio_b" name="drone" value="1"/>
-    <label for="b">b</label>
-    <input type="radio" id="radio_c" name="drone" value="2"/>
-    <label for="c">c</label>
-    <input type="radio" id="radio_d" name="drone" value="3"/>
-    <label for="d">d</label>
-    </fieldset>
-    <fieldset style="width: 200px; margin: 10px; display:inline">
-    <legend>Brushsize:</legend>
-    <input type='range' id='size' name='size' min='5' max='100' value='10' style="display:inline"/>
-    </fieldset>                     
-    <button id="reset" style="display:inline">Reset</button>
-    <button id="undo" style="display:inline">Undo</button>
-    <p style="display:inline">
-      a: <span id="count_a">0</span>
-      b: <span id="count_b">0</span>
-      c: <span id="count_c">0</span>
-      d: <span id="count_d">0</span>
-    </p>
-    <br><br>
-    `;
+  let fieldset_radio = document.createElement("fieldset");
+  fieldset_radio.setAttribute("style", "width: 200px; margin: 10px; display:inline");
+  
+  let legend_radio = document.createElement("legend");
+  legend_radio.innerText = "Class:";  
+  fieldset_radio.appendChild(legend_radio);
+
+  // Add radio buttons to the fieldset
+  let radio_buttons = {};
+  
+  function add_label_elem(parent, id){
+    let label = document.createElement("label");
+    label.setAttribute("for", id);
+    label.innerText = id;
+    parent.appendChild(label);
+  }
+
+  ["a", "b", "c", "d"].map(function(d, i){
+    let radio = document.createElement("input");
+    radio.setAttribute("type", "radio");
+    radio.setAttribute("id", `radio_${d}`);
+    if (i == 0){
+      radio.setAttribute("checked", "true");
+    }
+    fieldset_radio.appendChild(radio);
+    radio_buttons[d] = radio;
+    add_label_elem(fieldset_radio, d);
+  });
+
+  container.appendChild(fieldset_radio);
+
+  let fieldset_size = document.createElement("fieldset");
+  fieldset_size.setAttribute("style", "width: 200px; margin: 10px; display:inline");
+
+  let legend_size = document.createElement("legend");
+  legend_size.innerText = "Brushsize:";
+  fieldset_size.appendChild(legend_size);
+
+  let size = document.createElement("input");
+  size.setAttribute("type", "range");
+  size.setAttribute("id", "size");
+  size.setAttribute("name", "size");
+  size.setAttribute("min", "5");
+  size.setAttribute("max", "100");
+  size.setAttribute("value", "10");
+  size.setAttribute("style", "display:inline");
+  fieldset_size.appendChild(size);
+  container.appendChild(fieldset_size);
+
+  let reset_btn = document.createElement("button");
+  reset_btn.setAttribute("id", "reset");
+  reset_btn.setAttribute("style", "display:inline");
+  reset_btn.innerText = "Reset";
+  container.appendChild(reset_btn);
+
+  let undo_btn = document.createElement("button");
+  undo_btn.setAttribute("id", "undo");
+  undo_btn.setAttribute("style", "display:inline");
+  undo_btn.innerText = "Undo";
+  container.appendChild(undo_btn);
+
+  let div = document.createElement("div");
+  div.setAttribute("style", "display:inline");
+  
+  let count_spans = {};
+  ["a", "b", "c", "d"].map(function(d, i){
+    let span = document.createElement("span");
+    span.innerText = `${d}: 0`;
+    count_spans[d] = span;
+    div.appendChild(span);
+  });
+
+  container.appendChild(div);
+
+  el.appendChild(container);
 
 
   const colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"];
@@ -38,7 +112,7 @@ function render({ model, el }) {
   const width = 800;
 
   let data = [];
-  let svg = d3.select("#drawhere").append("svg").attr("id", "svg")
+  let svg = d3.select(container).append("svg");
   let selected_color = colors[0];
   let brush_size = Number(document.getElementById("size").value);
   let batch = 0;
@@ -147,13 +221,10 @@ function render({ model, el }) {
   document.getElementById("radio_c").onchange = function(){ selected_color = colors[2] };
   document.getElementById("radio_d").onchange = function(){ selected_color = colors[3] };
 
-  model.on("change:data", () => {
-    button.innerHTML = `count is ${getCount()}`;
-  });
   el.appendChild(container);
 
   return () => {
-    d3.select("#drawhere").remove();
+    d3.select(container).remove();
   }
 }
 
