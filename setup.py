@@ -16,7 +16,7 @@ setup(
     description="draw a dataset from inside Jupyter",
     author="Vincent D. Warmerdam",
     packages=find_packages(exclude=["notebooks"]),
-    package_data={"drawdata": ["static/*.js"]},
+    package_data={"drawdata": ["static/*.js", "static/*.css"]},
     long_description=read("readme.md"),
     long_description_content_type="text/markdown",
     install_requires=base_packages,
