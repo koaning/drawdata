@@ -31,11 +31,11 @@ class ScatterWidget(anywidget.AnyWidget):
     brushsize = traitlets.Int(40).tag(sync=True)
 
     @property
-    def as_pandas(self):
+    def data_as_pandas(self):
         import pandas as pd 
         return pd.DataFrame(self.data)
 
     @property
-    def as_polars(self):
+    def data_as_polars(self):
         import polars as pl
         return pl.DataFrame(self.data)
