@@ -169,7 +169,7 @@ function render({ model, el }) {
 
   function resize_brush() {
     // We want the paintbrush to show the size param, hence this update
-    model.set("brushsize", size_input.value);
+    model.set("brushsize", Number(size_input.value));
   }
 
   function dragged(event) {

@@ -9648,7 +9648,7 @@ function render({ model, el }) {
     circle_brush.attr("cx", event.pageX - rect["x"] + "px").attr("cy", event.pageY - rect["top"] + "px");
   }
   function resize_brush() {
-    model.set("brushsize", size_input.value);
+    model.set("brushsize", Number(size_input.value));
   }
   function dragged(event) {
     let r1 = container.getBoundingClientRect();
