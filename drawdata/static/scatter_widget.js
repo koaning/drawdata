@@ -9535,6 +9535,7 @@ var require_d3_v7 = __commonJS({
 var d3 = __toESM(require_d3_v7());
 function render({ model, el }) {
   const colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"];
+  const color_map = { "#1f77b4": "a", "#ff7f0e": "b", "#2ca02c": "c", "#d62728": "d" };
   const height = 500;
   const width = 800;
   let container = document.createElement("div");
@@ -9657,8 +9658,9 @@ function render({ model, el }) {
     let new_x = event.x + (Math.random() - 0.5) * size;
     let corrected_y = event.y - (r2.y - r1.y);
     let new_y = corrected_y + (Math.random() - 0.5) * size;
+    let label = color_map[selected_color];
     svg.append("circle").attr("cx", new_x).attr("cy", new_y).attr("r", 4).style("fill", selected_color).attr("class", `batch_${batch} drawn`);
-    data.push({ x: new_x, y: height - new_y, color: selected_color, batch });
+    data.push({ x: new_x, y: height - new_y, color: selected_color, label, batch });
     circle_brush.attr("cx", event.x + "px").attr("cy", corrected_y + "px");
   }
   function drag_end(event) {
@@ -9671,7 +9673,7 @@ function render({ model, el }) {
   }
   function grab_data() {
     return data.map(function(d) {
-      return { x: d.x, y: d.y, color: d.color };
+      return { x: d.x, y: d.y, color: d.color, label: d.label };
     });
   }
   function reset() {
