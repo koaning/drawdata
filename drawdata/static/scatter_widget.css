@@ -1,0 +1,20 @@
+fieldset{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: medium;
+}
+
+button{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: medium;
+}
+
+span.count{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: medium;
+    margin-right: 4px; 
+    padding-right: 7px; 
+    padding-left: 7px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    border-radius: 8px;
+}
