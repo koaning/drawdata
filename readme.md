@@ -52,7 +52,7 @@ been very supportive and has allowed me to work on this project during
 my working hours. This was super cool and I wanted to make sure I recognise them for it.
 
 <p align="center" width="100%" dir="auto">
-    <img src="imgs/calmcode-logo.webp" width="45%" align="left">
+    <img src="imgs/calmcode-logo.webp" width="50%" align="left">
     <img src="imgs/probabl.png" width="45%" align="right">
     <br><br><br>
 </p>
