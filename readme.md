@@ -51,8 +51,11 @@ This work was originally part of my work over at [calmcode labs](https://calmcod
 been very supportive and has allowed me to work on this project during
 my working hours. This was super cool and I wanted to make sure I recognise them for it.
 
-<img src="imgs/probabl.png" width=125 height=125 align="left">
-<img src="imgs/probabl.png" width=125 height=125 align="right">
+<p align="center" width="100%" dir="auto">
+    <img src="imgs/probabl.png" width="45%" align="left">
+    <img src="imgs/probabl.png" width="45%" align="right">
+</p>
+
 
 <br>
 
