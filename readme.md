@@ -1,14 +1,13 @@
-<img src="logo.png" width=125 height=125 align="right">
+<img src="imgs/logo.png" width=125 height=125 align="right">
 
 # drawdata 
 
-This small python app allows you to draw a dataset in a jupyter
+This small Python library contains Jupyter widgets that allow you to draw a dataset in a Jupyter
 notebook. This should be very useful when teaching machine learning algorithms.
 
-![](gif.gif)
+![](imgs/widget.gif)
 
-You can get the same tooling from going to [calmcode labs](https://calmcode.io/labs/drawdata.html)
-but with this library you'll also be able to use it from within jupyter. This will save you a precious tab in the browser.
+The project uses [anywidget](https://anywidget.dev/) under the hood so our tools should work in Jupyter, VSCode and Colab.
 
 ## Installation 
 
@@ -18,13 +17,55 @@ Installation occurs via pip.
 python -m pip install drawdata
 ```
 
-To read the data, `pandas` is useful:
+To read the data, `polars` is useful, but this library also suppots `pandas`:
 
 ```
-python -m pip install pandas
+python -m pip install pandas polars
 ```
 
-## Usage 
+## Usage
+
+You can load the scatter widget to start drawing immediately. 
+
+```python
+from drawdata import ScatterWidget
+
+widget = ScatterWidget()
+widget
+```
+
+If you want to use the dataset that you've just drawn you can do so via: 
+
+```python
+# Get the drawn data as a list of dictionaries
+widget.data
+
+# Get the drawn data as a dataframe
+widget.data_as_pandas
+widget.data_as_polars
+```
+
+## Shoutout 
+
+This work was originally part of my work over at [calmcode labs](https://calmcode.io/labs/drawdata) but my employer [probabl](https://probabl.ai) has
+been very supportive and has allowed me to work on this project during
+my working hours. This was super cool and I wanted to make sure I recognise them for it.
+
+<img src="imgs/probabl.png" width=125 height=125 align="left">
+<img src="imgs/probabl.png" width=125 height=125 align="right">
+
+<br>
+
+## Old Features 
+
+The original implementation of our widget would use an iframe to load a site in order
+to be able to draw from a Jupyter notebook. This works, but requires more manual effort, only works with `pandas` via the clipboard feature and needs an internet connection. Here's what that widget looks like:
+
+![](imgs/gif.gif)
+
+It will be kept around, but the way forward for this library is to build on top of anywidget.
+
+### Old Feature Usage 
 
 When you run this from jupyter, you should load in an iframe.
 
