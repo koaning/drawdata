@@ -47,7 +47,7 @@ widget.data_as_polars
 
 ## Shoutout 
 
-This work was originally part of my work over at [calmcode labs](https://calmcode.io/labs/drawdata) but my employer [probabl](https://probabl.ai) has
+This project was originally part of my work over at [calmcode labs](https://calmcode.io/labs/drawdata) but my employer [probabl](https://probabl.ai) has
 been very supportive and has allowed me to work on this project during
 my working hours. This was super cool and I wanted to make sure I recognise them for it.
 
