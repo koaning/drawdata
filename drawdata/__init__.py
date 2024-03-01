@@ -39,3 +39,10 @@ class ScatterWidget(anywidget.AnyWidget):
     def data_as_polars(self):
         import polars as pl
         return pl.DataFrame(self.data)
+
+    @property
+    def data_as_X_y(self):
+        import numpy as np
+        X = np.array([[_['x'], _['y']] for _ in self.data])
+        y = np.array([_['label'] for _ in self.data])
+        return X, y

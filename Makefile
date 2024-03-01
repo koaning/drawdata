@@ -9,7 +9,7 @@ install:
 pypi:
 	python setup.py sdist
 	python setup.py bdist_wheel --universal
-	# twine upload dist/*
+	twine upload dist/*
 
 js:
 	./esbuild --watch=forever --bundle --format=esm --outfile=drawdata/static/scatter_widget.js js/scatter_widget.js
