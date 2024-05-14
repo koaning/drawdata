@@ -39,3 +39,16 @@ class ScatterWidget(anywidget.AnyWidget):
     def data_as_polars(self):
         import polars as pl
         return pl.DataFrame(self.data)
+
+    @property
+    def data_as_X_y(self, kind='classification'):
+        import numpy as np
+
+        colors = [_['label'] for _ in self.data]
+        if np.unique(colors).shape[0] == 1:
+            X = np.array([[_['x']] for _ in self.data])
+            y = np.array([_['y'] for _ in self.data])
+            return X, y
+        X = np.array([[_['x'], _['y']] for _ in self.data])
+        y = np.array([_['label'] for _ in self.data])
+        return X, y
