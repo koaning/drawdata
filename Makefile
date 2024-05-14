@@ -13,3 +13,6 @@ pypi:
 
 js:
 	./esbuild --watch=forever --bundle --format=esm --outfile=drawdata/static/scatter_widget.js js/scatter_widget.js
+
+clean:
+	rm -rf .ipynb_checkpoints build dist drawdata.egg-info

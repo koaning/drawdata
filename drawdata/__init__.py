@@ -45,10 +45,12 @@ class ScatterWidget(anywidget.AnyWidget):
         import numpy as np
 
         colors = [_['color'] for _ in self.data]
-        X = np.array([[_['x']] for _ in self.data])
         
         # Assume that we're dealing with regression in this case
         if np.unique(colors).shape[0] == 1:
+            X = np.array([[_['x']] for _ in self.data])
             y = np.array([_['y'] for _ in self.data])
             return X, y
+        
+        X = np.array([[_['x'], _['y']] for _ in self.data])
         return X, colors
