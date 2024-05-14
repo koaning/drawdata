@@ -41,7 +41,7 @@ class ScatterWidget(anywidget.AnyWidget):
         return pl.DataFrame(self.data)
 
     @property
-    def data_as_X_y(self, kind='classification'):
+    def data_as_X_y(self):
         import numpy as np
 
         colors = [_['color'] for _ in self.data]
