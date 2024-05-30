@@ -51,6 +51,14 @@ widget.data_as_pandas
 widget.data_as_polars
 ```
 
+If you're eager to do scikit-learn stuff with your drawn data you may appreciate this property instead:
+
+```
+X, y = widget.data_as_X_y
+```
+
+The assumption for this property is that if you've used multiple colors that you're interested in doing classification and if you've only drawn one color you're interested in regression. In the case of regression `y` will refer to the y-axis.
+
 #### Shoutout 
 
 This project was originally part of my work over at [calmcode labs](https://calmcode.io/labs/drawdata) but my employer [probabl](https://probabl.ai) has
