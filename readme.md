@@ -1,8 +1,8 @@
-# drawdata 
+<img src="imgs/logo.png" width=125 height=125 align="right" style="z-index: 9999;">
+
+### drawdata 
 
 > "Just draw some data and get on with your day."
- 
-<img src="imgs/logo.png" width=125 height=125 align="right" style="z-index: 9999;">
 
 This small Python library contains Jupyter widgets that allow you to draw a dataset in a Jupyter
 notebook. This should be very useful when teaching machine learning algorithms.
