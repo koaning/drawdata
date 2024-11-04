@@ -4,7 +4,7 @@ install:
 	# install the build tool for JS written in Golang
 	curl -fsSL https://esbuild.github.io/dl/v0.19.11 | sh
 	python -m pip install -e .
-	python -m pip install twine wheel
+	python -m pip install twine wheel jupyterlab marimo
 
 pypi:
 	python setup.py sdist
