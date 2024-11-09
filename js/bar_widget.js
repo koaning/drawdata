@@ -1,0 +1,227 @@
+import * as d3 from "./d3.v7.js";
+
+function render({ model, el }) {
+    // Configuration
+    const margin = { top: 20, right: 30, bottom: 30, left: 60 };
+    const width = model.get("width") - margin.left - margin.right;
+    const height = model.get("height") - margin.top - margin.bottom;
+
+    // Initialize collections
+    const collections = {
+        collection1: { color: '#FF6384', data: new Array(20).fill(0) },
+        collection2: { color: '#36A2EB', data: new Array(20).fill(0) },
+        collection3: { color: '#FFCE56', data: new Array(20).fill(0) },
+        collection4: { color: '#4BC0C0', data: new Array(20).fill(0) }
+    };
+    let activeCollection = 'collection1';
+    let isDrawing = false;
+    let minY = 0;
+    let maxY = 100;
+    let data; 
+
+    // Create SVG
+    getBins();
+    let container = document.createElement("div");
+    
+    let controls = document.createElement("div");
+    controls.setAttribute("class", "controls");
+    // Add a button for each collection 
+
+    Object.keys(collections).forEach(key => {
+        let btn = document.createElement("button");
+        btn.innerHTML = key;
+        btn.addEventListener("click", () => {
+            activeCollection = key;
+            updateChart();
+        });
+        controls.appendChild(btn);
+    });
+
+    // Add a button to clear the chart
+    let clear_btn = document.createElement("button");
+    clear_btn.innerHTML = "Clear";
+    controls.appendChild(clear_btn);
+    container.appendChild(controls);
+    el.appendChild(container);
+
+    let p = document.createElement("p");
+    p.innerHTML = "Drag the mouse to draw on the chart. Click to switch between collections.";
+    el.appendChild(p);
+
+    const svg = d3.select(container)
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // Create scales
+    const x = d3.scaleBand()
+        .range([0, width])
+        .padding(0.1);
+
+    const y = d3.scaleLinear()
+        .range([height, 0]);
+
+    // Add grid
+    const grid = svg.append("g")
+        .attr("class", "grid");
+
+    // Add axes
+    const xAxis = svg.append("g")
+        .attr("transform", `translate(0,${height})`);
+
+    const yAxis = svg.append("g");
+
+    // Create collection groups
+    Object.keys(collections).forEach(key => {
+        svg.append("g")
+            .attr("class", key);
+    });
+
+    // Add chart border
+    svg.append("rect")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("fill", "none")
+        .attr("stroke", "#000")
+        .attr("stroke-width", 1);
+
+    function getBins() {
+        return model.get("n_bins")
+    }
+
+    function formatAxisNumber(num) {
+        if (Math.abs(num) >= 1000000) {
+            return (num / 1000000).toFixed(1) + 'M';
+        } else if (Math.abs(num) >= 1000) {
+            return (num / 1000).toFixed(1) + 'K';
+        }
+        return num.toFixed(1);
+    }
+
+    function updateChart() {
+        const bins = getBins();
+        
+        // Update scales
+        x.domain(d3.range(bins));
+        y.domain([minY, maxY]);
+
+        // Update grid with fewer lines for better readability
+        grid.selectAll(".horizontal-grid").remove();
+        const yTickCount = Math.min(10, Math.abs(maxY - minY) / 10);
+        grid.selectAll(".horizontal-grid")
+            .data(y.ticks(yTickCount))
+            .enter()
+            .append("line")
+            .attr("class", "horizontal-grid")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", d => y(d))
+            .attr("y2", d => y(d))
+            .attr("stroke", "#ddd")
+            .attr("stroke-opacity", 0.7);
+
+        // Update axes with formatted numbers
+        xAxis.call(d3.axisBottom(x)
+            .tickValues(x.domain().filter((d, i) => {
+                // Show fewer x-axis labels based on the number of bins
+                const interval = Math.ceil(bins / 10);
+                return i % interval === 0;
+            })));
+
+        yAxis.call(d3.axisLeft(y)
+            .ticks(yTickCount)
+            .tickFormat(formatAxisNumber));
+
+        // Update bars for each collection
+        Object.entries(collections).forEach(([key, collection]) => {
+            const bars = svg.select(`.${key}`)
+                .selectAll(".bar")
+                .data(collection.data);
+
+            bars.enter()
+                .append("rect")
+                .attr("class", "bar")
+                .merge(bars)
+                .attr("x", (d, i) => x(i))
+                .attr("width", x.bandwidth())
+                .attr("y", d => y(Math.max(0, d)))
+                .attr("height", d => Math.abs(y(0) - y(d)))
+                .attr("fill", collection.color);
+
+            bars.exit().remove();
+        });
+
+        console.log(collections);
+        // Update data variable for dataframe output
+        data = [];
+        Object.keys(collections).forEach((key, i) => {
+            let values = collections[key].data;
+            values.forEach((value, j) => {
+                data.push({collection: key, value: value, bin: j, color: collections[key].color});
+            })
+        });
+        model.set("data", data);
+        model.save_changes();
+    }
+
+    // Handle mouse events
+    const chartArea = svg.append("rect")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("fill", "none")
+        .attr("pointer-events", "all");
+
+    function updateValue(event) {
+        const [xPos, yPos] = d3.pointer(event);
+        const binIndex = Math.floor(x.domain().length * xPos / width);
+        const value = y.invert(yPos);
+        
+        if (binIndex >= 0 && binIndex < getBins()) {
+            collections[activeCollection].data[binIndex] = Math.max(minY, Math.min(maxY, value));
+            updateChart();
+        }
+    }
+
+    chartArea.on("mousedown", event => {
+        isDrawing = true;
+        updateValue(event);
+    });
+
+    chartArea.on("mousemove", event => {
+        if (isDrawing) {
+            updateValue(event);
+        }
+    });
+
+    chartArea.on("mouseup", () => {
+        isDrawing = false;
+    });
+
+    chartArea.on("mouseleave", () => {
+        isDrawing = false;
+    });
+
+    // Handle collection selection
+    document.querySelectorAll('button[id^="collection"]').forEach(button => {
+        button.addEventListener('click', () => {
+            document.querySelectorAll('button[id^="collection"]').forEach(b => b.classList.remove('active'));
+            button.classList.add('active');
+            activeCollection = button.id;
+        });
+    });
+
+    // Handle clear button
+    clear_btn.addEventListener('click', () => {
+        Object.values(collections).forEach(collection => {
+            collection.data = new Array(getBins()).fill(0);
+        });
+        updateChart();
+    });
+
+    // Initialize chart
+    updateChart();
+};
+
+export default { render };
