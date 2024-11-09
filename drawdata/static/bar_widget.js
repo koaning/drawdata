@@ -9538,16 +9538,17 @@ function render({ model, el }) {
   const width = model.get("width") - margin.left - margin.right;
   const height = model.get("height") - margin.top - margin.bottom;
   const collections = {
-    collection1: { color: "#FF6384", data: new Array(20).fill(0) },
-    collection2: { color: "#36A2EB", data: new Array(20).fill(0) },
-    collection3: { color: "#FFCE56", data: new Array(20).fill(0) },
-    collection4: { color: "#4BC0C0", data: new Array(20).fill(0) }
+    collection1: { color: "#FF6384", data: new Array(model.get("n_bins")).fill(0) },
+    collection2: { color: "#36A2EB", data: new Array(model.get("n_bins")).fill(0) },
+    collection3: { color: "#FFCE56", data: new Array(model.get("n_bins")).fill(0) },
+    collection4: { color: "#4BC0C0", data: new Array(model.get("n_bins")).fill(0) }
   };
   let activeCollection = "collection1";
   let isDrawing = false;
   let minY = 0;
   let maxY = 100;
   let data;
+  updateDataOut();
   getBins();
   let container = document.createElement("div");
   let controls = document.createElement("div");
@@ -9607,7 +9608,9 @@ function render({ model, el }) {
       bars.enter().append("rect").attr("class", "bar").merge(bars).attr("x", (d, i) => x(i)).attr("width", x.bandwidth()).attr("y", (d) => y(Math.max(0, d))).attr("height", (d) => Math.abs(y(0) - y(d))).attr("fill", collection.color);
       bars.exit().remove();
     });
-    console.log(collections);
+    updateDataOut();
+  }
+  function updateDataOut() {
     data = [];
     Object.keys(collections).forEach((key, i) => {
       let values = collections[key].data;
@@ -9618,6 +9621,7 @@ function render({ model, el }) {
     model.set("data", data);
     model.save_changes();
   }
+  ;
   const chartArea = svg.append("rect").attr("width", width).attr("height", height).attr("fill", "none").attr("pointer-events", "all");
   function updateValue(event) {
     const [xPos, yPos] = d3.pointer(event);

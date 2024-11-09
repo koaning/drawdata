@@ -8,25 +8,26 @@ function render({ model, el }) {
 
     // Initialize collections
     const collections = {
-        collection1: { color: '#FF6384', data: new Array(20).fill(0) },
-        collection2: { color: '#36A2EB', data: new Array(20).fill(0) },
-        collection3: { color: '#FFCE56', data: new Array(20).fill(0) },
-        collection4: { color: '#4BC0C0', data: new Array(20).fill(0) }
+        collection1: { color: '#FF6384', data: new Array(model.get("n_bins")).fill(0) },
+        collection2: { color: '#36A2EB', data: new Array(model.get("n_bins")).fill(0) },
+        collection3: { color: '#FFCE56', data: new Array(model.get("n_bins")).fill(0) },
+        collection4: { color: '#4BC0C0', data: new Array(model.get("n_bins")).fill(0) }
     };
     let activeCollection = 'collection1';
     let isDrawing = false;
     let minY = 0;
     let maxY = 100;
     let data; 
-
+    updateDataOut();
+    
     // Create SVG
     getBins();
     let container = document.createElement("div");
     
     let controls = document.createElement("div");
     controls.setAttribute("class", "controls");
-    // Add a button for each collection 
 
+    // Add a button for each collection 
     Object.keys(collections).forEach(key => {
         let btn = document.createElement("button");
         btn.innerHTML = key;
@@ -153,8 +154,10 @@ function render({ model, el }) {
             bars.exit().remove();
         });
 
-        console.log(collections);
-        // Update data variable for dataframe output
+        updateDataOut();
+    }
+
+    function updateDataOut(){
         data = [];
         Object.keys(collections).forEach((key, i) => {
             let values = collections[key].data;
@@ -164,7 +167,7 @@ function render({ model, el }) {
         });
         model.set("data", data);
         model.save_changes();
-    }
+    };
 
     // Handle mouse events
     const chartArea = svg.append("rect")
