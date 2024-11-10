@@ -9538,15 +9538,15 @@ function render({ model, el }) {
   const width = model.get("width") - margin.left - margin.right;
   const height = model.get("height") - margin.top - margin.bottom;
   const collections = {
-    collection1: { color: "#FF6384", data: new Array(model.get("n_bins")).fill(0) },
-    collection2: { color: "#36A2EB", data: new Array(model.get("n_bins")).fill(0) },
-    collection3: { color: "#FFCE56", data: new Array(model.get("n_bins")).fill(0) },
-    collection4: { color: "#4BC0C0", data: new Array(model.get("n_bins")).fill(0) }
+    collection1: { color: "#FF6384", data: new Array(model.get("n_bins")).fill(model.get("y_min")) },
+    collection2: { color: "#36A2EB", data: new Array(model.get("n_bins")).fill(model.get("y_min")) },
+    collection3: { color: "#FFCE56", data: new Array(model.get("n_bins")).fill(model.get("y_min")) },
+    collection4: { color: "#4BC0C0", data: new Array(model.get("n_bins")).fill(model.get("y_min")) }
   };
   let activeCollection = "collection1";
   let isDrawing = false;
-  let minY = 0;
-  let maxY = 100;
+  let minY = model.get("y_min");
+  let maxY = model.get("y_max");
   let data;
   updateDataOut();
   getBins();
@@ -9584,12 +9584,17 @@ function render({ model, el }) {
     return model.get("n_bins");
   }
   function formatAxisNumber(num) {
-    if (Math.abs(num) >= 1e6) {
+    const absNum = Math.abs(num);
+    if (absNum >= 1e6) {
       return (num / 1e6).toFixed(1) + "M";
-    } else if (Math.abs(num) >= 1e3) {
+    } else if (absNum >= 1e3) {
       return (num / 1e3).toFixed(1) + "K";
+    } else if (absNum < 1) {
+      return num.toFixed(2);
+    } else if (absNum < 10) {
+      return num.toFixed(1);
     }
-    return num.toFixed(1);
+    return Math.round(num);
   }
   function updateChart() {
     const bins = getBins();
@@ -9597,12 +9602,12 @@ function render({ model, el }) {
     y.domain([minY, maxY]);
     grid.selectAll(".horizontal-grid").remove();
     const yTickCount = Math.min(10, Math.abs(maxY - minY) / 10);
-    grid.selectAll(".horizontal-grid").data(y.ticks(yTickCount)).enter().append("line").attr("class", "horizontal-grid").attr("x1", 0).attr("x2", width).attr("y1", (d) => y(d)).attr("y2", (d) => y(d)).attr("stroke", "#ddd").attr("stroke-opacity", 0.7);
+    grid.selectAll(".horizontal-grid").data(y.ticks(10)).enter().append("line").attr("class", "horizontal-grid").attr("x1", 0).attr("x2", width).attr("y1", (d) => y(d)).attr("y2", (d) => y(d)).attr("stroke", "#ddd").attr("stroke-opacity", 0.7);
     xAxis.call(d3.axisBottom(x).tickValues(x.domain().filter((d, i) => {
       const interval = Math.ceil(bins / 10);
       return i % interval === 0;
     })));
-    yAxis.call(d3.axisLeft(y).ticks(yTickCount).tickFormat(formatAxisNumber));
+    yAxis.call(d3.axisLeft(y).ticks(10).tickFormat(formatAxisNumber));
     Object.entries(collections).forEach(([key, collection]) => {
       const bars = svg.select(`.${key}`).selectAll(".bar").data(collection.data);
       bars.enter().append("rect").attr("class", "bar").merge(bars).attr("x", (d, i) => x(i)).attr("width", x.bandwidth()).attr("y", (d) => y(Math.max(0, d))).attr("height", (d) => Math.abs(y(0) - y(d))).attr("fill", collection.color);

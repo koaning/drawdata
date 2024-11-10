@@ -6,16 +6,19 @@ from IPython.display import IFrame
 
 def draw_line():
     """Deprecated line chart drawing utility that loads from an iframe"""
+    print("Deprecated. Use drawdata.ScatterWidget() instead.")
     return IFrame("https://drawdata.xyz/line.html", width=800, height=550)
 
 
 def draw_scatter():
     """Deprecated scatter chart drawing utility that loads from an iframe"""
+    print("Deprecated. Use drawdata.ScatterWidget() instead.")
     return IFrame("https://drawdata.xyz/scatter.html", width=800, height=550)
 
 
 def draw_histogram():
     """Deprecated histogram drawing utility that loads from an iframe"""
+    print("Deprecated. Use drawdata.BarWidget() instead.")
     return IFrame("https://drawdata.xyz/histogram.html", width=800, height=550)
 
 
@@ -58,7 +61,7 @@ class ScatterWidget(anywidget.AnyWidget):
 
 class BarWidget(anywidget.AnyWidget):
     """
-    A scatter drawing widget that automatically can update a pandas/polars dataframe
+    A bar drawing widget that automatically can update a pandas/polars dataframe
     as your draw data.
     """
     _esm = Path(__file__).parent / 'static' / 'bar_widget.js'
@@ -79,18 +82,3 @@ class BarWidget(anywidget.AnyWidget):
     def data_as_polars(self):
         import polars as pl
         return pl.DataFrame(self.data)
-
-    @property
-    def data_as_X_y(self):
-        import numpy as np
-
-        colors = [_['color'] for _ in self.data]
-        
-        # Assume that we're dealing with regression in this case
-        if np.unique(colors).shape[0] == 1:
-            X = np.array([[_['x']] for _ in self.data])
-            y = np.array([_['y'] for _ in self.data])
-            return X, y
-        
-        X = np.array([[_['x'], _['y']] for _ in self.data])
-        return X, colors

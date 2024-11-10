@@ -8,15 +8,15 @@ function render({ model, el }) {
 
     // Initialize collections
     const collections = {
-        collection1: { color: '#FF6384', data: new Array(model.get("n_bins")).fill(0) },
-        collection2: { color: '#36A2EB', data: new Array(model.get("n_bins")).fill(0) },
-        collection3: { color: '#FFCE56', data: new Array(model.get("n_bins")).fill(0) },
-        collection4: { color: '#4BC0C0', data: new Array(model.get("n_bins")).fill(0) }
+        collection1: { color: '#FF6384', data: new Array(model.get("n_bins")).fill(model.get("y_min")) },
+        collection2: { color: '#36A2EB', data: new Array(model.get("n_bins")).fill(model.get("y_min")) },
+        collection3: { color: '#FFCE56', data: new Array(model.get("n_bins")).fill(model.get("y_min")) },
+        collection4: { color: '#4BC0C0', data: new Array(model.get("n_bins")).fill(model.get("y_min")) }
     };
     let activeCollection = 'collection1';
     let isDrawing = false;
-    let minY = 0;
-    let maxY = 100;
+    let minY = model.get("y_min");
+    let maxY = model.get("y_max");
     let data; 
     updateDataOut();
     
@@ -93,12 +93,20 @@ function render({ model, el }) {
     }
 
     function formatAxisNumber(num) {
-        if (Math.abs(num) >= 1000000) {
+        const absNum = Math.abs(num);
+        if (absNum >= 1000000) {
             return (num / 1000000).toFixed(1) + 'M';
-        } else if (Math.abs(num) >= 1000) {
+        } else if (absNum >= 1000) {
             return (num / 1000).toFixed(1) + 'K';
+        } else if (absNum < 1) {
+            // For numbers less than 1, show 2 decimal places
+            return num.toFixed(2);
+        } else if (absNum < 10) {
+            // For numbers between 1 and 10, show 1 decimal place
+            return num.toFixed(1);
         }
-        return num.toFixed(1);
+        // For numbers between 10 and 1000, show whole numbers
+        return Math.round(num);
     }
 
     function updateChart() {
@@ -112,7 +120,7 @@ function render({ model, el }) {
         grid.selectAll(".horizontal-grid").remove();
         const yTickCount = Math.min(10, Math.abs(maxY - minY) / 10);
         grid.selectAll(".horizontal-grid")
-            .data(y.ticks(yTickCount))
+            .data(y.ticks(10))
             .enter()
             .append("line")
             .attr("class", "horizontal-grid")
@@ -132,7 +140,7 @@ function render({ model, el }) {
             })));
 
         yAxis.call(d3.axisLeft(y)
-            .ticks(yTickCount)
+            .ticks(10)
             .tickFormat(formatAxisNumber));
 
         // Update bars for each collection
