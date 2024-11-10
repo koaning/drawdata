@@ -9555,7 +9555,23 @@ function render({ model, el }) {
   controls.setAttribute("class", "controls");
   Object.keys(collections).forEach((key) => {
     let btn = document.createElement("button");
-    btn.innerHTML = key;
+    btn.setAttribute("class", "control");
+    btn.style.position = "relative";
+    btn.style.paddingLeft = "30px";
+    let circle = document.createElement("span");
+    circle.style.position = "absolute";
+    circle.style.left = "8px";
+    circle.style.top = "50%";
+    circle.style.transform = "translateY(-50%)";
+    circle.style.width = "12px";
+    circle.style.height = "12px";
+    circle.style.borderRadius = "50%";
+    circle.style.backgroundColor = collections[key].color;
+    circle.style.display = "inline-block";
+    let text = document.createElement("span");
+    text.textContent = key;
+    btn.appendChild(text);
+    btn.appendChild(circle);
     btn.addEventListener("click", () => {
       activeCollection = key;
       updateChart();
@@ -9563,13 +9579,11 @@ function render({ model, el }) {
     controls.appendChild(btn);
   });
   let clear_btn = document.createElement("button");
+  clear_btn.setAttribute("class", "control");
   clear_btn.innerHTML = "Clear";
   controls.appendChild(clear_btn);
   container.appendChild(controls);
   el.appendChild(container);
-  let p = document.createElement("p");
-  p.innerHTML = "Drag the mouse to draw on the chart. Click to switch between collections.";
-  el.appendChild(p);
   const svg = d3.select(container).append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("transform", `translate(${margin.left},${margin.top})`);
   const x = d3.scaleBand().range([0, width]).padding(0.1);
   const y = d3.scaleLinear().range([height, 0]);

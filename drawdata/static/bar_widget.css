@@ -10,10 +10,12 @@
     border: 1px solid #ccc;
     margin-bottom: 20px;
 }
-button {
+button.control {
     padding: 8px 16px;
     margin: 0 5px;
     cursor: pointer;
+    background-color: #eee;
+    border: 1px solid #ccc;
 }
 .active {
     background-color: #4CAF50;
