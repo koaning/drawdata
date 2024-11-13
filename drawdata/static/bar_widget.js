@@ -9666,11 +9666,11 @@ function render({ model, el }) {
   chartArea.on("mouseleave", () => {
     isDrawing = false;
   });
-  document.querySelectorAll('button[id^="collection"]').forEach((button) => {
+  document.querySelectorAll("button.control").forEach((button) => {
     button.addEventListener("click", () => {
-      document.querySelectorAll('button[id^="collection"]').forEach((b) => b.classList.remove("active"));
+      document.querySelectorAll("button.control").forEach((b) => b.classList.remove("active"));
       button.classList.add("active");
-      activeCollection = button.id;
+      activeCollection = button.querySelector("span").textContent;
     });
   });
   clear_btn.addEventListener("click", () => {
