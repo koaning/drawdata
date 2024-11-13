@@ -9537,13 +9537,18 @@ function render({ model, el }) {
   const margin = { top: 20, right: 30, bottom: 30, left: 60 };
   const width = model.get("width") - margin.left - margin.right;
   const height = model.get("height") - margin.top - margin.bottom;
-  const collections = {
-    collection1: { color: "#FF6384", data: new Array(model.get("n_bins")).fill(model.get("y_min")) },
-    collection2: { color: "#36A2EB", data: new Array(model.get("n_bins")).fill(model.get("y_min")) },
-    collection3: { color: "#FFCE56", data: new Array(model.get("n_bins")).fill(model.get("y_min")) },
-    collection4: { color: "#4BC0C0", data: new Array(model.get("n_bins")).fill(model.get("y_min")) }
-  };
-  let activeCollection = "collection1";
+  const userNames = model.get("collection_names");
+  const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"];
+  const collections = {};
+  const numCollections = Math.max(1, userNames.length);
+  for (let i = 0; i < numCollections; i++) {
+    const name = userNames[i] || `collection${i + 1}`;
+    collections[name] = {
+      color: colors[i],
+      data: new Array(model.get("n_bins")).fill(model.get("y_min"))
+    };
+  }
+  let activeCollection = Object.keys(collections)[0];
   let isDrawing = false;
   let minY = model.get("y_min");
   let maxY = model.get("y_max");
