@@ -9579,7 +9579,7 @@ function render({ model, el }) {
     controls.appendChild(btn);
   });
   let clear_btn = document.createElement("button");
-  clear_btn.setAttribute("class", "control");
+  clear_btn.setAttribute("class", "reset");
   clear_btn.innerHTML = "Clear";
   controls.appendChild(clear_btn);
   container.appendChild(controls);

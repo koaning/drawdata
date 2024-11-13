@@ -56,7 +56,7 @@ function render({ model, el }) {
 
     // Add a button to clear the chart
     let clear_btn = document.createElement("button");
-    clear_btn.setAttribute("class", "control");
+    clear_btn.setAttribute("class", "reset");
     
     clear_btn.innerHTML = "Clear";
     controls.appendChild(clear_btn);
