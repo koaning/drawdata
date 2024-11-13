@@ -9538,7 +9538,7 @@ function render({ model, el }) {
   const width = model.get("width") - margin.left - margin.right;
   const height = model.get("height") - margin.top - margin.bottom;
   const userNames = model.get("collection_names");
-  const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"];
+  const colors = ["#36A2EB", "#FFCE56", "#4BC0C0", "#FF6384"];
   const collections = {};
   const numCollections = Math.max(1, userNames.length);
   for (let i = 0; i < numCollections; i++) {
@@ -9548,6 +9548,7 @@ function render({ model, el }) {
       data: new Array(model.get("n_bins")).fill(model.get("y_min"))
     };
   }
+  ;
   let activeCollection = Object.keys(collections)[0];
   let isDrawing = false;
   let minY = model.get("y_min");

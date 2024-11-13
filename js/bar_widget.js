@@ -8,7 +8,7 @@ function render({ model, el }) {
 
     // Initialize collections with names from model
     const userNames = model.get("collection_names");
-    const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'];
+    const colors = ['#36A2EB', '#FFCE56', '#4BC0C0', '#FF6384'];
     
     const collections = {};
     // Only create collections for the provided names (or at least one if none provided)
@@ -19,7 +19,7 @@ function render({ model, el }) {
             color: colors[i],
             data: new Array(model.get("n_bins")).fill(model.get("y_min"))
         };
-    }
+    };
     let activeCollection = Object.keys(collections)[0];
     let isDrawing = false;
     let minY = model.get("y_min");
