@@ -9589,15 +9589,26 @@ function render({ model, el }) {
   let clear_btn = document.createElement("button");
   clear_btn.setAttribute("class", "reset");
   clear_btn.innerHTML = "Clear";
-  controls.appendChild(clear_btn);
+  if (Object.keys(collections).length > 1) {
+    controls.appendChild(clear_btn);
+  }
   container.appendChild(controls);
   el.appendChild(container);
   const svg = d3.select(container).append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("transform", `translate(${margin.left},${margin.top})`);
-  const x = d3.scaleBand().range([0, width]).padding(0.1);
-  const y = d3.scaleLinear().range([height, 0]);
+  const x = d3.scaleBand().range([0, width]).padding(0.1).domain(d3.range(model.get("n_bins")));
+  ;
+  const y = d3.scaleLinear().range([height, 0]).domain([Math.min(minY, 0), maxY]);
+  ;
   const grid = svg.append("g").attr("class", "grid");
-  const xAxis = svg.append("g").attr("transform", `translate(0,${height})`);
-  const yAxis = svg.append("g");
+  const xAxis = svg.append("g").attr("transform", `translate(0,${height})`).call(
+    d3.axisBottom(x).tickValues(
+      x.domain().filter((d, i) => {
+        const interval = Math.ceil(model.get("n_bins") / 10);
+        return i % interval === 0;
+      })
+    )
+  );
+  const yAxis = svg.append("g").call(d3.axisLeft(y).ticks(10).tickFormat(formatAxisNumber));
   Object.keys(collections).forEach((key) => {
     svg.append("g").attr("class", key);
   });
@@ -9621,15 +9632,13 @@ function render({ model, el }) {
   function updateChart() {
     const bins = getBins();
     x.domain(d3.range(bins));
-    y.domain([minY, maxY]);
-    grid.selectAll(".horizontal-grid").remove();
-    const yTickCount = Math.min(10, Math.abs(maxY - minY) / 10);
-    grid.selectAll(".horizontal-grid").data(y.ticks(10)).enter().append("line").attr("class", "horizontal-grid").attr("x1", 0).attr("x2", width).attr("y1", (d) => y(d)).attr("y2", (d) => y(d)).attr("stroke", "#ddd").attr("stroke-opacity", 0.7);
+    y.domain([Math.min(minY, 0), maxY]);
     xAxis.call(d3.axisBottom(x).tickValues(x.domain().filter((d, i) => {
       const interval = Math.ceil(bins / 10);
       return i % interval === 0;
     })));
     yAxis.call(d3.axisLeft(y).ticks(10).tickFormat(formatAxisNumber));
+    grid.selectAll(".horizontal-grid").data(y.ticks(10)).enter().append("line").attr("class", "horizontal-grid").attr("x1", 0).attr("x2", width).attr("y1", (d) => y(d)).attr("y2", (d) => y(d)).attr("stroke", "#ddd").attr("stroke-opacity", 0.7);
     Object.entries(collections).forEach(([key, collection]) => {
       const bars = svg.select(`.${key}`).selectAll(".bar").data(collection.data);
       bars.enter().append("rect").attr("class", "bar").merge(bars).attr("x", (d, i) => x(i)).attr("width", x.bandwidth()).attr("y", (d) => y(Math.max(0, d))).attr("height", (d) => Math.abs(y(0) - y(d))).attr("fill", collection.color);
@@ -9687,7 +9696,9 @@ function render({ model, el }) {
     });
     updateChart();
   });
-  document.querySelector("button.control").click();
+  if (Object.keys(collections).length > 1) {
+    document.querySelector("button.control").click();
+  }
   updateChart();
 }
 var bar_widget_default = { render };

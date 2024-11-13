@@ -62,13 +62,13 @@ function render({ model, el }) {
             controls.appendChild(btn);
         });
     }
-
     // Add a button to clear the chart
     let clear_btn = document.createElement("button");
     clear_btn.setAttribute("class", "reset");
-    
     clear_btn.innerHTML = "Clear";
-    controls.appendChild(clear_btn);
+    if (Object.keys(collections).length > 1) {
+        controls.appendChild(clear_btn);
+    }
     container.appendChild(controls);
     el.appendChild(container);
 
@@ -83,21 +83,33 @@ function render({ model, el }) {
     // Create scales
     const x = d3.scaleBand()
         .range([0, width])
-        .padding(0.1);
+        .padding(0.1)
+        .domain(d3.range(model.get("n_bins")));;
 
     const y = d3.scaleLinear()
-        .range([height, 0]);
+        .range([height, 0])
+        .domain([Math.min(minY, 0), maxY]);;
 
     // Add grid
     const grid = svg.append("g")
         .attr("class", "grid");
 
-    // Add axes
+    // Add axes with initial render
     const xAxis = svg.append("g")
-        .attr("transform", `translate(0,${height})`);
-
-    const yAxis = svg.append("g");
-
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x)
+        .tickValues(
+            x.domain().filter((d, i) => {
+                const interval = Math.ceil(model.get("n_bins") / 10);
+                return i % interval === 0;
+        }))
+    );
+    
+    const yAxis = svg.append("g")
+        .call(d3.axisLeft(y)
+            .ticks(10)
+            .tickFormat(formatAxisNumber));
+    
     // Create collection groups
     Object.keys(collections).forEach(key => {
         svg.append("g")
@@ -138,22 +150,7 @@ function render({ model, el }) {
         
         // Update scales
         x.domain(d3.range(bins));
-        y.domain([minY, maxY]);
-
-        // Update grid with fewer lines for better readability
-        grid.selectAll(".horizontal-grid").remove();
-        const yTickCount = Math.min(10, Math.abs(maxY - minY) / 10);
-        grid.selectAll(".horizontal-grid")
-            .data(y.ticks(10))
-            .enter()
-            .append("line")
-            .attr("class", "horizontal-grid")
-            .attr("x1", 0)
-            .attr("x2", width)
-            .attr("y1", d => y(d))
-            .attr("y2", d => y(d))
-            .attr("stroke", "#ddd")
-            .attr("stroke-opacity", 0.7);
+        y.domain([Math.min(minY, 0), maxY]);
 
         // Update axes with formatted numbers
         xAxis.call(d3.axisBottom(x)
@@ -166,6 +163,19 @@ function render({ model, el }) {
         yAxis.call(d3.axisLeft(y)
             .ticks(10)
             .tickFormat(formatAxisNumber));
+            
+        // Update grid with fewer lines for better readability
+        grid.selectAll(".horizontal-grid")
+            .data(y.ticks(10))
+            .enter()
+            .append("line")
+            .attr("class", "horizontal-grid")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", d => y(d))
+            .attr("y2", d => y(d))
+            .attr("stroke", "#ddd")
+            .attr("stroke-opacity", 0.7);
 
         // Update bars for each collection
         Object.entries(collections).forEach(([key, collection]) => {
@@ -255,7 +265,9 @@ function render({ model, el }) {
         updateChart();
     });
 
-    document.querySelector('button.control').click();
+    if (Object.keys(collections).length > 1) {
+        document.querySelector('button.control').click();
+    }
 
     // Initialize chart
     updateChart();
