@@ -34,32 +34,34 @@ function render({ model, el }) {
     let controls = document.createElement("div");
     controls.setAttribute("class", "controls");
 
-    // Add a button for each collection 
-    Object.keys(collections).forEach(key => {
-        let btn = document.createElement("button");
-        btn.setAttribute("class", "control")
-        btn.style.position = "relative";
-        btn.style.paddingLeft = "30px";
-        let circle = document.createElement("span");
-        circle.style.position = "absolute";
-        circle.style.left = "8px";
-        circle.style.top = "50%";
-        circle.style.transform = "translateY(-50%)";
-        circle.style.width = "12px";
-        circle.style.height = "12px";
-        circle.style.borderRadius = "50%";
-        circle.style.backgroundColor = collections[key].color;
-        circle.style.display = "inline-block";
-        let text = document.createElement("span");
-        text.textContent = key;
-        btn.appendChild(text);
-        btn.appendChild(circle);
-        btn.addEventListener("click", () => {
-            activeCollection = key;
-            updateChart();
+    // Only add collection buttons if there are multiple collections
+    if (Object.keys(collections).length > 1) {
+        Object.keys(collections).forEach(key => {
+            let btn = document.createElement("button");
+            btn.setAttribute("class", "control")
+            btn.style.position = "relative";
+            btn.style.paddingLeft = "30px";
+            let circle = document.createElement("span");
+            circle.style.position = "absolute";
+            circle.style.left = "8px";
+            circle.style.top = "50%";
+            circle.style.transform = "translateY(-50%)";
+            circle.style.width = "12px";
+            circle.style.height = "12px";
+            circle.style.borderRadius = "50%";
+            circle.style.backgroundColor = collections[key].color;
+            circle.style.display = "inline-block";
+            let text = document.createElement("span");
+            text.textContent = key;
+            btn.appendChild(text);
+            btn.appendChild(circle);
+            btn.addEventListener("click", () => {
+                activeCollection = key;
+                updateChart();
+            });
+            controls.appendChild(btn);
         });
-        controls.appendChild(btn);
-    });
+    }
 
     // Add a button to clear the chart
     let clear_btn = document.createElement("button");
@@ -252,6 +254,8 @@ function render({ model, el }) {
         });
         updateChart();
     });
+
+    document.querySelector('button.control').click();
 
     // Initialize chart
     updateChart();

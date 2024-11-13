@@ -9558,31 +9558,33 @@ function render({ model, el }) {
   let container = document.createElement("div");
   let controls = document.createElement("div");
   controls.setAttribute("class", "controls");
-  Object.keys(collections).forEach((key) => {
-    let btn = document.createElement("button");
-    btn.setAttribute("class", "control");
-    btn.style.position = "relative";
-    btn.style.paddingLeft = "30px";
-    let circle = document.createElement("span");
-    circle.style.position = "absolute";
-    circle.style.left = "8px";
-    circle.style.top = "50%";
-    circle.style.transform = "translateY(-50%)";
-    circle.style.width = "12px";
-    circle.style.height = "12px";
-    circle.style.borderRadius = "50%";
-    circle.style.backgroundColor = collections[key].color;
-    circle.style.display = "inline-block";
-    let text = document.createElement("span");
-    text.textContent = key;
-    btn.appendChild(text);
-    btn.appendChild(circle);
-    btn.addEventListener("click", () => {
-      activeCollection = key;
-      updateChart();
+  if (Object.keys(collections).length > 1) {
+    Object.keys(collections).forEach((key) => {
+      let btn = document.createElement("button");
+      btn.setAttribute("class", "control");
+      btn.style.position = "relative";
+      btn.style.paddingLeft = "30px";
+      let circle = document.createElement("span");
+      circle.style.position = "absolute";
+      circle.style.left = "8px";
+      circle.style.top = "50%";
+      circle.style.transform = "translateY(-50%)";
+      circle.style.width = "12px";
+      circle.style.height = "12px";
+      circle.style.borderRadius = "50%";
+      circle.style.backgroundColor = collections[key].color;
+      circle.style.display = "inline-block";
+      let text = document.createElement("span");
+      text.textContent = key;
+      btn.appendChild(text);
+      btn.appendChild(circle);
+      btn.addEventListener("click", () => {
+        activeCollection = key;
+        updateChart();
+      });
+      controls.appendChild(btn);
     });
-    controls.appendChild(btn);
-  });
+  }
   let clear_btn = document.createElement("button");
   clear_btn.setAttribute("class", "reset");
   clear_btn.innerHTML = "Clear";
@@ -9684,6 +9686,7 @@ function render({ model, el }) {
     });
     updateChart();
   });
+  document.querySelector("button.control").click();
   updateChart();
 }
 var bar_widget_default = { render };
