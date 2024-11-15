@@ -6,14 +6,21 @@ function render({ model, el }) {
     const width = model.get("width") - margin.left - margin.right;
     const height = model.get("height") - margin.top - margin.bottom;
 
-    // Initialize collections
-    const collections = {
-        collection1: { color: '#FF6384', data: new Array(model.get("n_bins")).fill(model.get("y_min")) },
-        collection2: { color: '#36A2EB', data: new Array(model.get("n_bins")).fill(model.get("y_min")) },
-        collection3: { color: '#FFCE56', data: new Array(model.get("n_bins")).fill(model.get("y_min")) },
-        collection4: { color: '#4BC0C0', data: new Array(model.get("n_bins")).fill(model.get("y_min")) }
+    // Initialize collections with names from model
+    const userNames = model.get("collection_names");
+    const colors = ['#36A2EB', '#FFCE56', '#4BC0C0', '#FF6384'];
+    
+    const collections = {};
+    // Only create collections for the provided names (or at least one if none provided)
+    const numCollections = Math.max(1, userNames.length);
+    for (let i = 0; i < numCollections; i++) {
+        const name = userNames[i] || `collection${i + 1}`;
+        collections[name] = {
+            color: colors[i],
+            data: new Array(model.get("n_bins")).fill(model.get("y_min"))
+        };
     };
-    let activeCollection = 'collection1';
+    let activeCollection = Object.keys(collections)[0];
     let isDrawing = false;
     let minY = model.get("y_min");
     let maxY = model.get("y_max");
@@ -27,39 +34,41 @@ function render({ model, el }) {
     let controls = document.createElement("div");
     controls.setAttribute("class", "controls");
 
-    // Add a button for each collection 
-    Object.keys(collections).forEach(key => {
-        let btn = document.createElement("button");
-        btn.setAttribute("class", "control")
-        btn.style.position = "relative";
-        btn.style.paddingLeft = "30px";
-        let circle = document.createElement("span");
-        circle.style.position = "absolute";
-        circle.style.left = "8px";
-        circle.style.top = "50%";
-        circle.style.transform = "translateY(-50%)";
-        circle.style.width = "12px";
-        circle.style.height = "12px";
-        circle.style.borderRadius = "50%";
-        circle.style.backgroundColor = collections[key].color;
-        circle.style.display = "inline-block";
-        let text = document.createElement("span");
-        text.textContent = key;
-        btn.appendChild(text);
-        btn.appendChild(circle);
-        btn.addEventListener("click", () => {
-            activeCollection = key;
-            updateChart();
+    // Only add collection buttons if there are multiple collections
+    if (Object.keys(collections).length > 1) {
+        Object.keys(collections).forEach(key => {
+            let btn = document.createElement("button");
+            btn.setAttribute("class", "control")
+            btn.style.position = "relative";
+            btn.style.paddingLeft = "30px";
+            let circle = document.createElement("span");
+            circle.style.position = "absolute";
+            circle.style.left = "8px";
+            circle.style.top = "50%";
+            circle.style.transform = "translateY(-50%)";
+            circle.style.width = "12px";
+            circle.style.height = "12px";
+            circle.style.borderRadius = "50%";
+            circle.style.backgroundColor = collections[key].color;
+            circle.style.display = "inline-block";
+            let text = document.createElement("span");
+            text.textContent = key;
+            btn.appendChild(text);
+            btn.appendChild(circle);
+            btn.addEventListener("click", () => {
+                activeCollection = key;
+                updateChart();
+            });
+            controls.appendChild(btn);
         });
-        controls.appendChild(btn);
-    });
-
+    }
     // Add a button to clear the chart
     let clear_btn = document.createElement("button");
-    clear_btn.setAttribute("class", "control");
-    
+    clear_btn.setAttribute("class", "reset");
     clear_btn.innerHTML = "Clear";
-    controls.appendChild(clear_btn);
+    if (Object.keys(collections).length > 1) {
+        controls.appendChild(clear_btn);
+    }
     container.appendChild(controls);
     el.appendChild(container);
 
@@ -74,21 +83,33 @@ function render({ model, el }) {
     // Create scales
     const x = d3.scaleBand()
         .range([0, width])
-        .padding(0.1);
+        .padding(0.1)
+        .domain(d3.range(model.get("n_bins")));;
 
     const y = d3.scaleLinear()
-        .range([height, 0]);
+        .range([height, 0])
+        .domain([Math.min(minY, 0), maxY]);;
 
     // Add grid
     const grid = svg.append("g")
         .attr("class", "grid");
 
-    // Add axes
+    // Add axes with initial render
     const xAxis = svg.append("g")
-        .attr("transform", `translate(0,${height})`);
-
-    const yAxis = svg.append("g");
-
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x)
+        .tickValues(
+            x.domain().filter((d, i) => {
+                const interval = Math.ceil(model.get("n_bins") / 10);
+                return i % interval === 0;
+        }))
+    );
+    
+    const yAxis = svg.append("g")
+        .call(d3.axisLeft(y)
+            .ticks(10)
+            .tickFormat(formatAxisNumber));
+    
     // Create collection groups
     Object.keys(collections).forEach(key => {
         svg.append("g")
@@ -129,22 +150,7 @@ function render({ model, el }) {
         
         // Update scales
         x.domain(d3.range(bins));
-        y.domain([minY, maxY]);
-
-        // Update grid with fewer lines for better readability
-        grid.selectAll(".horizontal-grid").remove();
-        const yTickCount = Math.min(10, Math.abs(maxY - minY) / 10);
-        grid.selectAll(".horizontal-grid")
-            .data(y.ticks(10))
-            .enter()
-            .append("line")
-            .attr("class", "horizontal-grid")
-            .attr("x1", 0)
-            .attr("x2", width)
-            .attr("y1", d => y(d))
-            .attr("y2", d => y(d))
-            .attr("stroke", "#ddd")
-            .attr("stroke-opacity", 0.7);
+        y.domain([Math.min(minY, 0), maxY]);
 
         // Update axes with formatted numbers
         xAxis.call(d3.axisBottom(x)
@@ -157,6 +163,19 @@ function render({ model, el }) {
         yAxis.call(d3.axisLeft(y)
             .ticks(10)
             .tickFormat(formatAxisNumber));
+            
+        // Update grid with fewer lines for better readability
+        grid.selectAll(".horizontal-grid")
+            .data(y.ticks(10))
+            .enter()
+            .append("line")
+            .attr("class", "horizontal-grid")
+            .attr("x1", 0)
+            .attr("x2", width)
+            .attr("y1", d => y(d))
+            .attr("y2", d => y(d))
+            .attr("stroke", "#ddd")
+            .attr("stroke-opacity", 0.7);
 
         // Update bars for each collection
         Object.entries(collections).forEach(([key, collection]) => {
@@ -230,11 +249,11 @@ function render({ model, el }) {
     });
 
     // Handle collection selection
-    document.querySelectorAll('button[id^="collection"]').forEach(button => {
+    document.querySelectorAll('button.control').forEach(button => {
         button.addEventListener('click', () => {
-            document.querySelectorAll('button[id^="collection"]').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('button.control').forEach(b => b.classList.remove('active'));
             button.classList.add('active');
-            activeCollection = button.id;
+            activeCollection = button.querySelector('span').textContent;
         });
     });
 
@@ -245,6 +264,10 @@ function render({ model, el }) {
         });
         updateChart();
     });
+
+    if (Object.keys(collections).length > 1) {
+        document.querySelector('button.control').click();
+    }
 
     // Initialize chart
     updateChart();

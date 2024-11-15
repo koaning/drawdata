@@ -72,7 +72,7 @@ class BarWidget(anywidget.AnyWidget):
     n_bins = traitlets.Int(24).tag(sync=True)
     width = traitlets.Int(800).tag(sync=True)
     height = traitlets.Int(550).tag(sync=True)
-
+    collection_names = traitlets.List(["collection1", "collection2"]).tag(sync=True)
     @property
     def data_as_pandas(self):
         import pandas as pd 
