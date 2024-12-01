@@ -1,13 +1,18 @@
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "altair==5.5.0",
+#     "marimo",
+#     "numpy==2.1.3",
+#     "pandas==2.2.3",
+#     "drawdata==0.3.6",
+# ]
+# ///
+
 import marimo
 
 __generated_with = "0.9.18"
 app = marimo.App(width="medium")
-
-
-@app.cell
-def __(BarWidget):
-    BarWidget
-    return
 
 
 @app.cell(hide_code=True)
@@ -20,7 +25,6 @@ def __(mo, widget):
 
     As you update the bar widget the chart below will update. It shows you what the effect of a home battery might be if the day that you drew were to repeat itself. 
     """)
-
     return
 
 
