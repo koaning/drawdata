@@ -29,7 +29,7 @@ To read the data, `polars` is useful, but this library also suppots `pandas`:
 python -m pip install pandas polars
 ```
 
-#### Usage
+#### Usage: `ScatterWidget`
 
 You can load the scatter widget to start drawing immediately. 
 
@@ -58,6 +58,18 @@ X, y = widget.data_as_X_y
 ```
 
 The assumption for this property is that if you've used multiple colors that you're interested in doing classification and if you've only drawn one color you're interested in regression. In the case of regression `y` will refer to the y-axis.
+
+#### Usage: `BarWidget`
+
+```python 
+from drawdata import BarWidget
+
+widget = BarWidget(collection_names=["usage", "sunshine"], n_bins=24)
+widget
+```
+
+![CleanShot_2024-12-01_at_21 19 19](https://github.com/user-attachments/assets/16c936c8-d310-4fa1-9057-6fb870d43db8)
+
 
 #### Shoutout 
 
