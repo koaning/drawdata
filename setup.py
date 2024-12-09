@@ -12,7 +12,7 @@ def read(fname):
 
 setup(
     name="drawdata",
-    version="0.3.4",
+    version="0.3.6",
     description="draw a dataset from inside Jupyter",
     author="Vincent D. Warmerdam",
     packages=find_packages(exclude=["notebooks"]),

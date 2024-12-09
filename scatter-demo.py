@@ -1,7 +1,18 @@
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "altair==5.5.0",
+#     "marimo",
+#     "numpy==2.1.3",
+#     "pandas==2.2.3",
+#     "drawdata==0.3.6",
+# ]
+# ///
+
 import marimo
 
-__generated_with = "0.9.17"
-app = marimo.App(width="medium", layout_file="layouts/demo.grid.json")
+__generated_with = "0.9.18"
+app = marimo.App(width="medium")
 
 
 @app.cell
@@ -28,6 +39,12 @@ def __(ScatterWidget, mo):
     widget = mo.ui.anywidget(ScatterWidget())
     widget
     return (widget,)
+
+
+@app.cell
+def __(widget):
+    widget.data_as_pandas
+    return
 
 
 @app.cell(hide_code=True)
