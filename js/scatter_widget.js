@@ -11,7 +11,7 @@ function render({ model, el }) {
 
   // Generate the class selector
   let fieldset_radio = document.createElement("fieldset");
-  fieldset_radio.setAttribute("style", "width: 170px; margin-left: 1px; margin-top: -10px; display:inline");
+  fieldset_radio.setAttribute("style", "margin-left: 1px; display:inline");
   
   let legend_radio = document.createElement("legend");
   legend_radio.innerText = "Class:";  
@@ -22,9 +22,9 @@ function render({ model, el }) {
   function add_label_elem(parent, id){
     let label = document.createElement("label");
     label.setAttribute("for", id);
-    label.setAttribute("style", "padding-left: 5px;")
+    label.setAttribute("style", "padding-left: 5px; display: inline-block; vertical-align: middle; margin-right: 0px;")
     if(id == "a"){
-      label.setAttribute("style", "padding-left: 17px;")
+      label.setAttribute("style", "padding-left: 10px; display: inline-block; vertical-align: middle; margin-right: 0px;")
     }
     label.innerText = id;
     parent.appendChild(label);
@@ -33,8 +33,9 @@ function render({ model, el }) {
   ["a", "b", "c", "d"].map(function(d, i){
     let radio = document.createElement("input");
     radio.setAttribute("type", "radio");  
-    radio.setAttribute("name", "colorselector")
+    radio.setAttribute("name", "colorselector");
     radio.setAttribute("value", i);
+    radio.setAttribute("style", "vertical-align: middle;");
     if (i == 0){
       radio.setAttribute("checked", "true");
       radio.click()
