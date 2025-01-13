@@ -9591,12 +9591,14 @@ function render({ model, el }) {
   container.appendChild(fieldset_size);
   let reset_btn = document.createElement("button");
   reset_btn.setAttribute("id", "reset");
+  reset_btn.setAttribute("class", "toolbarbtn");
   reset_btn.setAttribute("style", "display:inline");
   reset_btn.innerText = "Reset";
   reset_btn.onclick = reset;
   container.appendChild(reset_btn);
   let undo_btn = document.createElement("button");
   undo_btn.setAttribute("id", "undo");
+  undo_btn.setAttribute("class", "toolbarbtn");
   undo_btn.setAttribute("style", "display:inline");
   undo_btn.innerText = "Undo";
   undo_btn.onclick = undo;
