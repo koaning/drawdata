@@ -9584,7 +9584,7 @@ function render({ model, el }) {
   size_input.setAttribute("min", "5");
   size_input.setAttribute("max", "100");
   size_input.setAttribute("value", model.get("brushsize"));
-  size_input.setAttribute("style", "display:inline; padding-left: 30px;");
+  size_input.setAttribute("style", "display:inline; width: 150px; margin: 0;");
   size_input.onchange = resize_brush;
   size_input.oninput = resize_brush;
   fieldset_size.appendChild(size_input);
