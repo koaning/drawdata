@@ -82,7 +82,7 @@ my working hours. This was super cool and I wanted to make sure I recognise them
         <img src="imgs/calmcode-logo.webp" width="50%" align="left">
     </a>
     <a href="https://probabl.ai">
-        <img src="imgs/probabl.png" width="45%" align="right">
+        <img src="imgs/probabl.png" width="40%" align="right">
     </a>
     <br><br><br>
 </p>
