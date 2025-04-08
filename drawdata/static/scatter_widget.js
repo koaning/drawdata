@@ -9619,9 +9619,10 @@ function render({ model, el }) {
   let svg = d3.select(container).append("svg").style("display", "block").style("cursor", "crosshair");
   let selected_color = colors[0];
   let batch = 0;
+  let isDragging = false;
   svg.attr("width", width).attr("height", height).style("background", "#eeeeee").call(
     d3.drag().on("start", drag_start).on("drag", dragged).on("end", drag_end)
-  ).on("mousemove", mousemove);
+  ).on("click", mouseclick).on("mousemove", mousemove);
   function redraw_from_scratch() {
     svg.selectAll("circle.drawn").remove();
     data.map(function(d) {
@@ -9638,6 +9639,7 @@ function render({ model, el }) {
   });
   let circle_brush = svg.append("circle").attr("cx", width / 2).attr("cy", height / 2).attr("r", model.get("brushsize")).style("fill-opacity", 0.1);
   function drag_start(event) {
+    isDragging = false;
     ["a", "b", "c", "d"].map(function(d, i) {
       if (radio_buttons[d].checked) {
         selected_color = colors[i];
@@ -9646,30 +9648,50 @@ function render({ model, el }) {
   }
   function mousemove(event) {
     let rect = svg.node().getBoundingClientRect();
-    circle_brush.attr("cx", event.pageX - rect["x"] + "px").attr("cy", event.pageY - rect["top"] + "px");
+    update_brush(event.pageX - rect["x"], event.pageY - rect["top"]);
+  }
+  function mouseclick(event) {
+    if (!isDragging) {
+      let rect = svg.node().getBoundingClientRect();
+      let size = size_input.value;
+      let new_x = event.pageX - rect["x"] + (Math.random() - 0.5) * size;
+      let new_y = event.pageY - rect["top"] + (Math.random() - 0.5) * size;
+      add_point(new_x, new_y);
+      finish_batch();
+    }
+  }
+  function update_brush(x, y) {
+    circle_brush.attr("cx", x + "px").attr("cy", y + "px");
   }
   function resize_brush() {
     model.set("brushsize", Number(size_input.value));
   }
-  function dragged(event) {
-    let r1 = container.getBoundingClientRect();
-    let r2 = svg.node().getBoundingClientRect();
-    let size = size_input.value;
-    let new_x = event.x + (Math.random() - 0.5) * size;
-    let corrected_y = event.y - (r2.y - r1.y);
-    let new_y = corrected_y + (Math.random() - 0.5) * size;
+  function add_point(new_x, new_y) {
     let label = color_map[selected_color];
     svg.append("circle").attr("cx", new_x).attr("cy", new_y).attr("r", 4).style("fill", selected_color).attr("class", `batch_${batch} drawn`);
     data.push({ x: new_x, y: height - new_y, color: selected_color, label, batch });
-    circle_brush.attr("cx", event.x + "px").attr("cy", corrected_y + "px");
   }
-  function drag_end(event) {
+  function finish_batch() {
     model.set("data", grab_data());
     model.save_changes();
     batch = Math.max(...data.map(function(d) {
       return d.batch;
     }), 0) + 1;
     update_counts();
+  }
+  function dragged(event) {
+    isDragging = true;
+    let r1 = container.getBoundingClientRect();
+    let r2 = svg.node().getBoundingClientRect();
+    let size = size_input.value;
+    let new_x = event.x + (Math.random() - 0.5) * size;
+    let corrected_y = event.y - (r2.y - r1.y);
+    let new_y = corrected_y + (Math.random() - 0.5) * size;
+    add_point(new_x, new_y);
+    update_brush(event.x, corrected_y);
+  }
+  function drag_end(event) {
+    finish_batch();
   }
   function grab_data() {
     return data.map(function(d) {
