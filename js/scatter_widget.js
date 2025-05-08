@@ -198,7 +198,6 @@ function render({ model, el }) {
   buttonGroup.className = "button-group";
   buttonGroup.style.display = "flex";
   buttonGroup.style.gap = "0.5rem";
-  buttonGroup.style.marginBottom = "1rem";
   
   let reset_btn = document.createElement("button");
   reset_btn.setAttribute("id", "reset");
@@ -268,7 +267,6 @@ function render({ model, el }) {
   counts_div.style.display = "flex";
   counts_div.style.flexWrap = "wrap";
   counts_div.style.gap = "0.5rem";
-  counts_div.style.marginBottom = "1rem";
   
   let count_spans = {};
   ["a", "b", "c", "d"].map(function(d, i) {
@@ -280,7 +278,9 @@ function render({ model, el }) {
     span.style.color = "white";
     span.style.fontWeight = "bold";
     span.style.padding = "0.25rem 0.75rem";
-    span.style.borderRadius = "9999px";
+    span.style.borderRadius = "0.375rem";
+    span.style.border = "1px solid rgba(0,0,0,0.2)";
+    span.style.boxShadow = "0 1px 2px var(--dd-shadow-color)";
     span.style.display = "inline-flex";
     span.style.alignItems = "center";
     span.innerText = `${d}: 0`;
