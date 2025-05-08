@@ -27,7 +27,7 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(ScatterWidget, mo):
-    widget = mo.ui.anywidget(ScatterWidget(height=300))
+    widget = mo.ui.anywidget(ScatterWidget(height=400))
     widget
     return (widget,)
 

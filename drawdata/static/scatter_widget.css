@@ -3,7 +3,7 @@
     /* Light theme colors with improved contrast ratios */
     --dd-bg-color: #ffffff;
     --dd-text-color: #111827;
-    --dd-border-color: #d1d5db;
+    --dd-border-color: #9ca3af; /* Darker border for better visibility */
     --dd-hover-color: #f9fafb;
     --dd-active-color: #f3f4f6;
     --dd-primary-color: #2563eb; /* Darker blue for better contrast */
@@ -26,7 +26,7 @@
     --dd-count-text-b: #92400e;
     --dd-count-text-c: #166534;
     --dd-count-text-d: #991b1b;
-    --dd-svg-border: 1px solid #e5e7eb;
+    --dd-svg-border: 1px solid #9ca3af;
     --dd-svg-border-radius: 0.5rem;
     /* Focus outline */
     --dd-focus-ring: 0 0 0 2px rgba(59, 130, 246, 0.5);
@@ -37,7 +37,7 @@
     :root {
         --dd-bg-color: #1f2937;
         --dd-text-color: #f9fafb;
-        --dd-border-color: #4b5563;
+        --dd-border-color: #6b7280; /* Lighter border for better visibility in dark mode */
         --dd-hover-color: #374151;
         --dd-active-color: #4b5563;
         --dd-primary-color: #3b82f6;
@@ -60,7 +60,7 @@
         --dd-count-text-b: #fef3c7;
         --dd-count-text-c: #dcfce7;
         --dd-count-text-d: #fee2e2;
-        --dd-svg-border: 1px solid #4b5563;
+        --dd-svg-border: 1px solid #6b7280;
         --dd-focus-ring: 0 0 0 2px rgba(96, 165, 250, 0.6);
     }
 }

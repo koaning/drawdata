@@ -9540,6 +9540,9 @@ function render({ model, el }) {
   const width = model.get("width") || 800;
   let container = document.createElement("div");
   container.className = "dd-scatter-container";
+  if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    container.classList.add("dark-theme");
+  }
   let controls = document.createElement("div");
   controls.className = "dd-scatter-controls";
   container.appendChild(controls);
@@ -9567,12 +9570,13 @@ function render({ model, el }) {
     button.style.alignItems = "center";
     button.style.padding = "0.5rem 1rem";
     button.style.cursor = "pointer";
-    button.style.border = "1px solid #d1d5db";
+    button.style.border = "1px solid var(--dd-border-color)";
     button.style.borderRadius = "0.375rem";
-    button.style.backgroundColor = "var(--dd-bg-color, #ffffff)";
-    button.style.color = "var(--dd-text-color, #111827)";
+    button.style.backgroundColor = "var(--dd-bg-color)";
+    button.style.color = "var(--dd-text-color)";
     button.style.fontWeight = "500";
     button.style.transition = "all 0.15s ease";
+    button.style.boxShadow = "0 1px 2px var(--dd-shadow-color)";
     let colorDot = document.createElement("span");
     colorDot.style.display = "inline-block";
     colorDot.style.width = "14px";
@@ -9585,9 +9589,9 @@ function render({ model, el }) {
     button.appendChild(document.createTextNode(d));
     button.onclick = function() {
       if (selectedClassButton) {
-        selectedClassButton.style.backgroundColor = "var(--dd-bg-color, #ffffff)";
-        selectedClassButton.style.borderColor = "#d1d5db";
-        selectedClassButton.style.color = "var(--dd-text-color, #111827)";
+        selectedClassButton.style.backgroundColor = "var(--dd-bg-color)";
+        selectedClassButton.style.borderColor = "var(--dd-border-color)";
+        selectedClassButton.style.color = "var(--dd-text-color)";
         selectedClassButton.style.boxShadow = "none";
       }
       selectedClassButton = button;
@@ -9610,7 +9614,7 @@ function render({ model, el }) {
   brushSizeContainer.className = "brushsize-container";
   brushSizeContainer.style.marginBottom = "1rem";
   brushSizeContainer.style.padding = "0.75rem";
-  brushSizeContainer.style.backgroundColor = "var(--dd-bg-color, #ffffff)";
+  brushSizeContainer.style.backgroundColor = "var(--dd-bg-color)";
   let brushSizeLabel = document.createElement("div");
   brushSizeLabel.innerText = "Brush Size:";
   brushSizeLabel.style.fontWeight = "600";
@@ -9691,20 +9695,21 @@ function render({ model, el }) {
   reset_btn.style.fontSize = "0.875rem";
   reset_btn.style.padding = "0.5rem 1rem";
   reset_btn.style.cursor = "pointer";
-  reset_btn.style.border = "1px solid var(--dd-border-color, #d1d5db)";
+  reset_btn.style.border = "1px solid var(--dd-border-color)";
   reset_btn.style.borderRadius = "0.375rem";
-  reset_btn.style.backgroundColor = "var(--dd-bg-color, #ffffff)";
-  reset_btn.style.color = "var(--dd-text-color, #111827)";
+  reset_btn.style.backgroundColor = "var(--dd-bg-color)";
+  reset_btn.style.color = "var(--dd-text-color)";
   reset_btn.style.display = "inline-flex";
   reset_btn.style.alignItems = "center";
   reset_btn.style.transition = "all 0.15s ease";
+  reset_btn.style.boxShadow = "0 1px 2px var(--dd-shadow-color)";
   reset_btn.onmouseover = function() {
-    reset_btn.style.backgroundColor = "var(--dd-hover-color, #f9fafb)";
-    reset_btn.style.borderColor = "var(--dd-primary-color, #3b82f6)";
+    reset_btn.style.backgroundColor = "var(--dd-hover-color)";
+    reset_btn.style.borderColor = "var(--dd-primary-color)";
   };
   reset_btn.onmouseout = function() {
-    reset_btn.style.backgroundColor = "var(--dd-bg-color, #ffffff)";
-    reset_btn.style.borderColor = "var(--dd-border-color, #d1d5db)";
+    reset_btn.style.backgroundColor = "var(--dd-bg-color)";
+    reset_btn.style.borderColor = "var(--dd-border-color)";
   };
   reset_btn.onclick = reset;
   buttonGroup.appendChild(reset_btn);
@@ -9716,20 +9721,21 @@ function render({ model, el }) {
   undo_btn.style.fontSize = "0.875rem";
   undo_btn.style.padding = "0.5rem 1rem";
   undo_btn.style.cursor = "pointer";
-  undo_btn.style.border = "1px solid var(--dd-border-color, #d1d5db)";
+  undo_btn.style.border = "1px solid var(--dd-border-color)";
   undo_btn.style.borderRadius = "0.375rem";
-  undo_btn.style.backgroundColor = "var(--dd-bg-color, #ffffff)";
-  undo_btn.style.color = "var(--dd-text-color, #111827)";
+  undo_btn.style.backgroundColor = "var(--dd-bg-color)";
+  undo_btn.style.color = "var(--dd-text-color)";
   undo_btn.style.display = "inline-flex";
   undo_btn.style.alignItems = "center";
   undo_btn.style.transition = "all 0.15s ease";
+  undo_btn.style.boxShadow = "0 1px 2px var(--dd-shadow-color)";
   undo_btn.onmouseover = function() {
-    undo_btn.style.backgroundColor = "var(--dd-hover-color, #f9fafb)";
-    undo_btn.style.borderColor = "var(--dd-primary-color, #3b82f6)";
+    undo_btn.style.backgroundColor = "var(--dd-hover-color)";
+    undo_btn.style.borderColor = "var(--dd-primary-color)";
   };
   undo_btn.onmouseout = function() {
-    undo_btn.style.backgroundColor = "var(--dd-bg-color, #ffffff)";
-    undo_btn.style.borderColor = "var(--dd-border-color, #d1d5db)";
+    undo_btn.style.backgroundColor = "var(--dd-bg-color)";
+    undo_btn.style.borderColor = "var(--dd-border-color)";
   };
   undo_btn.onclick = undo;
   buttonGroup.appendChild(undo_btn);
@@ -9927,9 +9933,6 @@ function render({ model, el }) {
       }).length;
       count_spans[d].innerText = `${d}: ${count}`;
     });
-  }
-  if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-    container.classList.add("dark-theme");
   }
   const notebook = el.closest(".jp-OutputArea") || el.closest(".jupyter-widgets-output-area") || el.closest(".output_subarea");
   if (notebook) {
