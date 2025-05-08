@@ -76,13 +76,13 @@ function render({ model, el }) {
         selectedClassButton.style.boxShadow = "none";
       }
       
-      // Set active state for current button
+      // Set active state for current button using its own color
       selectedClassButton = button;
       selectedColor = colors[i];
-      button.style.backgroundColor = "var(--dd-primary-color, #3b82f6)";
-      button.style.borderColor = "var(--dd-primary-color, #3b82f6)";
+      button.style.backgroundColor = colors[i];
+      button.style.borderColor = colors[i];
       button.style.color = "white";
-      button.style.boxShadow = "0 1px 2px rgba(0, 0, 0, 0.1)";
+      button.style.boxShadow = `0 1px 2px ${colors[i]}80`; // Add 50% opacity to color
       
       // Update brush color
       circle_brush
@@ -108,8 +108,6 @@ function render({ model, el }) {
   let brushSizeContainer = document.createElement("div");
   brushSizeContainer.className = "brushsize-container";
   brushSizeContainer.style.marginBottom = "1rem";
-  brushSizeContainer.style.border = "1px solid #d1d5db";
-  brushSizeContainer.style.borderRadius = "0.375rem";
   brushSizeContainer.style.padding = "0.75rem";
   brushSizeContainer.style.backgroundColor = "var(--dd-bg-color, #ffffff)";
   
@@ -147,6 +145,7 @@ function render({ model, el }) {
   size_input.style.borderRadius = "9999px";
   size_input.style.outline = "none";
   size_input.style.cursor = "pointer";
+  size_input.style.border = "none"; // Remove border as requested
   
   // Add specific styles for the thumb
   let thumbStyles = `

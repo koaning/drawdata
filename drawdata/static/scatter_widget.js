@@ -9592,10 +9592,10 @@ function render({ model, el }) {
       }
       selectedClassButton = button;
       selectedColor = colors[i];
-      button.style.backgroundColor = "var(--dd-primary-color, #3b82f6)";
-      button.style.borderColor = "var(--dd-primary-color, #3b82f6)";
+      button.style.backgroundColor = colors[i];
+      button.style.borderColor = colors[i];
       button.style.color = "white";
-      button.style.boxShadow = "0 1px 2px rgba(0, 0, 0, 0.1)";
+      button.style.boxShadow = `0 1px 2px ${colors[i]}80`;
       circle_brush.style("fill", selectedColor).style("fill-opacity", 0.3).style("stroke", selectedColor).style("stroke-width", 2);
     };
     colorButtonsContainer.appendChild(button);
@@ -9609,8 +9609,6 @@ function render({ model, el }) {
   let brushSizeContainer = document.createElement("div");
   brushSizeContainer.className = "brushsize-container";
   brushSizeContainer.style.marginBottom = "1rem";
-  brushSizeContainer.style.border = "1px solid #d1d5db";
-  brushSizeContainer.style.borderRadius = "0.375rem";
   brushSizeContainer.style.padding = "0.75rem";
   brushSizeContainer.style.backgroundColor = "var(--dd-bg-color, #ffffff)";
   let brushSizeLabel = document.createElement("div");
@@ -9644,6 +9642,7 @@ function render({ model, el }) {
   size_input.style.borderRadius = "9999px";
   size_input.style.outline = "none";
   size_input.style.cursor = "pointer";
+  size_input.style.border = "none";
   let thumbStyles = `
     #size::-webkit-slider-thumb {
       -webkit-appearance: none;
