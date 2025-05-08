@@ -9543,53 +9543,91 @@ function render({ model, el }) {
   let controls = document.createElement("div");
   controls.className = "dd-scatter-controls";
   container.appendChild(controls);
-  let fieldset_radio = document.createElement("fieldset");
-  fieldset_radio.className = "class-selector";
-  let legend_radio = document.createElement("legend");
-  legend_radio.innerText = "Class:";
-  fieldset_radio.appendChild(legend_radio);
-  let radio_buttons = {};
-  function add_label_elem(parent, id, color) {
-    let label = document.createElement("label");
-    label.setAttribute("for", `dd-radio-${id}`);
+  let colorSelector = document.createElement("div");
+  colorSelector.className = "color-selector";
+  colorSelector.style.marginBottom = "1rem";
+  let colorLabel = document.createElement("div");
+  colorLabel.innerText = "Class:";
+  colorLabel.style.fontWeight = "600";
+  colorLabel.style.marginBottom = "0.5rem";
+  colorSelector.appendChild(colorLabel);
+  let colorButtonsContainer = document.createElement("div");
+  colorButtonsContainer.style.display = "flex";
+  colorButtonsContainer.style.gap = "0.5rem";
+  colorButtonsContainer.style.flexWrap = "wrap";
+  let selectedClassButton = null;
+  let selectedColor = colors[0];
+  ["a", "b", "c", "d"].forEach(function(d, i) {
+    let button = document.createElement("button");
+    button.className = "class-button";
+    button.setAttribute("data-class", d);
+    button.setAttribute("data-color", colors[i]);
+    button.setAttribute("aria-label", `Select class ${d}`);
+    button.style.display = "flex";
+    button.style.alignItems = "center";
+    button.style.padding = "0.5rem 1rem";
+    button.style.cursor = "pointer";
+    button.style.border = "1px solid #d1d5db";
+    button.style.borderRadius = "0.375rem";
+    button.style.backgroundColor = "var(--dd-bg-color, #ffffff)";
+    button.style.color = "var(--dd-text-color, #111827)";
+    button.style.fontWeight = "500";
+    button.style.transition = "all 0.15s ease";
     let colorDot = document.createElement("span");
-    colorDot.className = "color-dot";
-    colorDot.style.backgroundColor = color;
     colorDot.style.display = "inline-block";
-    colorDot.style.width = "12px";
-    colorDot.style.height = "12px";
+    colorDot.style.width = "14px";
+    colorDot.style.height = "14px";
     colorDot.style.borderRadius = "50%";
-    colorDot.style.marginRight = "5px";
+    colorDot.style.marginRight = "6px";
+    colorDot.style.backgroundColor = colors[i];
     colorDot.style.border = "1px solid rgba(0,0,0,0.2)";
-    label.appendChild(colorDot);
-    label.appendChild(document.createTextNode(id));
-    parent.appendChild(label);
-  }
-  ["a", "b", "c", "d"].map(function(d, i) {
-    let radio = document.createElement("input");
-    radio.setAttribute("type", "radio");
-    radio.setAttribute("name", "colorselector");
-    radio.setAttribute("id", `dd-radio-${d}`);
-    radio.setAttribute("value", i);
-    radio.setAttribute("aria-label", `Select class ${d}`);
-    if (i == 0) {
-      radio.setAttribute("checked", "true");
-      radio.click();
-    }
-    add_label_elem(fieldset_radio, d, colors[i]);
-    radio.onclick = function() {
-      selected_color = colors[i];
-      circle_brush.style("fill", selected_color).style("fill-opacity", 0.3).style("stroke", selected_color).style("stroke-width", 2);
+    button.appendChild(colorDot);
+    button.appendChild(document.createTextNode(d));
+    button.onclick = function() {
+      if (selectedClassButton) {
+        selectedClassButton.style.backgroundColor = "var(--dd-bg-color, #ffffff)";
+        selectedClassButton.style.borderColor = "#d1d5db";
+        selectedClassButton.style.color = "var(--dd-text-color, #111827)";
+        selectedClassButton.style.boxShadow = "none";
+      }
+      selectedClassButton = button;
+      selectedColor = colors[i];
+      button.style.backgroundColor = "var(--dd-primary-color, #3b82f6)";
+      button.style.borderColor = "var(--dd-primary-color, #3b82f6)";
+      button.style.color = "white";
+      button.style.boxShadow = "0 1px 2px rgba(0, 0, 0, 0.1)";
+      circle_brush.style("fill", selectedColor).style("fill-opacity", 0.3).style("stroke", selectedColor).style("stroke-width", 2);
     };
-    radio_buttons[d] = radio;
-    fieldset_radio.appendChild(radio);
+    colorButtonsContainer.appendChild(button);
+    if (i === 0) {
+      selectedClassButton = button;
+      button.click();
+    }
   });
-  controls.appendChild(fieldset_radio);
-  let fieldset_size = document.createElement("fieldset");
-  fieldset_size.className = "brushsize-selector";
-  let legend_size = document.createElement("legend");
-  legend_size.innerText = "Brushsize:";
-  fieldset_size.appendChild(legend_size);
+  colorSelector.appendChild(colorButtonsContainer);
+  controls.appendChild(colorSelector);
+  let brushSizeContainer = document.createElement("div");
+  brushSizeContainer.className = "brushsize-container";
+  brushSizeContainer.style.marginBottom = "1rem";
+  brushSizeContainer.style.border = "1px solid #d1d5db";
+  brushSizeContainer.style.borderRadius = "0.375rem";
+  brushSizeContainer.style.padding = "0.75rem";
+  brushSizeContainer.style.backgroundColor = "var(--dd-bg-color, #ffffff)";
+  let brushSizeLabel = document.createElement("div");
+  brushSizeLabel.innerText = "Brush Size:";
+  brushSizeLabel.style.fontWeight = "600";
+  brushSizeLabel.style.marginBottom = "0.75rem";
+  brushSizeContainer.appendChild(brushSizeLabel);
+  let sliderContainer = document.createElement("div");
+  sliderContainer.style.display = "flex";
+  sliderContainer.style.alignItems = "center";
+  sliderContainer.style.gap = "0.75rem";
+  let size_value = document.createElement("div");
+  size_value.style.fontSize = "0.875rem";
+  size_value.style.fontWeight = "500";
+  size_value.style.minWidth = "2rem";
+  size_value.style.textAlign = "center";
+  size_value.innerText = model.get("brushsize");
   let size_input = document.createElement("input");
   size_input.setAttribute("type", "range");
   size_input.setAttribute("id", "size");
@@ -9599,39 +9637,110 @@ function render({ model, el }) {
   size_input.setAttribute("value", model.get("brushsize"));
   size_input.setAttribute("aria-label", "Adjust brush size");
   size_input.style.width = "100%";
-  size_input.style.margin = "0.5rem 0";
-  size_input.style.display = "block";
-  size_input.onchange = resize_brush;
-  size_input.oninput = resize_brush;
-  let size_value = document.createElement("div");
-  size_value.style.fontSize = "0.75rem";
-  size_value.style.textAlign = "right";
-  size_value.style.color = "var(--dd-text-color, #6b7280)";
-  size_value.innerText = model.get("brushsize");
+  size_input.style.height = "6px";
+  size_input.style.WebkitAppearance = "none";
+  size_input.style.appearance = "none";
+  size_input.style.background = "#e5e7eb";
+  size_input.style.borderRadius = "9999px";
+  size_input.style.outline = "none";
+  size_input.style.cursor = "pointer";
+  let thumbStyles = `
+    #size::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--dd-primary-color, #3b82f6);
+      border: 2px solid white;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      transition: background 0.15s ease;
+    }
+    #size::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--dd-primary-color, #3b82f6);
+      border: 2px solid white;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      transition: background 0.15s ease;
+    }
+  `;
+  let style = document.createElement("style");
+  style.textContent = thumbStyles;
+  document.head.appendChild(style);
   size_input.oninput = function() {
     resize_brush();
     size_value.innerText = this.value;
   };
-  fieldset_size.appendChild(size_input);
-  fieldset_size.appendChild(size_value);
-  controls.appendChild(fieldset_size);
+  sliderContainer.appendChild(size_input);
+  sliderContainer.appendChild(size_value);
+  brushSizeContainer.appendChild(sliderContainer);
+  controls.appendChild(brushSizeContainer);
   let buttonGroup = document.createElement("div");
   buttonGroup.className = "button-group";
+  buttonGroup.style.display = "flex";
+  buttonGroup.style.gap = "0.5rem";
+  buttonGroup.style.marginBottom = "1rem";
   let reset_btn = document.createElement("button");
   reset_btn.setAttribute("id", "reset");
   reset_btn.setAttribute("aria-label", "Reset all data points");
   reset_btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>&nbsp;Reset';
+  reset_btn.style.fontWeight = "500";
+  reset_btn.style.fontSize = "0.875rem";
+  reset_btn.style.padding = "0.5rem 1rem";
+  reset_btn.style.cursor = "pointer";
+  reset_btn.style.border = "1px solid var(--dd-border-color, #d1d5db)";
+  reset_btn.style.borderRadius = "0.375rem";
+  reset_btn.style.backgroundColor = "var(--dd-bg-color, #ffffff)";
+  reset_btn.style.color = "var(--dd-text-color, #111827)";
+  reset_btn.style.display = "inline-flex";
+  reset_btn.style.alignItems = "center";
+  reset_btn.style.transition = "all 0.15s ease";
+  reset_btn.onmouseover = function() {
+    reset_btn.style.backgroundColor = "var(--dd-hover-color, #f9fafb)";
+    reset_btn.style.borderColor = "var(--dd-primary-color, #3b82f6)";
+  };
+  reset_btn.onmouseout = function() {
+    reset_btn.style.backgroundColor = "var(--dd-bg-color, #ffffff)";
+    reset_btn.style.borderColor = "var(--dd-border-color, #d1d5db)";
+  };
   reset_btn.onclick = reset;
   buttonGroup.appendChild(reset_btn);
   let undo_btn = document.createElement("button");
   undo_btn.setAttribute("id", "undo");
   undo_btn.setAttribute("aria-label", "Undo last action");
   undo_btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"></path><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H4"></path></svg>&nbsp;Undo';
+  undo_btn.style.fontWeight = "500";
+  undo_btn.style.fontSize = "0.875rem";
+  undo_btn.style.padding = "0.5rem 1rem";
+  undo_btn.style.cursor = "pointer";
+  undo_btn.style.border = "1px solid var(--dd-border-color, #d1d5db)";
+  undo_btn.style.borderRadius = "0.375rem";
+  undo_btn.style.backgroundColor = "var(--dd-bg-color, #ffffff)";
+  undo_btn.style.color = "var(--dd-text-color, #111827)";
+  undo_btn.style.display = "inline-flex";
+  undo_btn.style.alignItems = "center";
+  undo_btn.style.transition = "all 0.15s ease";
+  undo_btn.onmouseover = function() {
+    undo_btn.style.backgroundColor = "var(--dd-hover-color, #f9fafb)";
+    undo_btn.style.borderColor = "var(--dd-primary-color, #3b82f6)";
+  };
+  undo_btn.onmouseout = function() {
+    undo_btn.style.backgroundColor = "var(--dd-bg-color, #ffffff)";
+    undo_btn.style.borderColor = "var(--dd-border-color, #d1d5db)";
+  };
   undo_btn.onclick = undo;
   buttonGroup.appendChild(undo_btn);
   controls.appendChild(buttonGroup);
   let counts_div = document.createElement("div");
   counts_div.className = "counts";
+  counts_div.style.display = "flex";
+  counts_div.style.flexWrap = "wrap";
+  counts_div.style.gap = "0.5rem";
+  counts_div.style.marginBottom = "1rem";
   let count_spans = {};
   ["a", "b", "c", "d"].map(function(d, i) {
     let span = document.createElement("span");
@@ -9643,7 +9752,6 @@ function render({ model, el }) {
     span.style.fontWeight = "bold";
     span.style.padding = "0.25rem 0.75rem";
     span.style.borderRadius = "9999px";
-    span.style.marginRight = "0.5rem";
     span.style.display = "inline-flex";
     span.style.alignItems = "center";
     span.innerText = `${d}: 0`;
@@ -9658,7 +9766,6 @@ function render({ model, el }) {
   container.appendChild(svg_container);
   const aspectRatio = width / height;
   let svg = d3.select(svg_container).append("svg").attr("preserveAspectRatio", "xMidYMid meet").attr("viewBox", `0 0 ${width} ${height}`).attr("width", "100%").attr("height", "auto").attr("aria-label", "Scatter plot drawing area").attr("role", "img").style("aspect-ratio", aspectRatio);
-  let selected_color = colors[0];
   let batch = 0;
   let isDragging = false;
   svg.attr("class", "dd-scatter-svg").call(d3.drag().on("start", drag_start).on("drag", dragged).on("end", drag_end)).on("click", mouseclick).on("mousemove", mousemove);
@@ -9710,14 +9817,9 @@ function render({ model, el }) {
       redraw_from_scratch();
     }
   }
-  let circle_brush = svg.append("circle").attr("cx", width / 2).attr("cy", height / 2).attr("r", model.get("brushsize")).style("fill", selected_color).style("fill-opacity", 0.3).style("stroke", selected_color).style("stroke-width", 2).style("stroke-opacity", 0.9).attr("class", "brush-indicator");
+  let circle_brush = svg.append("circle").attr("cx", width / 2).attr("cy", height / 2).attr("r", model.get("brushsize")).style("fill", selectedColor).style("fill-opacity", 0.3).style("stroke", selectedColor).style("stroke-width", 2).style("stroke-opacity", 0.9).attr("class", "brush-indicator");
   function drag_start(event) {
     isDragging = false;
-    ["a", "b", "c", "d"].map(function(d, i) {
-      if (radio_buttons[d].checked) {
-        selected_color = colors[i];
-      }
-    });
   }
   function mousemove(event) {
     const [x, y] = d3.pointer(event, svg.node());
@@ -9741,14 +9843,14 @@ function render({ model, el }) {
     circle_brush.attr("r", size_input.value);
   }
   function add_point(new_x, new_y) {
-    let label = color_map[selected_color];
-    svg.append("circle").attr("cx", new_x).attr("cy", new_y).attr("r", 5).style("fill", selected_color).style("stroke", "white").style("stroke-width", 1.5).style("opacity", 0.85).attr("class", `batch_${batch} drawn`);
+    let label = color_map[selectedColor];
+    svg.append("circle").attr("cx", new_x).attr("cy", new_y).attr("r", 5).style("fill", selectedColor).style("stroke", "white").style("stroke-width", 1.5).style("opacity", 0.85).attr("class", `batch_${batch} drawn`);
     if (!data)
       data = [];
     data.push({
       x: new_x,
       y: height - new_y,
-      color: selected_color,
+      color: selectedColor,
       label,
       batch
     });
