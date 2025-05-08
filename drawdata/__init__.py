@@ -32,6 +32,8 @@ class ScatterWidget(anywidget.AnyWidget):
     _css = Path(__file__).parent / 'static' / 'scatter_widget.css'
     data = traitlets.List([]).tag(sync=True)
     brushsize = traitlets.Int(40).tag(sync=True)
+    width = traitlets.Int(800).tag(sync=True)
+    height = traitlets.Int(500).tag(sync=True)
 
     @property
     def data_as_pandas(self):
