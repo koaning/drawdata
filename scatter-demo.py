@@ -1,18 +1,20 @@
+
+
 import marimo
 
-__generated_with = "0.9.17"
-app = marimo.App(width="medium", layout_file="layouts/demo.grid.json")
+__generated_with = "0.13.3"
+app = marimo.App(width="medium")
 
 
 @app.cell
-def __():
+def _():
     import marimo as mo
     from drawdata import ScatterWidget
     return ScatterWidget, mo
 
 
-@app.cell
-def __(mo):
+@app.cell(hide_code=True)
+def _(mo):
     mo.md(
         r"""
         # Drawing a `ScatterChart`
@@ -24,14 +26,14 @@ def __(mo):
 
 
 @app.cell(hide_code=True)
-def __(ScatterWidget, mo):
-    widget = mo.ui.anywidget(ScatterWidget())
+def _(ScatterWidget, mo):
+    widget = mo.ui.anywidget(ScatterWidget(height=400))
     widget
     return (widget,)
 
 
 @app.cell(hide_code=True)
-def __(widget):
+def _(widget):
     import altair as alt
 
 
@@ -77,22 +79,11 @@ def __(widget):
     )
 
     top_hist & (points | right_hist)
-    return (
-        alt,
-        base,
-        base_bar,
-        color_domain,
-        colscale,
-        points,
-        right_hist,
-        top_hist,
-        xscale,
-        yscale,
-    )
+    return
 
 
 @app.cell
-def __():
+def _():
     return
 
 

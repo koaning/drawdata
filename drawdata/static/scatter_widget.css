@@ -1,20 +1,402 @@
-fieldset{
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: medium;
+/* Modern design system with enhanced accessibility and notebook compatibility */
+:root {
+    /* Light theme colors with improved contrast ratios */
+    --dd-bg-color: #ffffff;
+    --dd-text-color: #111827;
+    --dd-border-color: #9ca3af; /* Darker border for better visibility */
+    --dd-hover-color: #f9fafb;
+    --dd-active-color: #f3f4f6;
+    --dd-primary-color: #2563eb; /* Darker blue for better contrast */
+    --dd-primary-hover: #1d4ed8;
+    --dd-svg-bg: #f9fafb;
+    --dd-input-bg: #f3f4f6;
+    --dd-control-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --dd-shadow-color: rgba(0, 0, 0, 0.1);
+    /* More distinct colors for data points */
+    --dd-color-a: #1e40af; /* Darker blue */
+    --dd-color-b: #b45309; /* Darker amber */
+    --dd-color-c: #15803d; /* Darker green */
+    --dd-color-d: #b91c1c; /* Darker red */
+    /* Count backgrounds with better contrast */
+    --dd-count-bg-a: #dbeafe;
+    --dd-count-bg-b: #fef3c7;
+    --dd-count-bg-c: #dcfce7;
+    --dd-count-bg-d: #fee2e2;
+    --dd-count-text-a: #1e3a8a;
+    --dd-count-text-b: #92400e;
+    --dd-count-text-c: #166534;
+    --dd-count-text-d: #991b1b;
+    --dd-svg-border: 1px solid #9ca3af;
+    --dd-svg-border-radius: 0.5rem;
+    /* Focus outline */
+    --dd-focus-ring: 0 0 0 2px rgba(59, 130, 246, 0.5);
 }
 
-button{
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: medium;
+/* Dark mode styles with improved contrast */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --dd-bg-color: #1f2937;
+        --dd-text-color: #f9fafb;
+        --dd-border-color: #6b7280; /* Lighter border for better visibility in dark mode */
+        --dd-hover-color: #374151;
+        --dd-active-color: #4b5563;
+        --dd-primary-color: #3b82f6;
+        --dd-primary-hover: #60a5fa;
+        --dd-svg-bg: #111827;
+        --dd-input-bg: #374151;
+        --dd-control-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.25);
+        --dd-shadow-color: rgba(0, 0, 0, 0.5);
+        /* More vibrant colors for dark mode data points */
+        --dd-color-a: #3b82f6; /* Brighter blue for dark mode */
+        --dd-color-b: #f59e0b; /* Brighter amber */
+        --dd-color-c: #10b981; /* Brighter green */
+        --dd-color-d: #ef4444; /* Brighter red */
+        /* Higher contrast count backgrounds for dark mode */
+        --dd-count-bg-a: #1e40af;
+        --dd-count-bg-b: #92400e;
+        --dd-count-bg-c: #166534;
+        --dd-count-bg-d: #991b1b;
+        --dd-count-text-a: #dbeafe;
+        --dd-count-text-b: #fef3c7;
+        --dd-count-text-c: #dcfce7;
+        --dd-count-text-d: #fee2e2;
+        --dd-svg-border: 1px solid #6b7280;
+        --dd-focus-ring: 0 0 0 2px rgba(96, 165, 250, 0.6);
+    }
 }
 
-span.count{
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: medium;
-    margin-right: 4px; 
-    padding-right: 7px; 
-    padding-left: 7px;
-    padding-top: 3px;
-    padding-bottom: 3px;
-    border-radius: 8px;
+/* Notebook-specific adjustments */
+.jp-OutputArea .dd-scatter-container,
+.jupyter-widgets-output-area .dd-scatter-container,
+.output_subarea .dd-scatter-container {
+    background-color: transparent;
+    padding: 0.5rem;
+    margin: 0;
+}
+
+/* Google Colab specific adjustments */
+.google-colab .dd-scatter-container {
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Base container styles */
+.dd-scatter-container {
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    width: 100%;
+    max-width: 1200px;
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 1rem;
+    color: var(--dd-text-color);
+    background-color: var(--dd-bg-color);
+    border-radius: 0.5rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Controls layout */
+.dd-scatter-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+/* Fieldset styling */
+.dd-scatter-container fieldset {
+    border: 1px solid var(--dd-border-color);
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--dd-bg-color);
+    box-shadow: var(--dd-control-shadow);
+    font-size: 0.875rem;
+    margin: 0;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dd-scatter-container fieldset:hover {
+    border-color: var(--dd-primary-hover);
+}
+
+.dd-scatter-container legend {
+    font-weight: 600;
+    font-size: 0.8125rem;
+    color: var(--dd-text-color);
+    padding: 0 0.25rem;
+}
+
+/* Button styling */
+.dd-scatter-container .button-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.dd-scatter-container button {
+    font-weight: 500;
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border: 1px solid var(--dd-border-color);
+    border-radius: 0.375rem;
+    background-color: var(--dd-bg-color);
+    color: var(--dd-text-color);
+    transition: all 0.15s ease;
+    box-shadow: var(--dd-control-shadow);
+    line-height: 1.25rem;
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dd-scatter-container button svg {
+    margin-right: 0.25rem;
+    background: none;
+    border: none;
+    box-shadow: none;
+    display: inline;
+    width: 16px;
+    height: 16px;
+}
+
+.dd-scatter-container button:hover {
+    background-color: var(--dd-hover-color);
+    border-color: var(--dd-primary-color);
+    box-shadow: 0 2px 4px var(--dd-shadow-color);
+}
+
+.dd-scatter-container button:focus {
+    outline: none;
+    box-shadow: var(--dd-focus-ring);
+}
+
+.dd-scatter-container button:active {
+    background-color: var(--dd-active-color);
+    transform: translateY(1px);
+    box-shadow: none;
+}
+
+/* Count labels */
+.dd-scatter-container span.count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 9999px;
+    margin-right: 0.5rem;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.dd-scatter-container span.count[data-color="a"] {
+    background-color: var(--dd-count-bg-a);
+    color: var(--dd-count-text-a);
+}
+
+.dd-scatter-container span.count[data-color="b"] {
+    background-color: var(--dd-count-bg-b);
+    color: var(--dd-count-text-b);
+}
+
+.dd-scatter-container span.count[data-color="c"] {
+    background-color: var(--dd-count-bg-c);
+    color: var(--dd-count-text-c);
+}
+
+.dd-scatter-container span.count[data-color="d"] {
+    background-color: var(--dd-count-bg-d);
+    color: var(--dd-count-text-d);
+}
+
+/* Radio button class selector */
+.dd-scatter-container .class-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.dd-scatter-container .brushsize-selector {
+    min-width: 200px;
+}
+
+/* Improved radio buttons */
+.dd-scatter-container input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid var(--dd-border-color);
+    border-radius: 50%;
+    margin-right: 0.25rem;
+    position: relative;
+    cursor: pointer;
+    vertical-align: -0.125em;
+    transition: all 0.15s ease;
+}
+
+.dd-scatter-container input[type="radio"]:checked {
+    border-color: var(--dd-primary-color);
+    background-color: var(--dd-primary-color);
+}
+
+.dd-scatter-container input[type="radio"]:checked::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 50%;
+    background-color: white;
+}
+
+.dd-scatter-container input[type="radio"]:hover {
+    border-color: var(--dd-primary-hover);
+}
+
+.dd-scatter-container input[type="radio"]:focus {
+    outline: none;
+    box-shadow: var(--dd-focus-ring);
+}
+
+.dd-scatter-container .class-selector label {
+    margin-right: 0.75rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    user-select: none;
+    transition: color 0.15s ease;
+}
+
+.dd-scatter-container .class-selector label:hover {
+    color: var(--dd-primary-color);
+}
+
+/* Range slider improvements */
+.dd-scatter-container .brushsize-selector input[type="range"] {
+    display: block;
+    width: 100%;
+    margin: 0.5rem 0;
+    padding: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 0.25rem;
+    background: var(--dd-input-bg);
+    border-radius: 9999px;
+    outline: none;
+}
+
+.dd-scatter-container .brushsize-selector input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1.125rem;
+    height: 1.125rem;
+    background: var(--dd-primary-color);
+    border: 2px solid white;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 1px 3px var(--dd-shadow-color);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dd-scatter-container .brushsize-selector input[type="range"]::-moz-range-thumb {
+    width: 1.125rem;
+    height: 1.125rem;
+    background: var(--dd-primary-color);
+    border: 2px solid white;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 1px 3px var(--dd-shadow-color);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dd-scatter-container .brushsize-selector input[type="range"]::-webkit-slider-thumb:hover,
+.dd-scatter-container .brushsize-selector input[type="range"]::-moz-range-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 0 2px 5px var(--dd-shadow-color);
+}
+
+.dd-scatter-container .brushsize-selector input[type="range"]::-webkit-slider-thumb:active,
+.dd-scatter-container .brushsize-selector input[type="range"]::-moz-range-thumb:active {
+    transform: scale(0.95);
+}
+
+.dd-scatter-container .brushsize-selector input[type="range"]:focus {
+    box-shadow: var(--dd-focus-ring);
+}
+
+/* SVG container and visualization */
+.dd-scatter-container .dd-scatter-svg-container {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 0.75rem;
+}
+
+.dd-scatter-container svg {
+    display: block;
+    cursor: crosshair;
+    background: var(--dd-svg-bg);
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    box-sizing: border-box;
+    border: var(--dd-svg-border);
+    border-radius: var(--dd-svg-border-radius);
+    box-shadow: 0 1px 3px var(--dd-shadow-color);
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dd-scatter-container svg:hover {
+    box-shadow: 0 2px 6px var(--dd-shadow-color);
+}
+
+/* Responsive design improvements */
+@media (max-width: 640px) {
+    .dd-scatter-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .dd-scatter-container .button-group {
+        flex-direction: column;
+    }
+    
+    .dd-scatter-container fieldset {
+        width: 100%;
+    }
+}
+
+/* High-contrast mode support */
+@media (forced-colors: active) {
+    .dd-scatter-container button,
+    .dd-scatter-container fieldset,
+    .dd-scatter-container svg {
+        border: 2px solid CanvasText;
+    }
+    
+    .dd-scatter-container button:focus,
+    .dd-scatter-container input:focus {
+        outline: 2px solid Highlight;
+    }
+}
+
+/* Print styles */
+@media print {
+    .dd-scatter-container {
+        background-color: white !important;
+        color: black !important;
+        box-shadow: none !important;
+    }
+    
+    .dd-scatter-container svg {
+        background-color: white !important;
+        border: 1px solid #ddd !important;
+    }
 }
