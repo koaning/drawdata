@@ -1,4 +1,4 @@
-.PHONY: js
+.PHONY: js docs
 
 install: 
 	# install the build tool for JS written in Golang
@@ -16,3 +16,7 @@ js:
 
 clean:
 	rm -rf .ipynb_checkpoints build dist drawdata.egg-info
+
+
+docs:
+	marimo export html-wasm --output docs --mode edit demo.py
