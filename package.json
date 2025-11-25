@@ -1,0 +1,15 @@
+{
+  "name": "drawdata-widgets",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "make js-all"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "radix-ui": "^1.0.0",
+    "@anywidget/react": "^0.2.0",
+    "d3": "^7.8.0"
+  }
+}
