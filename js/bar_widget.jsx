@@ -5,6 +5,8 @@ import { ToggleGroup } from "radix-ui";
 import * as d3 from "d3";
 
 const COLORS = ["#36A2EB", "#FFCE56", "#4BC0C0", "#FF6384"];
+const COLORS_MID = ["#64b5f6", "#ffe082", "#80deea", "#ef9a9a"];
+const COLORS_LIGHT = ["#e3f2fd", "#fff8e1", "#e0f7fa", "#fce4ec"];
 
 function formatAxisNumber(num) {
   const absNum = Math.abs(num);
@@ -283,41 +285,46 @@ function BarWidget() {
       <div className="flex flex-wrap gap-4 items-center">
         {/* Collection selector */}
         {showCollectionSelector && (
-          <ToggleGroup.Root
-            type="single"
-            value={activeCollection}
-            onValueChange={(value) => value && setActiveCollection(value)}
-            className="inline-flex"
+          <div
+            className="inline-flex rounded overflow-hidden border"
+            style={{ borderColor: "var(--widget-border)" }}
           >
-            {collectionKeys.map((key) => (
-              <ToggleGroup.Item
-                key={key}
-                value={key}
-                className="px-4 py-2 cursor-pointer inline-flex items-center gap-2 first:rounded-l last:rounded-r"
-                style={{
-                  backgroundColor: activeCollection === key ? collections[key].color : "var(--widget-bg-elevated)",
-                  color: activeCollection === key ? "white" : "var(--widget-text)",
-                  border: "1px solid var(--widget-border)"
-                }}
-              >
-                <span
-                  className="w-3 h-3 rounded-full border border-black/20"
-                  style={{ backgroundColor: collections[key].color }}
-                />
-                {key}
-              </ToggleGroup.Item>
-            ))}
-          </ToggleGroup.Root>
+            <ToggleGroup.Root
+              type="single"
+              value={activeCollection}
+              onValueChange={(value) => value && setActiveCollection(value)}
+              className="inline-flex"
+            >
+              {collectionKeys.map((key, i) => (
+                <ToggleGroup.Item
+                  key={key}
+                  value={key}
+                  className="px-4 py-2 cursor-pointer inline-flex items-center gap-2"
+                  style={{
+                    backgroundColor: activeCollection === key ? COLORS_MID[i % COLORS_MID.length] : COLORS_LIGHT[i % COLORS_LIGHT.length],
+                    color: activeCollection === key ? "white" : "var(--widget-text)",
+                    borderRight: i < collectionKeys.length - 1 ? "1px solid var(--widget-border)" : "none"
+                  }}
+                >
+                  <span
+                    className="w-3 h-3 rounded-full border border-black/20"
+                    style={{ backgroundColor: collections[key].color }}
+                  />
+                  {key}
+                </ToggleGroup.Item>
+              ))}
+            </ToggleGroup.Root>
+          </div>
         )}
 
         {/* Clear button */}
         <button
           onClick={handleClear}
-          className="px-4 py-2 rounded cursor-pointer"
+          className="px-4 py-2 rounded cursor-pointer border"
           style={{
             backgroundColor: "var(--widget-bg-elevated)",
             color: "var(--widget-text)",
-            border: "1px solid var(--widget-border)"
+            borderColor: "var(--widget-border)"
           }}
         >
           Clear

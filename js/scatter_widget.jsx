@@ -6,6 +6,8 @@ import * as d3 from "d3";
 
 // Color configuration
 const COLORS = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"];
+const COLORS_MID = ["#64b5f6", "#ffb74d", "#81c784", "#e57373"];
+const COLORS_LIGHT = ["#e3f2fd", "#fff3e0", "#e8f5e9", "#ffebee"];
 const CLASSES = ["a", "b", "c", "d"];
 const COLOR_MAP = {
   "#1f77b4": "a",
@@ -265,23 +267,27 @@ function ScatterWidget() {
           <div className="text-sm font-semibold mb-2">
             Class:
           </div>
-          <ToggleGroup.Root
-            type="single"
-            value={selectedClass}
-            onValueChange={(value) => value && setSelectedClass(value)}
-            className="inline-flex"
+          <div
+            className="inline-flex rounded overflow-hidden border"
+            style={{ borderColor: "var(--widget-border)" }}
           >
-            {CLASSES.map((cls, i) => (
-              <ToggleGroup.Item
-                key={cls}
-                value={cls}
-                className="px-4 py-2 cursor-pointer inline-flex items-center gap-2 first:rounded-l last:rounded-r"
-                style={{
-                  backgroundColor: selectedClass === cls ? COLORS[i] : "var(--widget-bg-elevated)",
-                  color: selectedClass === cls ? "white" : "var(--widget-text)",
-                  border: "1px solid var(--widget-border)"
-                }}
-              >
+            <ToggleGroup.Root
+              type="single"
+              value={selectedClass}
+              onValueChange={(value) => value && setSelectedClass(value)}
+              className="inline-flex"
+            >
+              {CLASSES.map((cls, i) => (
+                <ToggleGroup.Item
+                  key={cls}
+                  value={cls}
+                  className="px-4 py-2 cursor-pointer inline-flex items-center gap-2"
+                  style={{
+                    backgroundColor: selectedClass === cls ? COLORS_MID[i] : COLORS_LIGHT[i],
+                    color: selectedClass === cls ? "white" : "var(--widget-text)",
+                    borderRight: i < CLASSES.length - 1 ? "1px solid var(--widget-border)" : "none"
+                  }}
+                >
                 <span
                   className="w-3 h-3 rounded-full border border-black/20"
                   style={{ backgroundColor: COLORS[i] }}
@@ -289,7 +295,8 @@ function ScatterWidget() {
                 {cls}
               </ToggleGroup.Item>
             ))}
-          </ToggleGroup.Root>
+            </ToggleGroup.Root>
+          </div>
         </div>
 
         {/* Brush size slider */}
@@ -319,22 +326,22 @@ function ScatterWidget() {
         <div className="flex gap-2">
           <button
             onClick={handleReset}
-            className="px-4 py-2 rounded cursor-pointer"
+            className="px-4 py-2 rounded cursor-pointer border"
             style={{
               backgroundColor: "var(--widget-bg-elevated)",
               color: "var(--widget-text)",
-              border: "1px solid var(--widget-border)"
+              borderColor: "var(--widget-border)"
             }}
           >
             Reset
           </button>
           <button
             onClick={handleUndo}
-            className="px-4 py-2 rounded cursor-pointer"
+            className="px-4 py-2 rounded cursor-pointer border"
             style={{
               backgroundColor: "var(--widget-bg-elevated)",
               color: "var(--widget-text)",
-              border: "1px solid var(--widget-border)"
+              borderColor: "var(--widget-border)"
             }}
           >
             Undo
