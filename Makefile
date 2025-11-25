@@ -1,4 +1,4 @@
-.PHONY: js js-scatter js-bar js-all docs
+.PHONY: js js-scatter js-bar js-all css docs
 
 install:
 	# install the build tool for JS written in Golang
@@ -21,7 +21,10 @@ js-scatter:
 js-bar:
 	./esbuild --watch=forever --bundle --format=esm --jsx=automatic --outfile=drawdata/static/bar_widget.js js/bar_widget.jsx
 
-js-all:
+css:
+	npx tailwindcss -i js/styles.css -o drawdata/static/widget.css --minify
+
+js-all: css
 	./esbuild --bundle --format=esm --jsx=automatic --minify --outfile=drawdata/static/scatter_widget.js js/scatter_widget.jsx
 	./esbuild --bundle --format=esm --jsx=automatic --minify --outfile=drawdata/static/bar_widget.js js/bar_widget.jsx
 

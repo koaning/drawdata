@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Widget theme using light-dark() for automatic theme adaptation */
+:root {
+  color-scheme: light dark;
+
+  /* Background colors */
+  --widget-bg: light-dark(#f9fafb, #1f2937);
+  --widget-bg-elevated: light-dark(#ffffff, #374151);
+
+  /* Border colors */
+  --widget-border: light-dark(#e5e7eb, #4b5563);
+
+  /* Text colors */
+  --widget-text: light-dark(#111827, #f3f4f6);
+  --widget-text-muted: light-dark(#6b7280, #9ca3af);
+
+  /* Grid/chart colors */
+  --widget-grid: light-dark(#d1d5db, #4b5563);
+  --widget-chart-border: light-dark(#1f2937, #9ca3af);
+}

@@ -40,14 +40,14 @@ function ScatterCanvas({
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
-    // Create grid
+    // Create grid - uses CSS custom properties for theming
     const grid = svg.append("g").attr("class", "grid-lines");
 
     for (let i = 0; i <= width; i += 100) {
       grid.append("line")
         .attr("x1", i).attr("y1", 0)
         .attr("x2", i).attr("y2", height)
-        .attr("stroke", "#e5e7eb")
+        .attr("stroke", "var(--widget-grid)")
         .attr("stroke-width", i % 200 === 0 ? 0.75 : 0.5)
         .attr("opacity", i % 200 === 0 ? 0.4 : 0.2);
     }
@@ -56,7 +56,7 @@ function ScatterCanvas({
       grid.append("line")
         .attr("x1", 0).attr("y1", i)
         .attr("x2", width).attr("y2", i)
-        .attr("stroke", "#e5e7eb")
+        .attr("stroke", "var(--widget-grid)")
         .attr("stroke-width", i % 200 === 0 ? 0.75 : 0.5)
         .attr("opacity", i % 200 === 0 ? 0.4 : 0.2);
     }
@@ -65,14 +65,16 @@ function ScatterCanvas({
     svg.append("text")
       .attr("x", width / 2).attr("y", height - 10)
       .attr("text-anchor", "middle")
-      .attr("fill", "#111827").attr("opacity", 0.5)
+      .attr("fill", "var(--widget-text-muted)")
+      .attr("opacity", 0.5)
       .attr("font-size", "12px").text("X");
 
     svg.append("text")
       .attr("transform", "rotate(-90)")
       .attr("x", -height / 2).attr("y", 15)
       .attr("text-anchor", "middle")
-      .attr("fill", "#111827").attr("opacity", 0.5)
+      .attr("fill", "var(--widget-text-muted)")
+      .attr("opacity", 0.5)
       .attr("font-size", "12px").text("Y");
 
     // Points group
@@ -216,14 +218,11 @@ function ScatterCanvas({
     <svg
       ref={svgRef}
       viewBox={`0 0 ${width} ${height}`}
+      className="w-full h-auto cursor-crosshair rounded-lg"
       style={{
-        width: "100%",
-        height: "auto",
         aspectRatio: `${width}/${height}`,
-        cursor: "crosshair",
-        border: "1px solid #e5e7eb",
-        borderRadius: "8px",
-        backgroundColor: "#fafafa"
+        backgroundColor: "var(--widget-bg)",
+        border: "1px solid var(--widget-border)"
       }}
     />
   );
@@ -255,125 +254,116 @@ function ScatterWidget() {
   };
 
   return (
-    <div style={{ padding: "1rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
-        {/* Controls */}
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "center" }}>
-          {/* Class selector */}
-          <div>
-            <div style={{ fontSize: "0.875rem", fontWeight: 600, marginBottom: "0.5rem" }}>
-              Class:
-            </div>
-            <ToggleGroup.Root
-              type="single"
-              value={selectedClass}
-              onValueChange={(value) => value && setSelectedClass(value)}
-            >
-              {CLASSES.map((cls, i) => (
-                <ToggleGroup.Item
-                  key={cls}
-                  value={cls}
-                  style={{
-                    padding: "0.5rem 1rem",
-                    border: "1px solid #e5e7eb",
-                    backgroundColor: selectedClass === cls ? COLORS[i] : "white",
-                    color: selectedClass === cls ? "white" : "#111827",
-                    cursor: "pointer",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "0.5rem"
-                  }}
-                >
-                  <span
-                    style={{
-                      width: "12px",
-                      height: "12px",
-                      borderRadius: "50%",
-                      backgroundColor: COLORS[i],
-                      border: "1px solid rgba(0,0,0,0.2)"
-                    }}
-                  />
-                  {cls}
-                </ToggleGroup.Item>
-              ))}
-            </ToggleGroup.Root>
+    <div
+      className="p-4 flex flex-col gap-4"
+      style={{ color: "var(--widget-text)" }}
+    >
+      {/* Controls row - all on one line */}
+      <div className="flex flex-wrap gap-4 items-end">
+        {/* Class selector */}
+        <div>
+          <div className="text-sm font-semibold mb-2">
+            Class:
           </div>
-
-          {/* Brush size slider */}
-          <div style={{ minWidth: "150px" }}>
-            <div style={{ fontSize: "0.875rem", fontWeight: 600, marginBottom: "0.5rem" }}>
-              Brush Size: {brushSize}
-            </div>
-            <Slider.Root
-              value={[brushSize]}
-              onValueChange={([value]) => setBrushSize(value)}
-              min={5}
-              max={100}
-              step={1}
-              style={{ position: "relative", display: "flex", alignItems: "center", width: "100%", height: "20px" }}
-            >
-              <Slider.Track style={{ backgroundColor: "#e5e7eb", position: "relative", flexGrow: 1, height: "4px", borderRadius: "9999px" }}>
-                <Slider.Range style={{ position: "absolute", backgroundColor: "#3b82f6", height: "100%", borderRadius: "9999px" }} />
-              </Slider.Track>
-              <Slider.Thumb style={{ display: "block", width: "16px", height: "16px", backgroundColor: "#3b82f6", borderRadius: "50%", cursor: "pointer" }} />
-            </Slider.Root>
-          </div>
-
-          {/* Action buttons */}
-          <div style={{ display: "flex", gap: "0.5rem" }}>
-            <button
-              onClick={handleReset}
-              style={{
-                padding: "0.5rem 1rem",
-                border: "1px solid #e5e7eb",
-                borderRadius: "4px",
-                backgroundColor: "white",
-                cursor: "pointer"
-              }}
-            >
-              Reset
-            </button>
-            <button
-              onClick={handleUndo}
-              style={{
-                padding: "0.5rem 1rem",
-                border: "1px solid #e5e7eb",
-                borderRadius: "4px",
-                backgroundColor: "white",
-                cursor: "pointer"
-              }}
-            >
-              Undo
-            </button>
-          </div>
+          <ToggleGroup.Root
+            type="single"
+            value={selectedClass}
+            onValueChange={(value) => value && setSelectedClass(value)}
+            className="inline-flex"
+          >
+            {CLASSES.map((cls, i) => (
+              <ToggleGroup.Item
+                key={cls}
+                value={cls}
+                className="px-4 py-2 cursor-pointer inline-flex items-center gap-2 first:rounded-l last:rounded-r"
+                style={{
+                  backgroundColor: selectedClass === cls ? COLORS[i] : "var(--widget-bg-elevated)",
+                  color: selectedClass === cls ? "white" : "var(--widget-text)",
+                  border: "1px solid var(--widget-border)"
+                }}
+              >
+                <span
+                  className="w-3 h-3 rounded-full border border-black/20"
+                  style={{ backgroundColor: COLORS[i] }}
+                />
+                {cls}
+              </ToggleGroup.Item>
+            ))}
+          </ToggleGroup.Root>
         </div>
 
-        {/* Counts */}
-        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+        {/* Brush size slider */}
+        <div className="min-w-[150px]">
+          <div className="text-sm font-semibold mb-2">
+            Brush Size: {brushSize}
+          </div>
+          <Slider.Root
+            value={[brushSize]}
+            onValueChange={([value]) => setBrushSize(value)}
+            min={5}
+            max={100}
+            step={1}
+            className="relative flex items-center w-full h-5"
+          >
+            <Slider.Track
+              className="relative grow h-1 rounded-full"
+              style={{ backgroundColor: "var(--widget-border)" }}
+            >
+              <Slider.Range className="absolute bg-blue-500 h-full rounded-full" />
+            </Slider.Track>
+            <Slider.Thumb className="block w-4 h-4 bg-blue-500 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300" />
+          </Slider.Root>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex gap-2">
+          <button
+            onClick={handleReset}
+            className="px-4 py-2 rounded cursor-pointer"
+            style={{
+              backgroundColor: "var(--widget-bg-elevated)",
+              color: "var(--widget-text)",
+              border: "1px solid var(--widget-border)"
+            }}
+          >
+            Reset
+          </button>
+          <button
+            onClick={handleUndo}
+            className="px-4 py-2 rounded cursor-pointer"
+            style={{
+              backgroundColor: "var(--widget-bg-elevated)",
+              color: "var(--widget-text)",
+              border: "1px solid var(--widget-border)"
+            }}
+          >
+            Undo
+          </button>
+        </div>
+
+        {/* Counts - hidden on small screens, shown on lg+ */}
+        <div className="hidden lg:flex gap-2 ml-auto">
           {CLASSES.map((cls, i) => (
             <span
               key={cls}
-              style={{
-                backgroundColor: COLORS[i],
-                color: "white",
-                fontWeight: "bold",
-                padding: "0.25rem 0.75rem",
-                borderRadius: "0.375rem"
-              }}
+              className="text-white font-bold py-2 px-3 rounded text-sm"
+              style={{ backgroundColor: COLORS[i] }}
             >
               {cls}: {counts[cls]}
             </span>
           ))}
         </div>
+      </div>
 
-        {/* Canvas */}
-        <ScatterCanvas
-          data={data}
-          width={width || 800}
-          height={height || 500}
-          brushSize={brushSize || 40}
-          selectedColor={selectedColor}
-          onDataChange={setData}
-        />
+      {/* Canvas */}
+      <ScatterCanvas
+        data={data}
+        width={width || 800}
+        height={height || 500}
+        brushSize={brushSize || 40}
+        selectedColor={selectedColor}
+        onDataChange={setData}
+      />
     </div>
   );
 }

@@ -11,5 +11,8 @@
     "radix-ui": "^1.0.0",
     "@anywidget/react": "^0.2.0",
     "d3": "^7.8.0"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
   }
 }

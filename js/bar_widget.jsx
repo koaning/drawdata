@@ -75,18 +75,18 @@ function BarCanvas({
     const g = svg.append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Grid
+    // Grid - uses CSS custom properties
     const grid = g.append("g").attr("class", "grid");
     yScale.ticks(10).forEach(tick => {
       grid.append("line")
         .attr("x1", 0).attr("x2", innerWidth)
         .attr("y1", yScale(tick)).attr("y2", yScale(tick))
-        .attr("stroke", "#ddd")
+        .attr("stroke", "var(--widget-grid)")
         .attr("stroke-opacity", 0.7);
     });
 
     // X axis
-    g.append("g")
+    const xAxisG = g.append("g")
       .attr("transform", `translate(0,${innerHeight})`)
       .call(d3.axisBottom(xScale)
         .tickValues(xScale.domain().filter((d, i) => {
@@ -94,11 +94,19 @@ function BarCanvas({
           return i % interval === 0;
         })));
 
+    xAxisG.selectAll("text").attr("fill", "var(--widget-text)");
+    xAxisG.selectAll("line").attr("stroke", "var(--widget-text)");
+    xAxisG.select(".domain").attr("stroke", "var(--widget-text)");
+
     // Y axis
-    g.append("g")
+    const yAxisG = g.append("g")
       .call(d3.axisLeft(yScale)
         .ticks(10)
         .tickFormat(formatAxisNumber));
+
+    yAxisG.selectAll("text").attr("fill", "var(--widget-text)");
+    yAxisG.selectAll("line").attr("stroke", "var(--widget-text)");
+    yAxisG.select(".domain").attr("stroke", "var(--widget-text)");
 
     // Bars groups for each collection
     Object.keys(collections).forEach(key => {
@@ -110,7 +118,7 @@ function BarCanvas({
       .attr("width", innerWidth)
       .attr("height", innerHeight)
       .attr("fill", "none")
-      .attr("stroke", "#000")
+      .attr("stroke", "var(--widget-chart-border)")
       .attr("stroke-width", 1);
 
     // Interaction overlay
@@ -181,10 +189,10 @@ function BarCanvas({
       ref={svgRef}
       width={width}
       height={height}
+      className="rounded-lg"
       style={{
-        border: "1px solid #e5e7eb",
-        borderRadius: "8px",
-        backgroundColor: "#fafafa"
+        backgroundColor: "var(--widget-bg)",
+        border: "1px solid var(--widget-border)"
       }}
     />
   );
@@ -267,72 +275,66 @@ function BarWidget() {
   const showCollectionSelector = collectionKeys.length > 1;
 
   return (
-    <div style={{ padding: "1rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
-        {/* Controls */}
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "center" }}>
-          {/* Collection selector */}
-          {showCollectionSelector && (
-            <ToggleGroup.Root
-              type="single"
-              value={activeCollection}
-              onValueChange={(value) => value && setActiveCollection(value)}
-            >
-              {collectionKeys.map((key) => (
-                <ToggleGroup.Item
-                  key={key}
-                  value={key}
-                  style={{
-                    padding: "0.5rem 1rem",
-                    border: "1px solid #e5e7eb",
-                    backgroundColor: activeCollection === key ? collections[key].color : "white",
-                    color: activeCollection === key ? "white" : "#111827",
-                    cursor: "pointer",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "0.5rem"
-                  }}
-                >
-                  <span
-                    style={{
-                      width: "12px",
-                      height: "12px",
-                      borderRadius: "50%",
-                      backgroundColor: collections[key].color,
-                      border: "1px solid rgba(0,0,0,0.2)"
-                    }}
-                  />
-                  {key}
-                </ToggleGroup.Item>
-              ))}
-            </ToggleGroup.Root>
-          )}
-
-          {/* Clear button */}
-          <button
-            onClick={handleClear}
-            style={{
-              padding: "0.5rem 1rem",
-              border: "1px solid #e5e7eb",
-              borderRadius: "4px",
-              backgroundColor: "white",
-              cursor: "pointer"
-            }}
+    <div
+      className="p-4 flex flex-col gap-4"
+      style={{ color: "var(--widget-text)" }}
+    >
+      {/* Controls */}
+      <div className="flex flex-wrap gap-4 items-center">
+        {/* Collection selector */}
+        {showCollectionSelector && (
+          <ToggleGroup.Root
+            type="single"
+            value={activeCollection}
+            onValueChange={(value) => value && setActiveCollection(value)}
+            className="inline-flex"
           >
-            Clear
-          </button>
-        </div>
+            {collectionKeys.map((key) => (
+              <ToggleGroup.Item
+                key={key}
+                value={key}
+                className="px-4 py-2 cursor-pointer inline-flex items-center gap-2 first:rounded-l last:rounded-r"
+                style={{
+                  backgroundColor: activeCollection === key ? collections[key].color : "var(--widget-bg-elevated)",
+                  color: activeCollection === key ? "white" : "var(--widget-text)",
+                  border: "1px solid var(--widget-border)"
+                }}
+              >
+                <span
+                  className="w-3 h-3 rounded-full border border-black/20"
+                  style={{ backgroundColor: collections[key].color }}
+                />
+                {key}
+              </ToggleGroup.Item>
+            ))}
+          </ToggleGroup.Root>
+        )}
 
-        {/* Canvas */}
-        <BarCanvas
-          collections={collections}
-          activeCollection={activeCollection}
-          width={width || 600}
-          height={height || 400}
-          nBins={nBins || 24}
-          yMin={yMin || 0}
-          yMax={yMax || 100}
-          onCollectionUpdate={handleCollectionUpdate}
-        />
+        {/* Clear button */}
+        <button
+          onClick={handleClear}
+          className="px-4 py-2 rounded cursor-pointer"
+          style={{
+            backgroundColor: "var(--widget-bg-elevated)",
+            color: "var(--widget-text)",
+            border: "1px solid var(--widget-border)"
+          }}
+        >
+          Clear
+        </button>
+      </div>
+
+      {/* Canvas */}
+      <BarCanvas
+        collections={collections}
+        activeCollection={activeCollection}
+        width={width || 600}
+        height={height || 400}
+        nBins={nBins || 24}
+        yMin={yMin || 0}
+        yMax={yMax || 100}
+        onCollectionUpdate={handleCollectionUpdate}
+      />
     </div>
   );
 }

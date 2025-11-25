@@ -29,7 +29,7 @@ class ScatterWidget(anywidget.AnyWidget):
     as your draw data.
     """
     _esm = Path(__file__).parent / 'static' / 'scatter_widget.js'
-    _css = Path(__file__).parent / 'static' / 'scatter_widget.css'
+    _css = Path(__file__).parent / 'static' / 'widget.css'
     data = traitlets.List([]).tag(sync=True)
     brushsize = traitlets.Int(40).tag(sync=True)
     width = traitlets.Int(800).tag(sync=True)
@@ -67,7 +67,7 @@ class BarWidget(anywidget.AnyWidget):
     as your draw data.
     """
     _esm = Path(__file__).parent / 'static' / 'bar_widget.js'
-    _css = Path(__file__).parent / 'static' / 'bar_widget.css'
+    _css = Path(__file__).parent / 'static' / 'widget.css'
     data = traitlets.List([]).tag(sync=True)
     y_min = traitlets.Float(0.0).tag(sync=True)
     y_max = traitlets.Float(1.0).tag(sync=True)
