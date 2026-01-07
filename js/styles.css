@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Widget theme using light-dark() for automatic theme adaptation */
+:root {
+  color-scheme: light dark;
+
+  /* Background colors */
+  --widget-bg: light-dark(#f9fafb, #1f2937);
+  --widget-bg-elevated: light-dark(#ffffff, #374151);
+
+  /* Border colors */
+  --widget-border: light-dark(#e5e7eb, #4b5563);
+
+  /* Text colors */
+  --widget-text: light-dark(#111827, #f3f4f6);
+  --widget-text-muted: light-dark(#6b7280, #9ca3af);
+
+  /* Grid/chart colors */
+  --widget-grid: light-dark(#d1d5db, #4b5563);
+  --widget-chart-border: light-dark(#1f2937, #9ca3af);
+
+  /* Scatter widget class colors - a (blue), b (orange), c (green), d (red) */
+  --color-a-light: light-dark(#e3f2fd, #1e3a5f);
+  --color-a-mid: light-dark(#64b5f6, #2563eb);
+  --color-b-light: light-dark(#fff3e0, #5c4033);
+  --color-b-mid: light-dark(#ffb74d, #f59e0b);
+  --color-c-light: light-dark(#e8f5e9, #1e4620);
+  --color-c-mid: light-dark(#81c784, #22c55e);
+  --color-d-light: light-dark(#ffebee, #5c2020);
+  --color-d-mid: light-dark(#e57373, #ef4444);
+}

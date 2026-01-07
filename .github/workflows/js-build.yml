@@ -1,0 +1,32 @@
+name: JS Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install esbuild
+        run: curl -fsSL https://esbuild.github.io/dl/v0.19.11 | sh
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build JavaScript
+        run: make js-all
+
+      - name: Check bundle sizes
+        run: ls -lh drawdata/static/*.js
