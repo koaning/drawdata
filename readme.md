@@ -1,5 +1,3 @@
-<img src="imgs/logo.png" width=125 height=125 align="right" style="z-index: 9999;">
-
 ### drawdata 
 
 > "Just draw some data and get on with your day."
