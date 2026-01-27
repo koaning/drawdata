@@ -1,0 +1,1 @@
+import{s as o}from"./chunk-LvLJmgfZ.js";import{t as a}from"./react-BGmjiNul.js";import{t as n}from"./react-dom-C9fstfnp.js";n();var e=o(a(),1),i=(0,e.createContext)(null);function l(t){let r=(0,e.useRef)({});return e.createElement(i.Provider,{value:r},t.children)}var m=(0,e.createContext)({isSelected:!1});export{l as n,m as t};
