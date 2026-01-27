@@ -9536,8 +9536,9 @@ var d3 = __toESM(require_d3_v7());
 function render({ model, el }) {
   const colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"];
   const color_map = { "#1f77b4": "a", "#ff7f0e": "b", "#2ca02c": "c", "#d62728": "d" };
-  const height = model.get("height") || 500;
+  const height = model.get("height") || 400;
   const width = model.get("width") || 800;
+  const brushScale = width / 800;
   let container = document.createElement("div");
   container.className = "dd-scatter-container";
   if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
@@ -9660,7 +9661,7 @@ function render({ model, el }) {
   svg_container.className = "dd-scatter-svg-container";
   container.appendChild(svg_container);
   const aspectRatio = width / height;
-  let svg = d3.select(svg_container).append("svg").attr("preserveAspectRatio", "xMidYMid meet").attr("viewBox", `0 0 ${width} ${height}`).attr("width", "100%").attr("height", "auto").attr("aria-label", "Scatter plot drawing area").attr("role", "img").style("aspect-ratio", aspectRatio);
+  let svg = d3.select(svg_container).append("svg").attr("preserveAspectRatio", "xMidYMid meet").attr("viewBox", `0 0 ${width} ${height}`).attr("width", "100%").attr("height", "auto").attr("aria-label", "Scatter plot drawing area").attr("role", "img").style("aspect-ratio", aspectRatio).style("max-width", `${width}px`);
   let batch = 0;
   let isDragging = false;
   svg.attr("class", "dd-scatter-svg").call(d3.drag().on("start", drag_start).on("drag", dragged).on("end", drag_end)).on("click", mouseclick).on("mousemove", mousemove);
@@ -9672,8 +9673,6 @@ function render({ model, el }) {
     for (let i = 0; i <= height; i += 100) {
       grid.append("line").attr("x1", 0).attr("y1", i).attr("x2", width).attr("y2", i).attr("stroke", "var(--dd-border-color, #e5e7eb)").attr("stroke-width", i % 200 === 0 ? 0.75 : 0.5).attr("opacity", i % 200 === 0 ? 0.4 : 0.2);
     }
-    svg.append("text").attr("x", width / 2).attr("y", height - 10).attr("text-anchor", "middle").attr("fill", "var(--dd-text-color, #111827)").attr("opacity", 0.5).attr("font-size", "12px").text("X");
-    svg.append("text").attr("transform", "rotate(-90)").attr("x", -height / 2).attr("y", 15).attr("text-anchor", "middle").attr("fill", "var(--dd-text-color, #111827)").attr("opacity", 0.5).attr("font-size", "12px").text("Y");
   }
   createGrid();
   function redraw_from_scratch() {
@@ -9681,7 +9680,7 @@ function render({ model, el }) {
     if (!data)
       return;
     data.forEach(function(d) {
-      svg.append("circle").attr("cx", d.x).attr("cy", height - d.y).attr("r", 5).style("fill", d.color).style("stroke", "white").style("stroke-width", 1.5).style("opacity", 0.85).attr("class", `batch_${d.batch || 0} drawn`);
+      svg.append("circle").attr("cx", d.x).attr("cy", height - d.y).attr("r", 3).style("fill", d.color).style("stroke", "white").style("stroke-width", 1).style("opacity", 0.85).attr("class", `batch_${d.batch || 0} drawn`);
     });
   }
   redraw_from_scratch();
@@ -9690,7 +9689,7 @@ function render({ model, el }) {
     redraw_from_scratch();
   });
   model.on("change:brushsize", function() {
-    circle_brush.attr("r", size_input.value);
+    circle_brush.attr("r", size_input.value * brushScale);
     size_value.innerText = size_input.value;
   });
   model.on("change:width", function() {
@@ -9711,7 +9710,7 @@ function render({ model, el }) {
       redraw_from_scratch();
     }
   }
-  let circle_brush = svg.append("circle").attr("cx", width / 2).attr("cy", height / 2).attr("r", model.get("brushsize")).style("fill", selectedColor).style("fill-opacity", 0.3).style("stroke", selectedColor).style("stroke-width", 2).style("stroke-opacity", 0.9).attr("class", "brush-indicator");
+  let circle_brush = svg.append("circle").attr("cx", width / 2).attr("cy", height / 2).attr("r", model.get("brushsize") * brushScale).style("fill", selectedColor).style("fill-opacity", 0.3).style("stroke", selectedColor).style("stroke-width", 2).style("stroke-opacity", 0.9).attr("class", "brush-indicator");
   function drag_start(event) {
     isDragging = false;
   }
@@ -9722,7 +9721,7 @@ function render({ model, el }) {
   function mouseclick(event) {
     if (!isDragging) {
       const [x, y] = d3.pointer(event, svg.node());
-      let size = parseInt(size_input.value, 10);
+      let size = parseInt(size_input.value, 10) * brushScale;
       let new_x = x + (Math.random() - 0.5) * size;
       let new_y = y + (Math.random() - 0.5) * size;
       add_point(new_x, new_y);
@@ -9734,11 +9733,11 @@ function render({ model, el }) {
   }
   function resize_brush() {
     model.set("brushsize", Number(size_input.value));
-    circle_brush.attr("r", size_input.value);
+    circle_brush.attr("r", size_input.value * brushScale);
   }
   function add_point(new_x, new_y) {
     let label = color_map[selectedColor];
-    svg.append("circle").attr("cx", new_x).attr("cy", new_y).attr("r", 5).style("fill", selectedColor).style("stroke", "white").style("stroke-width", 1.5).style("opacity", 0.85).attr("class", `batch_${batch} drawn`);
+    svg.append("circle").attr("cx", new_x).attr("cy", new_y).attr("r", 3).style("fill", selectedColor).style("stroke", "white").style("stroke-width", 1).style("opacity", 0.85).attr("class", `batch_${batch} drawn`);
     if (!data)
       data = [];
     data.push({
@@ -9762,7 +9761,7 @@ function render({ model, el }) {
   function dragged(event) {
     isDragging = true;
     const [x, y] = d3.pointer(event, svg.node());
-    let size = parseInt(size_input.value, 10);
+    let size = parseInt(size_input.value, 10) * brushScale;
     let new_x = x + (Math.random() - 0.5) * size;
     let new_y = y + (Math.random() - 0.5) * size;
     add_point(new_x, new_y);
