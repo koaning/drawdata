@@ -18,4 +18,4 @@ clean:
 
 
 docs:
-	marimo -y export html-wasm --output docs --mode edit demo.py
+	uv run marimo -y export html-wasm --output docs --mode edit demo.py
