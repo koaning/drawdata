@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "drawdata"
-version = "0.4.0"
+version = "0.5.0"
 description = "draw a dataset from inside Jupyter"
 readme = "readme.md"
 license = {text = "MIT"}
@@ -13,9 +13,7 @@ authors = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "altair>=6.0.0",
     "anywidget>=0.9.2",
-    "pandas>=2.3.3",
 ]
 classifiers = [
     "Intended Audience :: Developers",

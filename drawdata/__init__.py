@@ -15,6 +15,12 @@ class ScatterWidget(anywidget.AnyWidget):
     brushsize = traitlets.Int(40).tag(sync=True)
     width = traitlets.Int(800).tag(sync=True)
     height = traitlets.Int(400).tag(sync=True)
+    n_classes = traitlets.Int(4).tag(sync=True)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if not 1 <= self.n_classes <= 4:
+            raise ValueError('n_classes must be between 1 and 4')
 
     @property
     def data_as_pandas(self):

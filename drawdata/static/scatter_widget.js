@@ -9534,8 +9534,15 @@ var require_d3_v7 = __commonJS({
 // js/scatter_widget.js
 var d3 = __toESM(require_d3_v7());
 function render({ model, el }) {
-  const colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"];
-  const color_map = { "#1f77b4": "a", "#ff7f0e": "b", "#2ca02c": "c", "#d62728": "d" };
+  const allColors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"];
+  const allClassNames = ["a", "b", "c", "d"];
+  const n_classes = model.get("n_classes") || 4;
+  const colors = allColors.slice(0, n_classes);
+  const classNames = allClassNames.slice(0, n_classes);
+  const color_map = {};
+  for (let i = 0; i < n_classes; i++) {
+    color_map[colors[i]] = classNames[i];
+  }
   function hexToRgba(hex, alpha) {
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
@@ -9560,7 +9567,12 @@ function render({ model, el }) {
   container.appendChild(controls);
   let selectedClassButton = null;
   let selectedColor = colors[0];
-  ["a", "b", "c", "d"].forEach(function(d, i) {
+  let classButtonsContainer = document.createElement("div");
+  classButtonsContainer.style.display = n_classes === 1 ? "none" : "flex";
+  classButtonsContainer.style.alignItems = "center";
+  classButtonsContainer.style.gap = "0.5rem";
+  controls.appendChild(classButtonsContainer);
+  classNames.forEach(function(d, i) {
     let button = document.createElement("button");
     button.className = "class-button";
     button.setAttribute("data-class", d);
@@ -9598,7 +9610,7 @@ function render({ model, el }) {
       button.style.color = "var(--dd-text-color)";
       circle_brush.style("fill", selectedColor).style("fill-opacity", 0.3).style("stroke", selectedColor).style("stroke-width", 2);
     };
-    controls.appendChild(button);
+    classButtonsContainer.appendChild(button);
     if (i === 0) {
       selectedClassButton = button;
       button.click();
@@ -9607,6 +9619,7 @@ function render({ model, el }) {
   let sep1 = document.createElement("span");
   sep1.style.borderLeft = "1px solid var(--dd-border-color)";
   sep1.style.height = "20px";
+  sep1.style.display = n_classes === 1 ? "none" : "block";
   sep1.style.margin = "0 0.25rem";
   controls.appendChild(sep1);
   let size_input = document.createElement("input");
@@ -9674,10 +9687,10 @@ function render({ model, el }) {
   function createGrid() {
     const grid = svg.append("g").attr("class", "grid-lines");
     for (let i = 0; i <= width; i += 100) {
-      grid.append("line").attr("x1", i).attr("y1", 0).attr("x2", i).attr("y2", height).attr("stroke", "var(--dd-border-color, #e5e7eb)").attr("stroke-width", i % 200 === 0 ? 0.75 : 0.5).attr("opacity", i % 200 === 0 ? 0.4 : 0.2);
+      grid.append("line").attr("x1", i).attr("y1", 0).attr("x2", i).attr("y2", height).attr("stroke", "var(--dd-border-color, #d0d0d0)").attr("stroke-width", i % 200 === 0 ? 0.75 : 0.5).attr("opacity", i % 200 === 0 ? 0.6 : 0.35);
     }
     for (let i = 0; i <= height; i += 100) {
-      grid.append("line").attr("x1", 0).attr("y1", i).attr("x2", width).attr("y2", i).attr("stroke", "var(--dd-border-color, #e5e7eb)").attr("stroke-width", i % 200 === 0 ? 0.75 : 0.5).attr("opacity", i % 200 === 0 ? 0.4 : 0.2);
+      grid.append("line").attr("x1", 0).attr("y1", i).attr("x2", width).attr("y2", i).attr("stroke", "var(--dd-border-color, #d0d0d0)").attr("stroke-width", i % 200 === 0 ? 0.75 : 0.5).attr("opacity", i % 200 === 0 ? 0.6 : 0.35);
     }
   }
   createGrid();
