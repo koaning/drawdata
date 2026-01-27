@@ -13,3 +13,7 @@ After modifying files in `js/`, rebuild the bundles:
 ```
 
 Or use `make js` for watch mode during development.
+
+## Dependencies
+
+**NEVER add dev tools (ruff, pytest, etc.) or demo-only dependencies (altair, etc.) to the main `dependencies` list in pyproject.toml.** The library should only depend on what it actually needs at runtime: anywidget and pandas.
