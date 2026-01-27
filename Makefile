@@ -18,4 +18,5 @@ clean:
 
 
 docs:
+	rm -rf docs
 	uv run marimo -y export html-wasm --output docs --mode edit demo.py
