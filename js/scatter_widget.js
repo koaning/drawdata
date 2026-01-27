@@ -1,9 +1,22 @@
 import * as d3 from "./d3.v7.js";
 
 function render({ model, el }) {
-  // Use fixed color values that match the original for API compatibility
-  const colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"];
-  const color_map = {"#1f77b4": "a", "#ff7f0e": "b", "#2ca02c": "c", "#d62728": "d"};
+  // Full set of available colors and class names
+  const allColors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"];
+  const allClassNames = ["a", "b", "c", "d"];
+
+  // Get number of classes (default to 4 for backward compatibility)
+  const n_classes = model.get("n_classes") || 4;
+
+  // Slice arrays to match requested number of classes
+  const colors = allColors.slice(0, n_classes);
+  const classNames = allClassNames.slice(0, n_classes);
+
+  // Build color_map dynamically
+  const color_map = {};
+  for (let i = 0; i < n_classes; i++) {
+    color_map[colors[i]] = classNames[i];
+  }
 
   // Helper to convert hex to rgba for pastel backgrounds
   function hexToRgba(hex, alpha) {
@@ -42,8 +55,15 @@ function render({ model, el }) {
   let selectedClassButton = null;
   let selectedColor = colors[0];
 
+  // Container for class buttons (hidden when n_classes === 1)
+  let classButtonsContainer = document.createElement("div");
+  classButtonsContainer.style.display = n_classes === 1 ? "none" : "flex";
+  classButtonsContainer.style.alignItems = "center";
+  classButtonsContainer.style.gap = "0.5rem";
+  controls.appendChild(classButtonsContainer);
+
   // Class buttons - compact
-  ["a", "b", "c", "d"].forEach(function(d, i) {
+  classNames.forEach(function(d, i) {
     let button = document.createElement("button");
     button.className = "class-button";
     button.setAttribute("data-class", d);
@@ -92,7 +112,7 @@ function render({ model, el }) {
         .style("stroke-width", 2);
     };
 
-    controls.appendChild(button);
+    classButtonsContainer.appendChild(button);
 
     if (i === 0) {
       selectedClassButton = button;
@@ -100,10 +120,11 @@ function render({ model, el }) {
     }
   });
 
-  // Separator
+  // Separator (hidden when n_classes === 1)
   let sep1 = document.createElement("span");
   sep1.style.borderLeft = "1px solid var(--dd-border-color)";
   sep1.style.height = "20px";
+  sep1.style.display = n_classes === 1 ? "none" : "block";
   sep1.style.margin = "0 0.25rem";
   controls.appendChild(sep1);
 
@@ -218,9 +239,9 @@ function render({ model, el }) {
          .attr("y1", 0)
          .attr("x2", i)
          .attr("y2", height)
-         .attr("stroke", "var(--dd-border-color, #e5e7eb)")
+         .attr("stroke", "var(--dd-border-color, #d0d0d0)")
          .attr("stroke-width", i % 200 === 0 ? 0.75 : 0.5)
-         .attr("opacity", i % 200 === 0 ? 0.4 : 0.2);
+         .attr("opacity", i % 200 === 0 ? 0.6 : 0.35);
     }
     
     // Add gridlines for y-axis
@@ -230,9 +251,9 @@ function render({ model, el }) {
          .attr("y1", i)
          .attr("x2", width)
          .attr("y2", i)
-         .attr("stroke", "var(--dd-border-color, #e5e7eb)")
+         .attr("stroke", "var(--dd-border-color, #d0d0d0)")
          .attr("stroke-width", i % 200 === 0 ? 0.75 : 0.5)
-         .attr("opacity", i % 200 === 0 ? 0.4 : 0.2);
+         .attr("opacity", i % 200 === 0 ? 0.6 : 0.35);
     }
   }
   
