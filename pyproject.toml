@@ -14,7 +14,6 @@ authors = [
 requires-python = ">=3.10"
 dependencies = [
     "anywidget>=0.9.2",
-    "pandas>=2.3.3",
 ]
 classifiers = [
     "Intended Audience :: Developers",

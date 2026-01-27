@@ -16,4 +16,4 @@ Or use `make js` for watch mode during development.
 
 ## Dependencies
 
-**NEVER add dev tools (ruff, pytest, etc.) or demo-only dependencies (altair, etc.) to the main `dependencies` list in pyproject.toml.** The library should only depend on what it actually needs at runtime: anywidget and pandas.
+**NEVER add dev tools (ruff, pytest, etc.) or demo-only dependencies (altair, etc.) to the main `dependencies` list in pyproject.toml.** The library should only depend on what it actually needs at runtime: anywidget. Pandas, polars, and numpy are lazy imports - users install them if they want those features.
