@@ -9536,6 +9536,12 @@ var d3 = __toESM(require_d3_v7());
 function render({ model, el }) {
   const colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"];
   const color_map = { "#1f77b4": "a", "#ff7f0e": "b", "#2ca02c": "c", "#d62728": "d" };
+  function hexToRgba(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
   const height = model.get("height") || 400;
   const width = model.get("width") || 800;
   const brushScale = width / 800;
@@ -9587,9 +9593,9 @@ function render({ model, el }) {
       }
       selectedClassButton = button;
       selectedColor = colors[i];
-      button.style.backgroundColor = colors[i];
+      button.style.backgroundColor = hexToRgba(colors[i], 0.25);
       button.style.borderColor = colors[i];
-      button.style.color = "white";
+      button.style.color = "var(--dd-text-color)";
       circle_brush.style("fill", selectedColor).style("fill-opacity", 0.3).style("stroke", selectedColor).style("stroke-width", 2);
     };
     controls.appendChild(button);

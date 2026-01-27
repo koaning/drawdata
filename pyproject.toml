@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "drawdata"
-version = "0.3.9"
+version = "0.4.0"
 description = "draw a dataset from inside Jupyter"
 readme = "readme.md"
 license = {text = "MIT"}

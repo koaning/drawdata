@@ -4,6 +4,14 @@ function render({ model, el }) {
   // Use fixed color values that match the original for API compatibility
   const colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"];
   const color_map = {"#1f77b4": "a", "#ff7f0e": "b", "#2ca02c": "c", "#d62728": "d"};
+
+  // Helper to convert hex to rgba for pastel backgrounds
+  function hexToRgba(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
   
   // Get dimensions with fallbacks
   const height = model.get("height") || 400;
@@ -72,9 +80,10 @@ function render({ model, el }) {
       }
       selectedClassButton = button;
       selectedColor = colors[i];
-      button.style.backgroundColor = colors[i];
+      // Use pastel background so the colored dot stands out
+      button.style.backgroundColor = hexToRgba(colors[i], 0.25);
       button.style.borderColor = colors[i];
-      button.style.color = "white";
+      button.style.color = "var(--dd-text-color)";
 
       circle_brush
         .style("fill", selectedColor)
