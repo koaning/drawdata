@@ -1,0 +1,3 @@
+{
+  "setup": "make install"
+}
