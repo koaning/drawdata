@@ -54,6 +54,7 @@ function render({ model, el }) {
 
   let selectedClassButton = null;
   let selectedColor = colors[0];
+  let circle_brush;
 
   // Container for class buttons (hidden when n_classes === 1)
   let classButtonsContainer = document.createElement("div");
@@ -105,11 +106,13 @@ function render({ model, el }) {
       button.style.borderColor = colors[i];
       button.style.color = "var(--dd-text-color)";
 
-      circle_brush
-        .style("fill", selectedColor)
-        .style("fill-opacity", 0.3)
-        .style("stroke", selectedColor)
-        .style("stroke-width", 2);
+      if (circle_brush) {
+        circle_brush
+          .style("fill", selectedColor)
+          .style("fill-opacity", 0.3)
+          .style("stroke", selectedColor)
+          .style("stroke-width", 2);
+      }
     };
 
     classButtonsContainer.appendChild(button);
@@ -321,7 +324,7 @@ function render({ model, el }) {
   }
 
   // Visual brush indicator with higher visibility
-  let circle_brush = svg
+  circle_brush = svg
     .append("circle")
     .attr("cx", width / 2)
     .attr("cy", height / 2)

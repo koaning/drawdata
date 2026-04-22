@@ -9567,6 +9567,7 @@ function render({ model, el }) {
   container.appendChild(controls);
   let selectedClassButton = null;
   let selectedColor = colors[0];
+  let circle_brush;
   let classButtonsContainer = document.createElement("div");
   classButtonsContainer.style.display = n_classes === 1 ? "none" : "flex";
   classButtonsContainer.style.alignItems = "center";
@@ -9608,7 +9609,9 @@ function render({ model, el }) {
       button.style.backgroundColor = hexToRgba(colors[i], 0.25);
       button.style.borderColor = colors[i];
       button.style.color = "var(--dd-text-color)";
-      circle_brush.style("fill", selectedColor).style("fill-opacity", 0.3).style("stroke", selectedColor).style("stroke-width", 2);
+      if (circle_brush) {
+        circle_brush.style("fill", selectedColor).style("fill-opacity", 0.3).style("stroke", selectedColor).style("stroke-width", 2);
+      }
     };
     classButtonsContainer.appendChild(button);
     if (i === 0) {
@@ -9729,7 +9732,7 @@ function render({ model, el }) {
       redraw_from_scratch();
     }
   }
-  let circle_brush = svg.append("circle").attr("cx", width / 2).attr("cy", height / 2).attr("r", model.get("brushsize") * brushScale).style("fill", selectedColor).style("fill-opacity", 0.3).style("stroke", selectedColor).style("stroke-width", 2).style("stroke-opacity", 0.9).attr("class", "brush-indicator");
+  circle_brush = svg.append("circle").attr("cx", width / 2).attr("cy", height / 2).attr("r", model.get("brushsize") * brushScale).style("fill", selectedColor).style("fill-opacity", 0.3).style("stroke", selectedColor).style("stroke-width", 2).style("stroke-opacity", 0.9).attr("class", "brush-indicator");
   function drag_start(event) {
     isDragging = false;
   }
