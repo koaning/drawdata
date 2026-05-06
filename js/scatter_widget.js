@@ -1,9 +1,17 @@
 import * as d3 from "./d3.v7.js";
 
 function render({ model, el }) {
-  // Full set of available colors and class names
-  const allColors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"];
-  const allClassNames = ["a", "b", "c", "d"];
+  // Full set of available colors and class names (matplotlib tab20 palette)
+  const allColors = [
+    "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd",
+    "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf",
+    "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5",
+    "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"
+  ];
+  const allClassNames = [
+    "a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
+    "k", "l", "m", "n", "o", "p", "q", "r", "s", "t"
+  ];
 
   // Get number of classes (default to 4 for backward compatibility)
   const n_classes = model.get("n_classes") || 4;

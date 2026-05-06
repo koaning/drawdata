@@ -19,8 +19,8 @@ class ScatterWidget(anywidget.AnyWidget):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        if not 1 <= self.n_classes <= 4:
-            raise ValueError('n_classes must be between 1 and 4')
+        if not 1 <= self.n_classes <= 20:
+            raise ValueError('n_classes must be between 1 and 20')
 
     @property
     def data_as_pandas(self):

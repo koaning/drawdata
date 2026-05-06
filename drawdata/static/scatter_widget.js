@@ -9534,8 +9534,16 @@ var require_d3_v7 = __commonJS({
 // js/scatter_widget.js
 var d3 = __toESM(require_d3_v7());
 function render({ model, el }) {
-  const allColors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"];
-  const allClassNames = ["a", "b", "c", "d"];
+  const allColors = [
+    "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd",
+    "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf",
+    "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5",
+    "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"
+  ];
+  const allClassNames = [
+    "a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
+    "k", "l", "m", "n", "o", "p", "q", "r", "s", "t"
+  ];
   const n_classes = model.get("n_classes") || 4;
   const colors = allColors.slice(0, n_classes);
   const classNames = allClassNames.slice(0, n_classes);

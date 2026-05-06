@@ -13,7 +13,12 @@ def __():
 
 @app.cell
 def __(BarWidget, mo):
-    widget = mo.ui.anywidget(BarWidget(height=400, width=700, n_bins=24))
+    widget = mo.ui.anywidget(BarWidget(
+        height=400,
+        width=700,
+        n_bins=24,
+        collection_names=["collection1", "collection2", "collection3", "collection4", "collection5"],
+    ))
     widget
     return (widget,)
 
