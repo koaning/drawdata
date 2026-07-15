@@ -1,7 +1,10 @@
 # /// script
 # requires-python = ">=3.14"
 # dependencies = [
-#     "marimo>=0.19.6",
+#     "marimo",
+#     "drawdata",
+#     "pandas",
+#     "altair",
 # ]
 # ///
 
