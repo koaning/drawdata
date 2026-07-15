@@ -1,3 +1,5 @@
+[![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/koaning/drawdata/blob/main/scatter-demo.py/wasm?utm_source=drawdata)
+
 ### drawdata 
 
 > "Just draw some data and get on with your day."
