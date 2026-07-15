@@ -2,7 +2,7 @@
 # requires-python = ">=3.11"
 # dependencies = [
 #     "marimo",
-#     "drawdata",
+#     "drawdata>=0.5.2",
 #     "pandas",
 #     "altair",
 # ]
