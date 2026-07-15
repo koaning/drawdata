@@ -1,5 +1,5 @@
 # /// script
-# requires-python = ">=3.12"
+# requires-python = ">=3.11"
 # dependencies = [
 #     "marimo",
 #     "drawdata",
@@ -8,29 +8,28 @@
 # ]
 # ///
 
-
 import marimo
 
-__generated_with = "0.13.3"
+__generated_with = "0.23.14"
 app = marimo.App(width="medium")
 
 
 @app.cell
 def _():
     import marimo as mo
+
     from drawdata import ScatterWidget
+
     return ScatterWidget, mo
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(
-        r"""
-        # Drawing a `ScatterChart`
+    mo.md(r"""
+    # Drawing a `ScatterChart`
 
-        This notebook contains a demo of the `ScatterWidget` inside of the [drawdata](https://github.com/koaning/drawdata) library.
-        """
-    )
+    This notebook contains a demo of the `ScatterWidget` inside of the [drawdata](https://github.com/koaning/drawdata) library.
+    """)
     return
 
 
@@ -44,7 +43,6 @@ def _(ScatterWidget, mo):
 @app.cell(hide_code=True)
 def _(widget):
     import altair as alt
-
 
     base = alt.Chart(widget.data_as_pandas)
     base_bar = base.mark_bar(opacity=0.3, binSpacing=0)
@@ -60,39 +58,25 @@ def _(widget):
         color="color",
     )
 
-    top_hist = (
-        base_bar
-        .encode(
-            alt.X("x:Q")
-                # when using bins, the axis scale is set through
-                # the bin extent, so we do not specify the scale here
-                # (which would be ignored anyway)
-                .bin(maxbins=30, extent=xscale.domain).stack(None).title(""),
-            alt.Y("count()").stack(None).title(""),
-            alt.Color("color:N", scale=colscale),
-        )
-        .properties(height=60)
-    )
+    top_hist = base_bar.encode(
+        alt.X("x:Q")
+        # when using bins, the axis scale is set through
+        # the bin extent, so we do not specify the scale here
+        # (which would be ignored anyway)
+        .bin(maxbins=30, extent=xscale.domain)
+        .stack(None)
+        .title(""),
+        alt.Y("count()").stack(None).title(""),
+        alt.Color("color:N", scale=colscale),
+    ).properties(height=60)
 
-    right_hist = (
-        base_bar
-        .encode(
-            alt.Y("y:Q")
-                .bin(maxbins=30, extent=yscale.domain)
-                .stack(None)
-                .title(""),
-            alt.X("count()").stack(None).title(""),
-            alt.Color("color:N"),
-        )
-        .properties(width=60)
-    )
+    right_hist = base_bar.encode(
+        alt.Y("y:Q").bin(maxbins=30, extent=yscale.domain).stack(None).title(""),
+        alt.X("count()").stack(None).title(""),
+        alt.Color("color:N"),
+    ).properties(width=60)
 
     top_hist & (points | right_hist)
-    return
-
-
-@app.cell
-def _():
     return
 
 
