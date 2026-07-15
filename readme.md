@@ -22,7 +22,7 @@ uv pip install drawdata
 ```
 
 
-#### Usage: `ScatterWidget`
+#### Usage:
 
 You can load the scatter widget to start drawing immediately. 
 
