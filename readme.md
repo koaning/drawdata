@@ -4,13 +4,12 @@
 
 > "Just draw some data and get on with your day."
 
-This small Python library contains Jupyter widgets that allow you to draw a dataset in a Jupyter
+This small Python library contains widgets that allow you to draw a dataset in a Python
 notebook. This should be very useful when teaching machine learning algorithms.
 
 <img width="800" height="505" alt="drawdata demo" src="https://github.com/user-attachments/assets/ff5146a5-5e9c-4f77-8cba-526212d2f885" />
 
-
-The project uses [anywidget](https://anywidget.dev/) under the hood so our tools should work in marimo, Jupyter, VSCode and Colab. You could use this to even interact with [ipywidgets](https://ipywidgets.readthedocs.io/en/stable/) natively. [Here](https://www.youtube.com/watch?v=STPv0jSAQEk) is an example where updating a drawing triggers a new scikit-learn model to train ([code](https://github.com/probabl-ai/youtube-appendix/blob/main/04-drawing-data/notebook.ipynb)).
+For a live demo without installing anything, go [here](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/koaning/drawdata/blob/main/scatter-demo.py/wasm?utm_source=drawdata).
 
 You can really get creative with this in a notebook, so feel free to give it a spin!
 
@@ -19,14 +18,9 @@ You can really get creative with this in a notebook, so feel free to give it a s
 Installation occurs via pip. 
 
 ```
-python -m pip install drawdata
+uv pip install drawdata
 ```
 
-To read the data, `polars` is useful, but this library also suppots `pandas`:
-
-```
-python -m pip install pandas polars
-```
 
 #### Usage: `ScatterWidget`
 
@@ -58,13 +52,6 @@ X, y = widget.data_as_X_y
 
 The assumption for this property is that if you've used multiple colors that you're interested in doing classification and if you've only drawn one color you're interested in regression. In the case of regression `y` will refer to the y-axis.
 
-#### Usage: `BarWidget`
+## Under the hood
 
-```python 
-from drawdata import BarWidget
-
-widget = BarWidget(collection_names=["usage", "sunshine"], n_bins=24)
-widget
-```
-
-![CleanShot_2024-12-01_at_21 19 19](https://github.com/user-attachments/assets/16c936c8-d310-4fa1-9057-6fb870d43db8)
+The project uses [anywidget](https://anywidget.dev/) under the hood so our tools should work in [marimo](https://marimo.io/), Jupyter, VSCode and Colab. You could use this to even interact with [ipywidgets](https://ipywidgets.readthedocs.io/en/stable/) natively. [Here](https://www.youtube.com/watch?v=STPv0jSAQEk) is an example where updating a drawing triggers a new scikit-learn model to train ([code](https://github.com/probabl-ai/youtube-appendix/blob/main/04-drawing-data/notebook.ipynb)).
