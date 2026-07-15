@@ -1,1 +1,0 @@
-import{n as i}from"./now-6sUe0ZdD.js";var o=1/0,u=17976931348623157e292;function v(n){return n?(n=i(n),n===o||n===-o?(n<0?-1:1)*u:n===n?n:0):n===0?n:0}var e=v;function f(n){var t=e(n),a=t%1;return t===t?a?t-a:t:0}var s=f;export{e as n,s as t};

@@ -1,1 +1,0 @@
-function v(r){return r}var c=v;function b(r){return function(n,f,i){for(var o=-1,t=Object(n),e=i(n),a=e.length;a--;){var u=e[r?a:++o];if(f(t[u],u,t)===!1)break}return n}}var g=b();export{c as n,g as t};
