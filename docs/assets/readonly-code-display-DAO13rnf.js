@@ -1,0 +1,1 @@
+import{nr as a,rr as t}from"./cells-ChH37lAD.js";var o=new t,e=new a;function d(r){let n=r.trim();return n?o.isSupported(n)?{code:o.transformIn(n).code,language:"markdown"}:e.isSupported(n)?{code:e.transformIn(n).code,language:"sql"}:{code:r,language:"python"}:{code:r,language:"python"}}export{d as t};

@@ -1,0 +1,1 @@
+import{i as f,r as l}from"./get-C-qh_et5.js";import{S as m,_ as h,f as p,h as v}from"./_baseFor-DKD1r8uL.js";function g(r,t,s){t=f(t,r);for(var n=-1,a=t.length,e=!1;++n<a;){var i=l(t[n]);if(!(e=r!=null&&s(r,i)))break;r=r[i]}return e||++n!=a?e:(a=r==null?0:r.length,!!a&&v(a)&&h(i,a)&&(m(r)||p(r)))}var b=g;export{b as t};

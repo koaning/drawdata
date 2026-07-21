@@ -1,0 +1,1 @@
+import"./dist-Dez1I5M9.js";import{a,i as t,n as o,o as s,r as m,t as i}from"./dist-D-2yWcX9.js";import"./dist-CNKFZCiw.js";import"./dist-ZjSH4Z6x.js";export{i as autoCloseTags,o as html,m as htmlCompletionSource,t as htmlCompletionSourceWith,a as htmlLanguage,s as htmlPlain};
