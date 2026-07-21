@@ -15,3 +15,6 @@ js:
 
 clean:
 	rm -rf .ipynb_checkpoints build dist drawdata.egg-info
+
+docs:
+	uv run --with marimo marimo -y export html-wasm --output docs --mode edit scatter-demo.py

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="./favicon.ico" />
+    <!-- Preload is necessary because we show these images when we disconnect from the server,
+    but at that point we cannot load these images from the server -->
+    <link rel="preload" href="./assets/gradient-yHQUC_QB.png" as="image" />
+    <link rel="preload" href="./assets/noise-60BoTA8O.png" as="image" />
+    <!-- Preload the fonts -->
+    <link rel="preload" href="./assets/Lora-VariableFont_wght-CZceb_kH.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href="./assets/PTSans-Regular-Bam3NpBI.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href="./assets/PTSans-Bold-C_DwAp7Z.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href="./assets/FiraMono-Regular-CEsLFVD9.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href="./assets/FiraMono-Medium-D5MAsWEG.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href="./assets/FiraMono-Bold-C6PDArdf.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="a marimo app" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.json" />
+
+    <script data-marimo="true">
+      function __resizeIframe(obj) {
+        const scrollbarHeight = 20; // Max between windows, mac, and linux
+
+        function setHeight() {
+          // Guard against race condition where iframe isn't ready
+          if (!obj.contentWindow?.document?.documentElement) {
+            return;
+          }
+          const element = obj.contentWindow.document.documentElement;
+          // If there is no vertical scrollbar, we don't need to resize the iframe
+          if (element.scrollHeight === element.clientHeight) {
+            return;
+          }
+
+          // Create a new height that includes the scrollbar height if it's visible
+          const hasHorizontalScrollbar = element.scrollWidth > element.clientWidth;
+          const newHeight = element.scrollHeight + (hasHorizontalScrollbar ? scrollbarHeight : 0);
+
+          // Only update the height if it's different from the current height
+          if (obj.style.height !== `${newHeight}px`) {
+            obj.style.height = `${newHeight}px`;
+          }
+        }
+
+        // Resize the iframe to the height of the content and bottom scrollbar height
+        setHeight();
+
+        // Resize the iframe when the content changes
+        const resizeObserver = new ResizeObserver((_entries) => {
+          setHeight();
+        });
+        // Only observe if iframe content is ready
+        if (obj.contentWindow?.document?.body) {
+          resizeObserver.observe(obj.contentWindow.document.body);
+        }
+      }
+    </script>
+    <marimo-filename hidden>notebook.py</marimo-filename>
+    <!-- TODO(Trevor): Legacy, required by VS Code plugin. Remove when plugin is updated (see marimo/server/_templates/template.py) -->
+    <marimo-version data-version="{{ version }}" hidden></marimo-version>
+    <marimo-user-config data-config="{{ user_config }}" hidden></marimo-user-config>
+    <marimo-server-token data-token="{{ server_token }}" hidden></marimo-server-token>
+    <!-- /TODO -->
+    <title>scatter-demo</title>
+    <script type="module" crossorigin src="./assets/index-Dbvu7Fs-.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/preload-helper-BW0IMuFq.js">
+    <link rel="modulepreload" crossorigin href="./assets/chunk-LvLJmgfZ.js">
+    <link rel="modulepreload" crossorigin href="./assets/react-Bj1aDYRI.js">
+    <link rel="modulepreload" crossorigin href="./assets/compiler-runtime-B3qBwwSJ.js">
+    <link rel="modulepreload" crossorigin href="./assets/jsx-runtime-PbYoItBR.js">
+    <link rel="modulepreload" crossorigin href="./assets/useEventListener-BakX-tnw.js">
+    <link rel="modulepreload" crossorigin href="./assets/defaultLocale-OkOxlkkM.js">
+    <link rel="modulepreload" crossorigin href="./assets/precisionRound-BOmLQIKI.js">
+    <link rel="modulepreload" crossorigin href="./assets/defaultLocale-DK1MWd7f.js">
+    <link rel="modulepreload" crossorigin href="./assets/vega-loader.browser-CZV6_g2i.js">
+    <link rel="modulepreload" crossorigin href="./assets/utils-DPvpQ891.js">
+    <link rel="modulepreload" crossorigin href="./assets/clsx-BtEcuwwV.js">
+    <link rel="modulepreload" crossorigin href="./assets/cn-X2M2usMq.js">
+    <link rel="modulepreload" crossorigin href="./assets/badge-6yGCqY1Z.js">
+    <link rel="modulepreload" crossorigin href="./assets/button-BF7GSjhW.js">
+    <link rel="modulepreload" crossorigin href="./assets/react-dom-CSu739Rf.js">
+    <link rel="modulepreload" crossorigin href="./assets/fullscreen-BXI8V5i6.js">
+    <link rel="modulepreload" crossorigin href="./assets/menu-items-CQMqwayA.js">
+    <link rel="modulepreload" crossorigin href="./assets/dist-DCqDlsgq.js">
+    <link rel="modulepreload" crossorigin href="./assets/createLucideIcon-BTp1tQDO.js">
+    <link rel="modulepreload" crossorigin href="./assets/check-DQmqoJgr.js">
+    <link rel="modulepreload" crossorigin href="./assets/x-9vLEgLY6.js">
+    <link rel="modulepreload" crossorigin href="./assets/select-Cjly7tmx.js">
+    <link rel="modulepreload" crossorigin href="./assets/tooltip-CgQpRVyN.js">
+    <link rel="modulepreload" crossorigin href="./assets/use-toast-kCNiuc-_.js">
+    <link rel="modulepreload" crossorigin href="./assets/useEvent-D91BmmQi.js">
+    <link rel="modulepreload" crossorigin href="./assets/invariant-C2E8KCbD.js">
+    <link rel="modulepreload" crossorigin href="./assets/isObject-DvLSfCY5.js">
+    <link rel="modulepreload" crossorigin href="./assets/_baseFor-DKD1r8uL.js">
+    <link rel="modulepreload" crossorigin href="./assets/merge-_9WLTEyt.js">
+    <link rel="modulepreload" crossorigin href="./assets/zod-H_cgTO0M.js">
+    <link rel="modulepreload" crossorigin href="./assets/utils-CCzEbCvM.js">
+    <link rel="modulepreload" crossorigin href="./assets/Deferred-BMfCOLaw.js">
+    <link rel="modulepreload" crossorigin href="./assets/uuid-ClFZlR7U.js">
+    <link rel="modulepreload" crossorigin href="./assets/DeferredRequestRegistry-RuL7NV1n.js">
+    <link rel="modulepreload" crossorigin href="./assets/constants-B9JJ72XE.js">
+    <link rel="modulepreload" crossorigin href="./assets/session-CsT5Gg9j.js">
+    <link rel="modulepreload" crossorigin href="./assets/config-Vyzo6FSF.js">
+    <link rel="modulepreload" crossorigin href="./assets/requests-KshNNAOp.js">
+    <link rel="modulepreload" crossorigin href="./assets/useLifecycle-Baf35rp4.js">
+    <link rel="modulepreload" crossorigin href="./assets/useNonce-0SWz6w4W.js">
+    <link rel="modulepreload" crossorigin href="./assets/useTheme-COorCcXC.js">
+    <link rel="modulepreload" crossorigin href="./assets/arrays-DWxvyYxP.js">
+    <link rel="modulepreload" crossorigin href="./assets/strings-DvZlHYnD.js">
+    <link rel="modulepreload" crossorigin href="./assets/once-CXj_gH7S.js">
+    <link rel="modulepreload" crossorigin href="./assets/capabilities-CjNGDxxx.js">
+    <link rel="modulepreload" crossorigin href="./assets/createReducer-3wF4dU7I.js">
+    <link rel="modulepreload" crossorigin href="./assets/paths-DhuNSnZ_.js">
+    <link rel="modulepreload" crossorigin href="./assets/dist-Dez1I5M9.js">
+    <link rel="modulepreload" crossorigin href="./assets/dist-B0WqBUnf.js">
+    <link rel="modulepreload" crossorigin href="./assets/dist-CwfKvuyQ.js">
+    <link rel="modulepreload" crossorigin href="./assets/dist-CNKFZCiw.js">
+    <link rel="modulepreload" crossorigin href="./assets/dist-ZjSH4Z6x.js">
+    <link rel="modulepreload" crossorigin href="./assets/dist-D-2yWcX9.js">
+    <link rel="modulepreload" crossorigin href="./assets/dist-DblYTes5.js">
+    <link rel="modulepreload" crossorigin href="./assets/dist-BtrqKtvn.js">
+    <link rel="modulepreload" crossorigin href="./assets/dist-CfGDksO-.js">
+    <link rel="modulepreload" crossorigin href="./assets/stex-0ac7Aukl.js">
+    <link rel="modulepreload" crossorigin href="./assets/toDate-DCE7d2fN.js">
+    <link rel="modulepreload" crossorigin href="./assets/purify.es-DfJp_of2.js">
+    <link rel="modulepreload" crossorigin href="./assets/cjs-DXo9vDEJ.js">
+    <link rel="modulepreload" crossorigin href="./assets/isSymbol-BT6B8Bon.js">
+    <link rel="modulepreload" crossorigin href="./assets/now-CsYTPAhW.js">
+    <link rel="modulepreload" crossorigin href="./assets/debounce-OiXznToA.js">
+    <link rel="modulepreload" crossorigin href="./assets/database-zap-DIlSqcdp.js">
+    <link rel="modulepreload" crossorigin href="./assets/main-DmhaVp6Y.js">
+    <link rel="modulepreload" crossorigin href="./assets/cells-ChH37lAD.js">
+    <link rel="modulepreload" crossorigin href="./assets/kbd-UVzWBHfi.js">
+    <link rel="modulepreload" crossorigin href="./assets/useInstallPackage-C1Dd0aIZ.js">
+    <link rel="modulepreload" crossorigin href="./assets/alert-dialog-CC0gG4Av.js">
+    <link rel="modulepreload" crossorigin href="./assets/dialog-DkJmIrsG.js">
+    <link rel="modulepreload" crossorigin href="./assets/useDebounce-CpLI2dsc.js">
+    <link rel="modulepreload" crossorigin href="./assets/numbers-_ry1Nlla.js">
+    <link rel="modulepreload" crossorigin href="./assets/SSRProvider-DX2edArU.js">
+    <link rel="modulepreload" crossorigin href="./assets/context-C2Ie4tn_.js">
+    <link rel="modulepreload" crossorigin href="./assets/useNumberFormatter-CuxZh3Bq.js">
+    <link rel="modulepreload" crossorigin href="./assets/usePress-BSFUeqnS.js">
+    <link rel="modulepreload" crossorigin href="./assets/input-DB2LiTiQ.js">
+    <link rel="modulepreload" crossorigin href="./assets/ImperativeModal-B62Q6S9l.js">
+    <link rel="modulepreload" crossorigin href="./assets/cell-link-BZg1pgHT.js">
+    <link rel="modulepreload" crossorigin href="./assets/config-CjCV0n0j.js">
+    <link rel="modulepreload" crossorigin href="./assets/alert-1y_DnRWn.js">
+    <link rel="modulepreload" crossorigin href="./assets/chevron-right-C7RH0Nc7.js">
+    <link rel="modulepreload" crossorigin href="./assets/dropdown-menu-DfGLyCbP.js">
+    <link rel="modulepreload" crossorigin href="./assets/links-CCkJpphF.js">
+    <link rel="modulepreload" crossorigin href="./assets/useRunCells-Dmf7GVGt.js">
+    <link rel="modulepreload" crossorigin href="./assets/copy-D8MtpXgN.js">
+    <link rel="modulepreload" crossorigin href="./assets/copy-IBNGDypD.js">
+    <link rel="modulepreload" crossorigin href="./assets/copy-icon-EHMT-qlr.js">
+    <link rel="modulepreload" crossorigin href="./assets/RenderHTML-DZz6EFTa.js">
+    <link rel="modulepreload" crossorigin href="./assets/datasource-ii4hOmhM.js">
+    <link rel="modulepreload" crossorigin href="./assets/state-DIDUL4YY.js">
+    <link rel="modulepreload" crossorigin href="./assets/hat-glasses-DlK0E4SX.js">
+    <link rel="modulepreload" crossorigin href="./assets/package-BTIV9-Dk.js">
+    <link rel="modulepreload" crossorigin href="./assets/sparkles-COaEc8Qn.js">
+    <link rel="modulepreload" crossorigin href="./assets/MarimoErrorOutput-t_4q7nKD.js">
+    <link rel="modulepreload" crossorigin href="./assets/ErrorBoundary-Bo313Z9X.js">
+    <link rel="modulepreload" crossorigin href="./assets/eye-off-DI0EQXw0.js">
+    <link rel="modulepreload" crossorigin href="./assets/refresh-cw-C9FftltI.js">
+    <link rel="modulepreload" crossorigin href="./assets/tree-actions-DONHntzY.js">
+    <link rel="modulepreload" crossorigin href="./assets/spinner-BbI9qk88.js">
+    <link rel="modulepreload" crossorigin href="./assets/html-to-image-B9XAiAY5.js">
+    <link rel="modulepreload" crossorigin href="./assets/focus-CeA7VBO7.js">
+    <link rel="modulepreload" crossorigin href="./assets/useAsyncData-DAQcLiyE.js">
+    <link rel="modulepreload" crossorigin href="./assets/LazyAnyLanguageCodeMirror-BSGwa0jm.js">
+    <link rel="modulepreload" crossorigin href="./assets/micromark-factory-space-BUQpMdx2.js">
+    <link rel="modulepreload" crossorigin href="./assets/chunk-5FQGJX7Z-OScactr4.js">
+    <link rel="modulepreload" crossorigin href="./assets/markdown-renderer-BxBgsCTf.js">
+    <link rel="modulepreload" crossorigin href="./assets/command-DRHbYHUP.js">
+    <link rel="modulepreload" crossorigin href="./assets/field-DlNY-dDH.js">
+    <link rel="modulepreload" crossorigin href="./assets/popover-DMNO6Poc.js">
+    <link rel="modulepreload" crossorigin href="./assets/errors-Bi-kjxOy.js">
+    <link rel="modulepreload" crossorigin href="./assets/download-BVqpOaYz.js">
+    <link rel="modulepreload" crossorigin href="./assets/table-CnW850Wt.js">
+    <link rel="modulepreload" crossorigin href="./assets/useIframeCapabilities-B0dNZiKK.js">
+    <link rel="modulepreload" crossorigin href="./assets/error-banner-DEWyImqa.js">
+    <link rel="modulepreload" crossorigin href="./assets/formats-ZGU43GQU.js">
+    <link rel="modulepreload" crossorigin href="./assets/en-US-BXNio91F.js">
+    <link rel="modulepreload" crossorigin href="./assets/isValid-DKyiOp4U.js">
+    <link rel="modulepreload" crossorigin href="./assets/dates-D8uxHHPL.js">
+    <link rel="modulepreload" crossorigin href="./assets/extends-CeSFM22p.js">
+    <link rel="modulepreload" crossorigin href="./assets/emotion-is-prop-valid.esm-CK2zY6a8.js">
+    <link rel="modulepreload" crossorigin href="./assets/useDateFormatter-CAlTJ8HV.js">
+    <link rel="modulepreload" crossorigin href="./assets/react-icons.esm-DCqqMD4w.js">
+    <link rel="modulepreload" crossorigin href="./assets/RSPContexts-VzcTZjG1.js">
+    <link rel="modulepreload" crossorigin href="./assets/table-DxdydCSG.js">
+    <link rel="modulepreload" crossorigin href="./assets/ellipsis-D0iYysLh.js">
+    <link rel="modulepreload" crossorigin href="./assets/external-link-BktyywYg.js">
+    <link rel="modulepreload" crossorigin href="./assets/message-circle-RkIzfQEi.js">
+    <link rel="modulepreload" crossorigin href="./assets/plus-ZXRHY1up.js">
+    <link rel="modulepreload" crossorigin href="./assets/trash-2-CqTUwVuU.js">
+    <link rel="modulepreload" crossorigin href="./assets/react-resizable-panels.browser.esm-Ce2ksurd.js">
+    <link rel="modulepreload" crossorigin href="./assets/JsonOutput-Cqq7S3wn.js">
+    <link rel="modulepreload" crossorigin href="./assets/chart-no-axes-column-DVEV2j1H.js">
+    <link rel="modulepreload" crossorigin href="./assets/square-function-Dx0pKHko.js">
+    <link rel="modulepreload" crossorigin href="./assets/spec-CDgWI0fT.js">
+    <link rel="modulepreload" crossorigin href="./assets/column-preview-47aOuXOh.js">
+    <link rel="modulepreload" crossorigin href="./assets/icons-avFV3lBF.js">
+    <link rel="modulepreload" crossorigin href="./assets/radio-group-xSHDhdM7.js">
+    <link rel="modulepreload" crossorigin href="./assets/floating-outline-Dy8nXch3.js">
+    <link rel="modulepreload" crossorigin href="./assets/objectWithoutPropertiesLoose-BkUn3I0-.js">
+    <link rel="modulepreload" crossorigin href="./assets/esm-X3Tr2pur.js">
+    <link rel="modulepreload" crossorigin href="./assets/readonly-python-code-C12Tt_qR.js">
+    <link rel="modulepreload" crossorigin href="./assets/file-headphone-CUN2DC78.js">
+    <link rel="modulepreload" crossorigin href="./assets/file-BvoBtS_V.js">
+    <link rel="modulepreload" crossorigin href="./assets/image-BzUcK6ho.js">
+    <link rel="modulepreload" crossorigin href="./assets/file-icons-BSYRCaKq.js">
+    <link rel="modulepreload" crossorigin href="./assets/switch-DqXjpgoL.js">
+    <link rel="modulepreload" crossorigin href="./assets/events-XR_LpvHc.js">
+    <link rel="modulepreload" crossorigin href="./assets/globals-B2VpoaLA.js">
+    <link rel="modulepreload" crossorigin href="./assets/share-DQjChRJG.js">
+    <link rel="modulepreload" crossorigin href="./assets/blob-BiK5xmlC.js">
+    <link rel="modulepreload" crossorigin href="./assets/memoize-Tp7rARFe.js">
+    <link rel="modulepreload" crossorigin href="./assets/get-C-qh_et5.js">
+    <link rel="modulepreload" crossorigin href="./assets/_baseSet-CsW0tABf.js">
+    <link rel="modulepreload" crossorigin href="./assets/state-Csq9SFHN.js">
+    <link rel="modulepreload" crossorigin href="./assets/label-CFvCMYuj.js">
+    <link rel="modulepreload" crossorigin href="./assets/textarea-D_WnJbC1.js">
+    <link rel="modulepreload" crossorigin href="./assets/refresh-ccw-Bee7JLOl.js">
+    <link rel="modulepreload" crossorigin href="./assets/form-x2vXRBGq.js">
+    <link rel="modulepreload" crossorigin href="./assets/renderShortcut-DTZeni4V.js">
+    <link rel="modulepreload" crossorigin href="./assets/useBoolean-DmobZaim.js">
+    <link rel="modulepreload" crossorigin href="./assets/useDeepCompareMemoize-CWcgQCbT.js">
+    <link rel="modulepreload" crossorigin href="./assets/types-BnrgJ4Gh.js">
+    <link rel="modulepreload" crossorigin href="./assets/semaphore-X3ApuO41.js">
+    <link rel="modulepreload" crossorigin href="./assets/fileToBase64-BSOFR3RV.js">
+    <link rel="modulepreload" crossorigin href="./assets/pathUtils-BXCjaLHB.js">
+    <link rel="modulepreload" crossorigin href="./assets/prop-types-B6Y2e__V.js">
+    <link rel="modulepreload" crossorigin href="./assets/es-EItoYvXh.js">
+    <link rel="modulepreload" crossorigin href="./assets/_hasPath-hMc_3QZy.js">
+    <link rel="modulepreload" crossorigin href="./assets/hasIn-CSsM95b1.js">
+    <link rel="modulepreload" crossorigin href="./assets/flatten-Bd5tsfm_.js">
+    <link rel="modulepreload" crossorigin href="./assets/pick-D1xb4gl6.js">
+    <link rel="modulepreload" crossorigin href="./assets/code-xml-tqeFGeKJ.js">
+    <link rel="modulepreload" crossorigin href="./assets/house-DHu4JLi3.js">
+    <link rel="modulepreload" crossorigin href="./assets/square-35tXIgiR.js">
+    <link rel="modulepreload" crossorigin href="./assets/triangle-alert-D8Ft17xk.js">
+    <link rel="modulepreload" crossorigin href="./assets/bundle.esm-D544r2Sr.js">
+    <link rel="stylesheet" crossorigin href="./assets/cells-BVzo2MHf.css">
+    <link rel="stylesheet" crossorigin href="./assets/markdown-renderer-DdDKmWlR.css">
+    <link rel="stylesheet" crossorigin href="./assets/JsonOutput-BQtz7-np.css">
+    <link rel="stylesheet" crossorigin href="./assets/index-DZAttTAm.css">
+  <marimo-wasm hidden=""></marimo-wasm>
+    <script>
+        if (window.location.protocol === 'file:') {
+            alert('Warning: This file must be served by an HTTP server to function correctly.');
+        }
+    </script>
+    
+    <style>
+        #save-button {
+            display: none !important;
+        }
+        #filename-input {
+            display: none !important;
+        }
+    </style>
+    
+<script data-marimo="true">
+    Object.defineProperty(window, "__MARIMO_EXPORT_CONTEXT__", {
+        value: Object.freeze({
+            trusted: true,
+            notebookCode: "# /// script\n# requires-python = \"\u003E=3.11\"\n# dependencies = [\n#     \"marimo\",\n#     \"drawdata\u003E=0.5.2\",\n#     \"pandas\",\n#     \"altair\",\n# ]\n# ///\n\nimport marimo\n\n__generated_with = \"0.23.14\"\napp = marimo.App(width=\"medium\")\n\n\n@app.cell\ndef _():\n    import marimo as mo\n\n    from drawdata import ScatterWidget\n\n    return ScatterWidget, mo\n\n\n@app.cell(hide_code=True)\ndef _(mo):\n    mo.md(r\"\"\"\n    # Drawing a `ScatterChart`\n\n    This notebook contains a demo of the `ScatterWidget` inside of the [drawdata](https://github.com/koaning/drawdata) library.\n    \"\"\")\n    return\n\n\n@app.cell(hide_code=True)\ndef _(ScatterWidget, mo):\n    widget = mo.ui.anywidget(ScatterWidget(height=400))\n    widget\n    return (widget,)\n\n\n@app.cell(hide_code=True)\ndef _(widget):\n    import altair as alt\n\n    base = alt.Chart(widget.data_as_pandas)\n    base_bar = base.mark_bar(opacity=0.3, binSpacing=0)\n    color_domain = widget.data_as_pandas[\"color\"].unique()\n\n    xscale = alt.Scale(domain=(0, 800))\n    yscale = alt.Scale(domain=(0, 500))\n    colscale = alt.Scale(domain=color_domain, range=color_domain)\n\n    points = base.mark_circle().encode(\n        alt.X(\"x\").scale(xscale),\n        alt.Y(\"y\").scale(yscale),\n        color=\"color\",\n    )\n\n    top_hist = base_bar.encode(\n        alt.X(\"x:Q\")\n        # when using bins, the axis scale is set through\n        # the bin extent, so we do not specify the scale here\n        # (which would be ignored anyway)\n        .bin(maxbins=30, extent=xscale.domain)\n        .stack(None)\n        .title(\"\"),\n        alt.Y(\"count()\").stack(None).title(\"\"),\n        alt.Color(\"color:N\", scale=colscale),\n    ).properties(height=60)\n\n    right_hist = base_bar.encode(\n        alt.Y(\"y:Q\").bin(maxbins=30, extent=yscale.domain).stack(None).title(\"\"),\n        alt.X(\"count()\").stack(None).title(\"\"),\n        alt.Color(\"color:N\"),\n    ).properties(width=60)\n\n    top_hist \u0026 (points | right_hist)\n    return\n\n\nif __name__ == \"__main__\":\n    app.run()\n",
+        }),
+        writable: false,
+        configurable: false,
+    });
+</script>
+<marimo-code hidden="">%23%20%2F%2F%2F%20script%0A%23%20requires-python%20%3D%20%22%3E%3D3.11%22%0A%23%20dependencies%20%3D%20%5B%0A%23%20%20%20%20%20%22marimo%22%2C%0A%23%20%20%20%20%20%22drawdata%3E%3D0.5.2%22%2C%0A%23%20%20%20%20%20%22pandas%22%2C%0A%23%20%20%20%20%20%22altair%22%2C%0A%23%20%5D%0A%23%20%2F%2F%2F%0A%0Aimport%20marimo%0A%0A__generated_with%20%3D%20%220.23.14%22%0Aapp%20%3D%20marimo.App(width%3D%22medium%22)%0A%0A%0A%40app.cell%0Adef%20_()%3A%0A%20%20%20%20import%20marimo%20as%20mo%0A%0A%20%20%20%20from%20drawdata%20import%20ScatterWidget%0A%0A%20%20%20%20return%20ScatterWidget%2C%20mo%0A%0A%0A%40app.cell(hide_code%3DTrue)%0Adef%20_(mo)%3A%0A%20%20%20%20mo.md(r%22%22%22%0A%20%20%20%20%23%20Drawing%20a%20%60ScatterChart%60%0A%0A%20%20%20%20This%20notebook%20contains%20a%20demo%20of%20the%20%60ScatterWidget%60%20inside%20of%20the%20%5Bdrawdata%5D(https%3A%2F%2Fgithub.com%2Fkoaning%2Fdrawdata)%20library.%0A%20%20%20%20%22%22%22)%0A%20%20%20%20return%0A%0A%0A%40app.cell(hide_code%3DTrue)%0Adef%20_(ScatterWidget%2C%20mo)%3A%0A%20%20%20%20widget%20%3D%20mo.ui.anywidget(ScatterWidget(height%3D400))%0A%20%20%20%20widget%0A%20%20%20%20return%20(widget%2C)%0A%0A%0A%40app.cell(hide_code%3DTrue)%0Adef%20_(widget)%3A%0A%20%20%20%20import%20altair%20as%20alt%0A%0A%20%20%20%20base%20%3D%20alt.Chart(widget.data_as_pandas)%0A%20%20%20%20base_bar%20%3D%20base.mark_bar(opacity%3D0.3%2C%20binSpacing%3D0)%0A%20%20%20%20color_domain%20%3D%20widget.data_as_pandas%5B%22color%22%5D.unique()%0A%0A%20%20%20%20xscale%20%3D%20alt.Scale(domain%3D(0%2C%20800))%0A%20%20%20%20yscale%20%3D%20alt.Scale(domain%3D(0%2C%20500))%0A%20%20%20%20colscale%20%3D%20alt.Scale(domain%3Dcolor_domain%2C%20range%3Dcolor_domain)%0A%0A%20%20%20%20points%20%3D%20base.mark_circle().encode(%0A%20%20%20%20%20%20%20%20alt.X(%22x%22).scale(xscale)%2C%0A%20%20%20%20%20%20%20%20alt.Y(%22y%22).scale(yscale)%2C%0A%20%20%20%20%20%20%20%20color%3D%22color%22%2C%0A%20%20%20%20)%0A%0A%20%20%20%20top_hist%20%3D%20base_bar.encode(%0A%20%20%20%20%20%20%20%20alt.X(%22x%3AQ%22)%0A%20%20%20%20%20%20%20%20%23%20when%20using%20bins%2C%20the%20axis%20scale%20is%20set%20through%0A%20%20%20%20%20%20%20%20%23%20the%20bin%20extent%2C%20so%20we%20do%20not%20specify%20the%20scale%20here%0A%20%20%20%20%20%20%20%20%23%20(which%20would%20be%20ignored%20anyway)%0A%20%20%20%20%20%20%20%20.bin(maxbins%3D30%2C%20extent%3Dxscale.domain)%0A%20%20%20%20%20%20%20%20.stack(None)%0A%20%20%20%20%20%20%20%20.title(%22%22)%2C%0A%20%20%20%20%20%20%20%20alt.Y(%22count()%22).stack(None).title(%22%22)%2C%0A%20%20%20%20%20%20%20%20alt.Color(%22color%3AN%22%2C%20scale%3Dcolscale)%2C%0A%20%20%20%20).properties(height%3D60)%0A%0A%20%20%20%20right_hist%20%3D%20base_bar.encode(%0A%20%20%20%20%20%20%20%20alt.Y(%22y%3AQ%22).bin(maxbins%3D30%2C%20extent%3Dyscale.domain).stack(None).title(%22%22)%2C%0A%20%20%20%20%20%20%20%20alt.X(%22count()%22).stack(None).title(%22%22)%2C%0A%20%20%20%20%20%20%20%20alt.Color(%22color%3AN%22)%2C%0A%20%20%20%20).properties(width%3D60)%0A%0A%20%20%20%20top_hist%20%26%20(points%20%7C%20right_hist)%0A%20%20%20%20return%0A%0A%0Aif%20__name__%20%3D%3D%20%22__main__%22%3A%0A%20%20%20%20app.run()%0A</marimo-code></head>
+  <body>
+    <div id="root"></div>
+    <script data-marimo="true">
+      Object.defineProperty(window, "__MARIMO_MOUNT_CONFIG__", {
+        value: Object.freeze({
+            "filename": "notebook.py",
+            "cwd": "",
+            "lspWorkspace": null,
+            "mode": "edit",
+            "version": "0.23.14",
+            "serverToken": "unused",
+            "config": {"ai": {"custom_providers": {}, "enabled": true, "models": {"custom_models": [], "displayed_models": []}}, "completion": {"activate_on_typing": true, "auto_close_pairs": true, "copilot": false, "signature_hint_on_typing": false}, "diagnostics": {"sql_linter": true}, "display": {"cell_output": "below", "code_editor_font_size": 14, "custom_css": [], "dataframes": "rich", "default_table_max_columns": 50, "default_table_page_size": 10, "default_width": "medium", "reference_highlighting": true, "theme": "light"}, "formatting": {"line_length": 79}, "keymap": {"overrides": {}, "preset": "default"}, "language_servers": {"pylsp": {"enable_flake8": false, "enable_mypy": true, "enable_pydocstyle": false, "enable_pyflakes": false, "enable_pylint": false, "enable_ruff": true, "enabled": false}}, "mcp": {"mcpServers": {}, "presets": []}, "package_management": {"manager": "uv"}, "runtime": {"auto_instantiate": false, "auto_reload": "off", "default_csv_encoding": "utf-8", "default_sql_output": "auto", "on_cell_change": "autorun", "output_max_bytes": 8000000, "reactive_tests": true, "show_tracebacks": false, "std_stream_max_bytes": 1000000, "watcher_on_save": "lazy"}, "save": {"autosave": "off", "autosave_delay": 1000, "format_on_save": false}, "server": {"browser": "default", "follow_symlink": false}, "snippets": {"custom_paths": [], "include_default_snippets": true}},
+            "configOverrides": {},
+            "appConfig": {"sql_output": "auto", "width": "medium"},
+            "view": {"showAppCode": false},
+            "notebook": null,
+            "session": null,
+            "runtimeConfig": null,
+        }),
+        writable: false,
+        configurable: false,
+      });
+    </script>
+  </body>
+</html>

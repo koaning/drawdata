@@ -1,5 +1,3 @@
-[![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/koaning/drawdata/blob/main/scatter-demo.py/wasm?utm_source=drawdata)
-
 ### drawdata 
 
 > "Just draw some data and get on with your day."
@@ -9,7 +7,7 @@ notebook. This should be very useful when teaching machine learning algorithms.
 
 <img width="800" height="505" alt="drawdata demo" src="https://github.com/user-attachments/assets/ff5146a5-5e9c-4f77-8cba-526212d2f885" />
 
-For a live demo without installing anything, check out [this notebook on molab](https://molab.marimo.io/github/koaning/drawdata/blob/main/scatter-demo.py/wasm?utm_source=drawdata). 
+For a live demo without installing anything, check out [the demo page](https://koaning.github.io/drawdata). 
 
 You can really get creative with this in a notebook, so feel free to give it a spin!
 
