@@ -196,7 +196,7 @@ function render({ model, el }) {
 
   el.appendChild(container);
 
-  let data = model.get("data") || [];
+  let data = [...(model.get("data") || [])];
   
   // Create SVG with responsive dimensions
   let svg_container = document.createElement("div");
@@ -286,7 +286,7 @@ function render({ model, el }) {
   
   // Set up model change handlers
   model.on("change:data", function() {
-    data = model.get("data") || [];
+    data = [...(model.get("data") || [])];
     redraw_from_scratch();
   });
 

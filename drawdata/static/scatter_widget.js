@@ -9678,7 +9678,7 @@ function render({ model, el }) {
   undo_btn.onclick = undo;
   controls.appendChild(undo_btn);
   el.appendChild(container);
-  let data = model.get("data") || [];
+  let data = [...model.get("data") || []];
   let svg_container = document.createElement("div");
   svg_container.className = "dd-scatter-svg-container";
   container.appendChild(svg_container);
@@ -9707,7 +9707,7 @@ function render({ model, el }) {
   }
   redraw_from_scratch();
   model.on("change:data", function() {
-    data = model.get("data") || [];
+    data = [...model.get("data") || []];
     redraw_from_scratch();
   });
   model.on("change:brushsize", function() {
