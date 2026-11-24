@@ -17,4 +17,12 @@ clean:
 	rm -rf .ipynb_checkpoints build dist drawdata.egg-info
 
 docs:
-	uv run --with marimo marimo -y export html-wasm --output docs --mode edit scatter-demo.py
+	# Clean rebuild, so stale hashed assets don't pile up
+	rm -rf docs/assets docs/public
+	# Export from a temporary copy of the notebook. Next to the drawdata/ folder,
+	# marimo bundles it as a local wheel with only the .py files (no static
+	# JS/CSS), which breaks the widgets; this way the page installs drawdata
+	# from PyPI.
+	tmp=$$(mktemp -d) && cp scatter-demo.py $$tmp/ && \
+		uv run --with marimo marimo -y export html-wasm --output docs --mode edit $$tmp/scatter-demo.py
+	rm -f docs/CLAUDE.md
