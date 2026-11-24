@@ -3,38 +3,164 @@ from pathlib import Path
 import anywidget
 import traitlets
 
+# Must stay in sync with `allColors` / `allClassNames` in js/scatter_widget.js
+SCATTER_COLORS = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"]
+SCATTER_LABELS = ["a", "b", "c", "d"]
+
+
+def _to_records(data):
+    """
+    Turn whatever we got into a list of dicts, without importing any
+    dataframe library: polars and pandas dataframes, pyarrow tables, or
+    any iterable of dicts.
+    """
+    if data is None:
+        return []
+    # polars first: its `to_dict()` returns columns, not rows
+    if hasattr(data, "to_dicts"):
+        return data.to_dicts()
+    # pyarrow.Table
+    if hasattr(data, "to_pylist"):
+        return data.to_pylist()
+    # pandas
+    if hasattr(data, "to_dict") and hasattr(data, "columns"):
+        return data.to_dict("records")
+    if isinstance(data, dict):
+        raise ValueError(
+            "data should be a dataframe or a list of dicts, not a single dict"
+        )
+    return list(data)
+
+
+def _export_pandas(records):
+    import pandas as pd
+
+    return pd.DataFrame(records)
+
+
+def _export_polars(records):
+    import polars as pl
+
+    return pl.DataFrame(records)
+
+
+def _export_pyarrow(records):
+    import pyarrow as pa
+
+    return pa.Table.from_pylist(records)
+
+
+# Keyed by the top-level module of the input's type, e.g. "pandas" for
+# pandas.core.frame.DataFrame. The imports only happen when exporting.
+_EXPORTERS = {
+    "pandas": _export_pandas,
+    "polars": _export_polars,
+    "pyarrow": _export_pyarrow,
+}
+
+
+def _missing(value):
+    """None, or a NaN that pandas/polars use for missing values."""
+    return value is None or (isinstance(value, float) and value != value)
+
+
+def _normalize_points(data, n_classes=4):
+    """
+    Normalize user-provided scatter points into the format the widget uses:
+    `{"x", "y", "color", "label", "batch"}`. Only `x` and `y` are required;
+    `label` and `color` are inferred from each other and default to class "a".
+    """
+    colors = SCATTER_COLORS[:n_classes]
+    labels = SCATTER_LABELS[:n_classes]
+    points = []
+    for i, row in enumerate(_to_records(data)):
+        if not isinstance(row, dict):
+            raise ValueError(f"Point {i} must be a dict, got {type(row).__name__}")
+        if _missing(row.get("x")) or _missing(row.get("y")):
+            raise ValueError(f"Point {i} needs both an 'x' and a 'y' value")
+        label = None if _missing(row.get("label")) else row.get("label")
+        color = None if _missing(row.get("color")) else row.get("color")
+        if label is not None:
+            label = str(label)
+            if label not in labels:
+                raise ValueError(
+                    f"Point {i} has label {label!r}, expected one of {labels}"
+                )
+            if color is None:
+                color = colors[labels.index(label)]
+        if color is not None:
+            color = str(color)
+            if color not in colors:
+                raise ValueError(
+                    f"Point {i} has color {color!r}, expected one of {colors}"
+                )
+            if label is None:
+                label = labels[colors.index(color)]
+        if label is None:
+            label, color = labels[0], colors[0]
+        batch = None if _missing(row.get("batch")) else row.get("batch")
+        points.append(
+            {
+                "x": float(row["x"]),
+                "y": float(row["y"]),
+                "color": color,
+                "label": label,
+                "batch": 0 if batch is None else int(batch),
+            }
+        )
+    return points
+
 
 class ScatterWidget(anywidget.AnyWidget):
     """
     A scatter drawing widget that automatically can update a pandas/polars dataframe
     as your draw data.
+
+    Pass `data` (a list of dicts or a pandas/polars dataframe with `x` and `y`
+    columns, and optionally `label` or `color`) to start from an existing
+    dataset. The reset button restores this starting data.
     """
 
     _esm = Path(__file__).parent / "static" / "scatter_widget.js"
     _css = Path(__file__).parent / "static" / "scatter_widget.css"
     data = traitlets.List([]).tag(sync=True)
+    initial_data = traitlets.List([]).tag(sync=True)
     brushsize = traitlets.Int(40).tag(sync=True)
     width = traitlets.Int(800).tag(sync=True)
     height = traitlets.Int(400).tag(sync=True)
     n_classes = traitlets.Int(4).tag(sync=True)
     eraser = traitlets.Bool(False).tag(sync=True)
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        if not 1 <= self.n_classes <= 4:
+    def __init__(self, data=None, **kwargs):
+        n_classes = kwargs.get("n_classes", 4)
+        if not 1 <= n_classes <= 4:
             raise ValueError("n_classes must be between 1 and 4")
+        points = _normalize_points(data, n_classes)
+        kwargs.setdefault("initial_data", points)
+        super().__init__(data=points, **kwargs)
+        # Remember which library the input came from, so that
+        # `data_as_input_type` can hand the data back in the same format.
+        library = type(data).__module__.split(".")[0]
+        self._input_library = library if library in _EXPORTERS else None
+
+    @property
+    def data_as_input_type(self):
+        """
+        The drawn data in the same format as the `data` you passed in: a pandas
+        or polars dataframe, or a pyarrow table. Without a dataframe input this
+        is the plain list of dicts, like `.data`.
+        """
+        if self._input_library is None:
+            return list(self.data)
+        return _EXPORTERS[self._input_library](self.data)
 
     @property
     def data_as_pandas(self):
-        import pandas as pd
-
-        return pd.DataFrame(self.data)
+        return _export_pandas(self.data)
 
     @property
     def data_as_polars(self):
-        import polars as pl
-
-        return pl.DataFrame(self.data)
+        return _export_polars(self.data)
 
     @property
     def data_as_X_y(self):
