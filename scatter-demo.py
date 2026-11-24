@@ -90,6 +90,43 @@ def _(alt, mo, widget):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
+    ## Starting from existing data
+
+    You can also pass a dataframe (pandas or polars) or a list of dicts as `data` to start from an existing dataset, which is handy if you want to "nudge" some data. Only `x` and `y` are required; `label` (`"a"` to `"d"`) or `color` is optional. Coordinates are in the widget's pixel space. Try drawing and erasing some points, then hit reset: the widget goes back to the data you started with.
+    """)
+    return
+
+
+@app.cell
+def _(ScatterWidget, mo):
+    import random as _random
+
+    import pandas as _pd
+
+    _rng = _random.Random(42)
+    nudge_df = _pd.DataFrame(
+        [
+            {"x": _rng.gauss(cx, 50), "y": _rng.gauss(cy, 50), "label": label}
+            for cx, cy, label in [(250, 150, "a"), (550, 250, "b")]
+            for _ in range(40)
+        ]
+    )
+
+    nudge_widget = mo.ui.anywidget(ScatterWidget(data=nudge_df, eraser=True))
+    nudge_widget
+    return (nudge_widget,)
+
+
+@app.cell
+def _(nudge_widget):
+    # Because we passed a pandas dataframe, we get a pandas dataframe back.
+    nudge_widget.data_as_input_type.groupby("label")[["x", "y"]].mean()
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     # Drawing a `BarChart`
 
     The `BarWidget` lets you draw a value per bin for one or more collections. Pick a collection with the buttons and drag over the chart to draw it. Here every bin is half an hour of a day, so think of an energy usage profile next to the expected sunshine. The `x_labels` give each bin its label on the x-axis.
