@@ -26,6 +26,16 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 
+[dependency-groups]
+# Only for running the test suite; not installed for users.
+dev = [
+    "pytest",
+    "pandas",
+    "polars",
+    "pyarrow",
+    "numpy",
+]
+
 [tool.setuptools.packages.find]
 exclude = ["notebooks"]
 

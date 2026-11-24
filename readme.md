@@ -37,6 +37,17 @@ If you want to be able to remove points with the brush, you can turn on the eras
 widget = ScatterWidget(eraser=True)
 ```
 
+You can also start from an existing dataset, which is handy if you want to "nudge" some data. Pass a pandas or polars dataframe, or a list of dictionaries, with `x` and `y` columns and optionally a `label` (`"a"` to `"d"`) or a `color`. Coordinates are in the widget's pixel space (`0..width`, `0..height`). The reset button then brings back this starting data instead of clearing the canvas.
+
+```python
+import pandas as pd
+
+df = pd.DataFrame({"x": [100, 200, 300], "y": [100, 250, 150], "label": ["a", "a", "b"]})
+widget = ScatterWidget(data=df, eraser=True)
+```
+
+The output of `widget.data_as_pandas` (or `data_as_polars`) can be passed straight back in as `data`. If you'd like the drawn data back in the same format you passed in, use `widget.data_as_input_type`. It returns a pandas dataframe if you passed pandas, a polars dataframe if you passed polars, a pyarrow table if you passed pyarrow, and a plain list of dicts otherwise.
+
 If you want to use the dataset that you've just drawn you can do so via: 
 
 ```python

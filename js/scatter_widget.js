@@ -578,11 +578,15 @@ function render({ model, el }) {
   }
 
   function reset() {
-    if (data && data.length > 0) push_history(data.slice());
-    data = [];
+    // Reset goes back to the data the widget was created with (if any),
+    // rather than always wiping the canvas.
+    const initial = model.get("initial_data") || [];
+    if (JSON.stringify(data) === JSON.stringify(initial)) return;
+    push_history(data.slice());
+    data = [...initial];
+    redraw_from_scratch();
     sync_model();
-    svg.selectAll("circle.drawn").remove();
-    batch = 0;
+    batch = next_batch();
   }
 
   function undo() {
