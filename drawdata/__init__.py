@@ -67,6 +67,32 @@ class BarWidget(anywidget.AnyWidget):
     width = traitlets.Int(800).tag(sync=True)
     height = traitlets.Int(550).tag(sync=True)
     collection_names = traitlets.List(["collection1", "collection2"]).tag(sync=True)
+    # Optional label per bin for the x-axis, e.g. ["00:00", "00:30", ...].
+    # When given, n_bins follows len(x_labels).
+    x_labels = traitlets.List([]).tag(sync=True)
+
+    def __init__(self, x_labels=None, **kwargs):
+        if x_labels is not None:
+            # Accept any iterable (tuple, numpy array, pandas/polars series)
+            x_labels = [str(label) for label in x_labels]
+            if "n_bins" in kwargs and kwargs["n_bins"] != len(x_labels):
+                raise ValueError(
+                    f"n_bins ({kwargs['n_bins']}) must match len(x_labels) ({len(x_labels)}); "
+                    "you can leave out n_bins when passing x_labels"
+                )
+            if x_labels:
+                kwargs["n_bins"] = len(x_labels)
+            kwargs["x_labels"] = x_labels
+        super().__init__(**kwargs)
+
+    @traitlets.validate("x_labels")
+    def _validate_x_labels(self, proposal):
+        return [str(label) for label in proposal["value"]]
+
+    @traitlets.observe("x_labels")
+    def _sync_n_bins_to_labels(self, change):
+        if change["new"] and len(change["new"]) != self.n_bins:
+            self.n_bins = len(change["new"])
 
     @property
     def data_as_pandas(self):
