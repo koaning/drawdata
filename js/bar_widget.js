@@ -24,7 +24,28 @@ function render({ model, el }) {
     let isDrawing = false;
     let minY = model.get("y_min");
     let maxY = model.get("y_max");
-    let data; 
+    let data;
+    // True while updateDataOut() is syncing data to the model, so the
+    // change:data handler below can tell its own echo apart from a real
+    // Python-side update (model.set() fires change synchronously)
+    let syncingDataOut = false;
+
+    // (Re)fill each collection's bins from the model's data, so data passed
+    // to the constructor (or set later from Python) is reflected in the
+    // chart. Bins the data doesn't cover fall back to y_min, and values are
+    // clamped to the [y_min, y_max] range like drawn values are.
+    function seedFromModel() {
+        Object.keys(collections).forEach(key => {
+            collections[key].data = new Array(getBins()).fill(model.get("y_min"));
+        });
+        (model.get("data") || []).forEach(d => {
+            const collection = collections[d.collection];
+            if (collection && d.bin >= 0 && d.bin < collection.data.length) {
+                collection.data[d.bin] = Math.max(minY, Math.min(maxY, d.value));
+            }
+        });
+    }
+    seedFromModel();
     updateDataOut();
     
     // Create SVG
@@ -207,9 +228,38 @@ function render({ model, el }) {
                 data.push({collection: key, value: value, bin: j, color: collections[key].color});
             })
         });
+        syncingDataOut = true;
         model.set("data", data);
         model.save_changes();
+        syncingDataOut = false;
     };
+
+    // React to Python-side updates (ScatterWidget already does this via its
+    // own change: handlers)
+    model.on("change:data", function() {
+        if (syncingDataOut) return;
+        seedFromModel();
+        updateChart();
+    });
+    model.on("change:n_bins", function() {
+        // Re-fit each collection to the new bin count, keeping the bins
+        // that still exist
+        Object.keys(collections).forEach(key => {
+            const old = collections[key].data;
+            collections[key].data = d3.range(getBins()).map(i =>
+                i < old.length ? old[i] : model.get("y_min")
+            );
+        });
+        updateChart();
+    });
+    model.on("change:y_min", function() {
+        minY = model.get("y_min");
+        updateChart();
+    });
+    model.on("change:y_max", function() {
+        maxY = model.get("y_max");
+        updateChart();
+    });
 
     // Handle mouse events
     const chartArea = svg.append("rect")
@@ -248,10 +298,13 @@ function render({ model, el }) {
         isDrawing = false;
     });
 
-    // Handle collection selection
-    document.querySelectorAll('button.control').forEach(button => {
+    // Handle collection selection. Scope the queries to this widget's own
+    // container: document-level queries throw when the view isn't attached
+    // to the document yet (some hosts render before attaching), and make
+    // multiple BarWidgets on a page switch each other's active collection.
+    container.querySelectorAll('button.control').forEach(button => {
         button.addEventListener('click', () => {
-            document.querySelectorAll('button.control').forEach(b => b.classList.remove('active'));
+            container.querySelectorAll('button.control').forEach(b => b.classList.remove('active'));
             button.classList.add('active');
             activeCollection = button.querySelector('span').textContent;
         });
@@ -266,7 +319,7 @@ function render({ model, el }) {
     });
 
     if (Object.keys(collections).length > 1) {
-        document.querySelector('button.control').click();
+        container.querySelector('button.control').click();
     }
 
     // Initialize chart

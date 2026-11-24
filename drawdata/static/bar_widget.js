@@ -9554,6 +9554,19 @@ function render({ model, el }) {
   let minY = model.get("y_min");
   let maxY = model.get("y_max");
   let data;
+  let syncingDataOut = false;
+  function seedFromModel() {
+    Object.keys(collections).forEach((key) => {
+      collections[key].data = new Array(getBins()).fill(model.get("y_min"));
+    });
+    (model.get("data") || []).forEach((d) => {
+      const collection = collections[d.collection];
+      if (collection && d.bin >= 0 && d.bin < collection.data.length) {
+        collection.data[d.bin] = Math.max(minY, Math.min(maxY, d.value));
+      }
+    });
+  }
+  seedFromModel();
   updateDataOut();
   getBins();
   let container = document.createElement("div");
@@ -9654,10 +9667,35 @@ function render({ model, el }) {
         data.push({ collection: key, value, bin: j, color: collections[key].color });
       });
     });
+    syncingDataOut = true;
     model.set("data", data);
     model.save_changes();
+    syncingDataOut = false;
   }
   ;
+  model.on("change:data", function() {
+    if (syncingDataOut)
+      return;
+    seedFromModel();
+    updateChart();
+  });
+  model.on("change:n_bins", function() {
+    Object.keys(collections).forEach((key) => {
+      const old = collections[key].data;
+      collections[key].data = d3.range(getBins()).map(
+        (i) => i < old.length ? old[i] : model.get("y_min")
+      );
+    });
+    updateChart();
+  });
+  model.on("change:y_min", function() {
+    minY = model.get("y_min");
+    updateChart();
+  });
+  model.on("change:y_max", function() {
+    maxY = model.get("y_max");
+    updateChart();
+  });
   const chartArea = svg.append("rect").attr("width", width).attr("height", height).attr("fill", "none").attr("pointer-events", "all");
   function updateValue(event) {
     const [xPos, yPos] = d3.pointer(event);
@@ -9683,9 +9721,9 @@ function render({ model, el }) {
   chartArea.on("mouseleave", () => {
     isDrawing = false;
   });
-  document.querySelectorAll("button.control").forEach((button) => {
+  container.querySelectorAll("button.control").forEach((button) => {
     button.addEventListener("click", () => {
-      document.querySelectorAll("button.control").forEach((b) => b.classList.remove("active"));
+      container.querySelectorAll("button.control").forEach((b) => b.classList.remove("active"));
       button.classList.add("active");
       activeCollection = button.querySelector("span").textContent;
     });
@@ -9697,7 +9735,7 @@ function render({ model, el }) {
     updateChart();
   });
   if (Object.keys(collections).length > 1) {
-    document.querySelector("button.control").click();
+    container.querySelector("button.control").click();
   }
   updateChart();
 }
