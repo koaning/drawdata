@@ -40,7 +40,13 @@ def test_without_labels_nothing_changes():
     assert widget.n_bins == 24
 
 
+def test_tooltip_is_off_by_default():
+    assert BarWidget().tooltip is False
+    assert BarWidget(tooltip=True).tooltip is True
+
+
 def test_bundle_uses_labels():
     bundle = Path("drawdata/static/bar_widget.js").read_text(encoding="utf-8")
     assert 'model.get("x_labels")' in bundle
     assert 'model.on("change:x_labels"' in bundle
+    assert 'model.get("tooltip")' in bundle

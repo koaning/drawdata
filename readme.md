@@ -76,6 +76,8 @@ widget = BarWidget(collection_names=["usage", "sunshine"], x_labels=half_hours)
 widget
 ```
 
+With many narrow bins it can help to see exactly which bin you're on. Pass `tooltip=True` to show the label and value of the bin under the cursor.
+
 The drawn values are available in the same way, with one row per collection and bin (plus a `label` column when you pass `x_labels`):
 
 ```python

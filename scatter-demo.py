@@ -28,14 +28,14 @@ def _(mo):
     mo.md(r"""
     # Drawing a `ScatterChart`
 
-    This notebook contains a demo of the `ScatterWidget` inside of the [drawdata](https://github.com/koaning/drawdata) library.
+    This notebook contains a demo of the `ScatterWidget` inside of the [drawdata](https://github.com/koaning/drawdata) library. The eraser in the toolbar removes points under the brush, and undo brings them back.
     """)
     return
 
 
 @app.cell(hide_code=True)
 def _(ScatterWidget, mo):
-    widget = mo.ui.anywidget(ScatterWidget(height=400))
+    widget = mo.ui.anywidget(ScatterWidget(height=400, eraser=True))
     widget
     return (widget,)
 

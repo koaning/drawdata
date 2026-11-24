@@ -70,6 +70,8 @@ class BarWidget(anywidget.AnyWidget):
     # Optional label per bin for the x-axis, e.g. ["00:00", "00:30", ...].
     # When given, n_bins follows len(x_labels).
     x_labels = traitlets.List([]).tag(sync=True)
+    # Show a small "label · value" box above the bin under the cursor
+    tooltip = traitlets.Bool(False).tag(sync=True)
 
     def __init__(self, x_labels=None, **kwargs):
         if x_labels is not None:

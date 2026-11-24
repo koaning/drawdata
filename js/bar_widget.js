@@ -261,8 +261,9 @@ function render({ model, el }) {
         .attr("transform", `translate(0,${height})`);
     const yAxis = svg.append("g").attr("class", "dd-bar-axis");
 
-    // Small "label · value" readout for the bin under the cursor, so you can
-    // tell bins apart even when only every k-th x label is shown
+    // Optional (tooltip=True) "label · value" readout for the bin under the
+    // cursor, so you can tell bins apart even when only every k-th x label
+    // is shown
     const readout = svg.append("g")
         .attr("class", "dd-bar-readout")
         .style("display", "none");
@@ -365,6 +366,7 @@ function render({ model, el }) {
         updateChart();
         updateDataOut();
     });
+    model.on("change:tooltip", hideHover);
     model.on("change:y_min", function() {
         minY = model.get("y_min");
         updateChart();
@@ -399,6 +401,10 @@ function render({ model, el }) {
             .attr("x", x(bin) - (step - x.bandwidth()) / 2)
             .attr("width", step);
 
+        if (!model.get("tooltip")) {
+            readout.style("display", "none");
+            return;
+        }
         readoutLabel.text(labelFor(bin));
         readoutValue.text(` \u00b7 ${formatAxisNumber(collections[activeCollection].data[bin])}`);
         readout.style("display", null);

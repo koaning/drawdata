@@ -9771,6 +9771,7 @@ function render({ model, el }) {
     updateChart();
     updateDataOut();
   });
+  model.on("change:tooltip", hideHover);
   model.on("change:y_min", function() {
     minY = model.get("y_min");
     updateChart();
@@ -9790,6 +9791,10 @@ function render({ model, el }) {
   function showHover(bin) {
     const step = x.step();
     hoverBand.style("display", null).attr("x", x(bin) - (step - x.bandwidth()) / 2).attr("width", step);
+    if (!model.get("tooltip")) {
+      readout.style("display", "none");
+      return;
+    }
     readoutLabel.text(labelFor(bin));
     readoutValue.text(` \xB7 ${formatAxisNumber(collections[activeCollection].data[bin])}`);
     readout.style("display", null);
