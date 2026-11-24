@@ -160,3 +160,5 @@ cython_debug/
 esbuild
 .DS_Stores
 uv.lock
+# marimo session cache
+__marimo__/

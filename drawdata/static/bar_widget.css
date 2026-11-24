@@ -1,56 +1,240 @@
-/* Every selector is scoped to the widget (.dd-bar-*) so these styles
-   don't leak into other notebook outputs (see #26). */
+/* BarWidget styles. Everything is scoped under .dd-bar-container so nothing
+   leaks into the notebook page. Design tokens mirror scatter_widget.css. */
 .dd-bar-container {
-    max-width: 800px;
-    margin: 20px auto;
-    font-family: Arial, sans-serif;
+    --dd-bg-color: #ffffff;
+    --dd-text-color: #111827;
+    --dd-muted-text: #6b7280;
+    --dd-border-color: #d1d5db;
+    --dd-hover-color: #f9fafb;
+    --dd-active-color: #f3f4f6;
+    --dd-primary-color: #2563eb;
+    --dd-svg-bg: #f9fafb;
+    --dd-grid-color: #e5e7eb;
+    --dd-axis-color: #9ca3af;
+    --dd-hover-band: rgba(17, 24, 39, 0.05);
+    --dd-control-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --dd-shadow-color: rgba(0, 0, 0, 0.08);
+    --dd-focus-ring: 0 0 0 2px rgba(59, 130, 246, 0.5);
+
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    width: 100%;
+    max-width: 1200px;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0.25rem;
+    color: var(--dd-text-color);
 }
-.dd-bar-controls {
-    margin-bottom: 20px;
+
+/* Dark theme. The JS adds .dd-bar-theme-dark / .dd-bar-theme-light when the notebook
+   host (marimo, JupyterLab, VS Code) says which theme it uses; otherwise we
+   fall back to the OS preference. */
+.dd-bar-container.dd-bar-theme-dark {
+    --dd-bg-color: #1f2937;
+    --dd-text-color: #f9fafb;
+    --dd-muted-text: #9ca3af;
+    --dd-border-color: #4b5563;
+    --dd-hover-color: #374151;
+    --dd-active-color: #4b5563;
+    --dd-primary-color: #3b82f6;
+    --dd-svg-bg: #111827;
+    --dd-grid-color: #273244;
+    --dd-axis-color: #4b5563;
+    --dd-hover-band: rgba(249, 250, 251, 0.07);
+    --dd-control-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.25);
+    --dd-shadow-color: rgba(0, 0, 0, 0.4);
+    --dd-focus-ring: 0 0 0 2px rgba(96, 165, 250, 0.6);
 }
-.dd-bar-container .chart-container {
-    border: 1px solid #ccc;
-    margin-bottom: 20px;
+
+@media (prefers-color-scheme: dark) {
+    .dd-bar-container:not(.dd-bar-theme-light) {
+        --dd-bg-color: #1f2937;
+        --dd-text-color: #f9fafb;
+        --dd-muted-text: #9ca3af;
+        --dd-border-color: #4b5563;
+        --dd-hover-color: #374151;
+        --dd-active-color: #4b5563;
+        --dd-primary-color: #3b82f6;
+        --dd-svg-bg: #111827;
+        --dd-grid-color: #273244;
+        --dd-axis-color: #4b5563;
+        --dd-hover-band: rgba(249, 250, 251, 0.07);
+        --dd-control-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.25);
+        --dd-shadow-color: rgba(0, 0, 0, 0.4);
+        --dd-focus-ring: 0 0 0 2px rgba(96, 165, 250, 0.6);
+    }
 }
-button.dd-bar-control {
-    padding: 8px 16px;
-    margin: 0 5px;
+
+/* Controls */
+.dd-bar-container .dd-bar-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.dd-bar-container .dd-bar-collections {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.dd-bar-container button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin: 0;
+    padding: 0.25rem 0.625rem;
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+    color: var(--dd-text-color);
+    background-color: var(--dd-bg-color);
+    border: 1px solid var(--dd-border-color);
+    border-radius: 0.375rem;
+    box-shadow: var(--dd-control-shadow);
     cursor: pointer;
-    background-color: #eee;
-    border: 1px solid #ccc;
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
-button.dd-bar-reset {
-    padding: 8px 16px;
-    margin: 0 5px;
-    cursor: pointer;
-    background-color: #eee;
-    border: 1px solid #ccc;
+
+.dd-bar-container button:hover {
+    background-color: var(--dd-hover-color);
+    border-color: var(--dd-axis-color);
 }
-button.dd-bar-control.dd-bar-active {
-    border: 4px solid #333;
-    background-color: #ddd;
-    font-weight: bold;
+
+.dd-bar-container button:focus-visible {
+    outline: none;
+    box-shadow: var(--dd-focus-ring);
 }
-.dd-bar-container input[type="number"] {
-    width: 80px;
-    padding: 5px;
-    margin: 0 5px;
+
+.dd-bar-container button:active {
+    transform: translateY(1px);
 }
-.dd-bar-container label {
-    margin-right: 10px;
+
+.dd-bar-container button.dd-bar-control.dd-bar-active {
+    /* Layer the translucent tint over the opaque button background */
+    background: linear-gradient(var(--dd-collection-bg), var(--dd-collection-bg)), var(--dd-bg-color);
+    border-color: var(--dd-collection-color);
 }
-.dd-bar-container .bar {
-    opacity: 0.6;
-    transition: opacity 0.2s;
+
+.dd-bar-container .dd-bar-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--dd-collection-color);
 }
-.dd-bar-container .bar:hover {
-    opacity: 0.8;
+
+.dd-bar-container button.dd-bar-reset {
+    margin-left: auto;
+    color: var(--dd-muted-text);
 }
-.dd-bar-container .grid line {
-    stroke: #ddd;
-    stroke-opacity: 0.7;
+
+.dd-bar-container button.dd-bar-reset:hover {
+    color: var(--dd-text-color);
 }
-.dd-bar-container .domain {
-    stroke: #000;
+
+.dd-bar-container button svg {
+    display: block;
+    width: 14px;
+    height: 14px;
+}
+
+/* Chart */
+.dd-bar-container .dd-bar-svg-container {
+    width: 100%;
+}
+
+.dd-bar-container svg.dd-bar-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    box-sizing: border-box;
+    background: var(--dd-svg-bg);
+    border: 1px solid var(--dd-border-color);
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px var(--dd-shadow-color);
+    cursor: crosshair;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.dd-bar-container .dd-bar-grid line {
+    stroke: var(--dd-grid-color);
     stroke-width: 1px;
+    shape-rendering: crispEdges;
+}
+
+.dd-bar-container .dd-bar-axis .domain,
+.dd-bar-container .dd-bar-axis line {
+    stroke: var(--dd-axis-color);
+}
+
+.dd-bar-container .dd-bar-axis text {
+    fill: var(--dd-muted-text);
+    font-family: inherit;
+    font-size: 11px;
+}
+
+.dd-bar-container .dd-bar-hover {
+    fill: var(--dd-hover-band);
+    pointer-events: none;
+}
+
+.dd-bar-container .dd-bar-readout {
+    pointer-events: none;
+}
+
+.dd-bar-container .dd-bar-readout rect {
+    fill: var(--dd-bg-color);
+    stroke: var(--dd-border-color);
+    stroke-width: 1px;
+}
+
+.dd-bar-container .dd-bar-readout text {
+    font-family: inherit;
+    font-size: 11px;
+    fill: var(--dd-text-color);
+    font-variant-numeric: tabular-nums;
+}
+
+.dd-bar-container .dd-bar-readout-label {
+    fill: var(--dd-muted-text);
+}
+
+.dd-bar-container .dd-bar-readout-value {
+    font-weight: 600;
+}
+
+.dd-bar-container .dd-bar-collection {
+    pointer-events: none;
+}
+
+.dd-bar-container .dd-bar-collection .bar {
+    fill-opacity: 0.35;
+    transition: fill-opacity 0.15s ease;
+}
+
+.dd-bar-container .dd-bar-collection.dd-bar-active .bar {
+    fill-opacity: 0.85;
+}
+
+/* High-contrast mode support */
+@media (forced-colors: active) {
+    .dd-bar-container button,
+    .dd-bar-container svg.dd-bar-svg {
+        border: 2px solid CanvasText;
+    }
+}
+
+/* Print styles */
+@media print {
+    .dd-bar-container svg.dd-bar-svg {
+        background: white !important;
+        box-shadow: none !important;
+    }
 }

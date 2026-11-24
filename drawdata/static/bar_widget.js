@@ -9533,30 +9533,92 @@ var require_d3_v7 = __commonJS({
 
 // js/bar_widget.js
 var d3 = __toESM(require_d3_v7());
+var COLORS = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"];
+var RESET_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>';
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+function formatAxisNumber(num) {
+  const absNum = Math.abs(num);
+  if (absNum >= 1e6) {
+    return (num / 1e6).toFixed(1) + "M";
+  } else if (absNum >= 1e3) {
+    return (num / 1e3).toFixed(1) + "K";
+  } else if (absNum < 1) {
+    return num.toFixed(2);
+  } else if (absNum < 10) {
+    return num.toFixed(1);
+  }
+  return Math.round(num);
+}
+function detectHostTheme() {
+  for (const node of [document.body, document.documentElement]) {
+    if (!node)
+      continue;
+    const cls = node.classList;
+    const data = node.dataset;
+    if (cls.contains("dark") || cls.contains("dark-theme") || cls.contains("vscode-dark") || cls.contains("vscode-high-contrast") || data.theme === "dark" || data.jpThemeLight === "false") {
+      return "dark";
+    }
+    if (cls.contains("light") || cls.contains("light-theme") || cls.contains("vscode-light") || data.theme === "light" || data.jpThemeLight === "true") {
+      return "light";
+    }
+  }
+  return null;
+}
 function render({ model, el }) {
-  const margin = { top: 20, right: 30, bottom: 30, left: 60 };
-  const width = model.get("width") - margin.left - margin.right;
-  const height = model.get("height") - margin.top - margin.bottom;
+  const margin = { top: 12, right: 16, bottom: 28, left: 48 };
+  const totalWidth = model.get("width");
+  const totalHeight = model.get("height");
+  const width = totalWidth - margin.left - margin.right;
+  const height = totalHeight - margin.top - margin.bottom;
   const userNames = model.get("collection_names");
-  const colors = ["#36A2EB", "#FFCE56", "#4BC0C0", "#FF6384"];
   const collections = {};
   const numCollections = Math.max(1, userNames.length);
   for (let i = 0; i < numCollections; i++) {
     const name = userNames[i] || `collection${i + 1}`;
     collections[name] = {
-      color: colors[i],
+      color: COLORS[i % COLORS.length],
       data: new Array(model.get("n_bins")).fill(model.get("y_min"))
     };
   }
-  ;
-  let activeCollection = Object.keys(collections)[0];
+  const keys = Object.keys(collections);
+  let activeCollection = keys[0];
   let isDrawing = false;
+  let lastPoint = null;
   let minY = model.get("y_min");
   let maxY = model.get("y_max");
   let data;
   let syncingDataOut = false;
+  function getBins() {
+    return model.get("n_bins");
+  }
+  function getLabels() {
+    const labels = model.get("x_labels") || [];
+    return labels.length === getBins() ? labels : null;
+  }
+  function labelFor(bin) {
+    const labels = getLabels();
+    return labels ? String(labels[bin]) : String(bin);
+  }
+  function maxLabelWidth(bins) {
+    const labels = getLabels();
+    const maxChars = labels ? d3.max(labels, (l) => String(l).length) : String(bins - 1).length;
+    return maxChars * 6.5;
+  }
+  const NICE_STEPS = [1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128];
+  function tickBins(bins) {
+    const labelWidth = maxLabelWidth(bins);
+    const step = width / bins;
+    const raw = Math.max(1, Math.ceil((labelWidth + 24) / step));
+    const k = NICE_STEPS.find((n) => n >= raw) || raw;
+    return d3.range(0, bins, k);
+  }
   function seedFromModel() {
-    Object.keys(collections).forEach((key) => {
+    keys.forEach((key) => {
       collections[key].data = new Array(getBins()).fill(model.get("y_min"));
     });
     (model.get("data") || []).forEach((d) => {
@@ -9566,106 +9628,15 @@ function render({ model, el }) {
       }
     });
   }
-  seedFromModel();
-  updateDataOut();
-  getBins();
-  let container = document.createElement("div");
-  container.setAttribute("class", "dd-bar-container");
-  let controls = document.createElement("div");
-  controls.setAttribute("class", "dd-bar-controls");
-  if (Object.keys(collections).length > 1) {
-    Object.keys(collections).forEach((key) => {
-      let btn = document.createElement("button");
-      btn.setAttribute("class", "dd-bar-control");
-      btn.style.position = "relative";
-      btn.style.paddingLeft = "30px";
-      let circle = document.createElement("span");
-      circle.style.position = "absolute";
-      circle.style.left = "8px";
-      circle.style.top = "50%";
-      circle.style.transform = "translateY(-50%)";
-      circle.style.width = "12px";
-      circle.style.height = "12px";
-      circle.style.borderRadius = "50%";
-      circle.style.backgroundColor = collections[key].color;
-      circle.style.display = "inline-block";
-      let text = document.createElement("span");
-      text.textContent = key;
-      btn.appendChild(text);
-      btn.appendChild(circle);
-      btn.addEventListener("click", () => {
-        activeCollection = key;
-        updateChart();
-      });
-      controls.appendChild(btn);
-    });
-  }
-  let clear_btn = document.createElement("button");
-  clear_btn.setAttribute("class", "dd-bar-reset");
-  clear_btn.innerHTML = "Clear";
-  if (Object.keys(collections).length > 1) {
-    controls.appendChild(clear_btn);
-  }
-  container.appendChild(controls);
-  el.appendChild(container);
-  const svg = d3.select(container).append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("transform", `translate(${margin.left},${margin.top})`);
-  const x = d3.scaleBand().range([0, width]).padding(0.1).domain(d3.range(model.get("n_bins")));
-  ;
-  const y = d3.scaleLinear().range([height, 0]).domain([Math.min(minY, 0), maxY]);
-  ;
-  const grid = svg.append("g").attr("class", "grid");
-  const xAxis = svg.append("g").attr("transform", `translate(0,${height})`).call(
-    d3.axisBottom(x).tickValues(
-      x.domain().filter((d, i) => {
-        const interval = Math.ceil(model.get("n_bins") / 10);
-        return i % interval === 0;
-      })
-    )
-  );
-  const yAxis = svg.append("g").call(d3.axisLeft(y).ticks(10).tickFormat(formatAxisNumber));
-  Object.keys(collections).forEach((key) => {
-    svg.append("g").attr("class", key);
-  });
-  svg.append("rect").attr("width", width).attr("height", height).attr("fill", "none").attr("stroke", "#000").attr("stroke-width", 1);
-  function getBins() {
-    return model.get("n_bins");
-  }
-  function formatAxisNumber(num) {
-    const absNum = Math.abs(num);
-    if (absNum >= 1e6) {
-      return (num / 1e6).toFixed(1) + "M";
-    } else if (absNum >= 1e3) {
-      return (num / 1e3).toFixed(1) + "K";
-    } else if (absNum < 1) {
-      return num.toFixed(2);
-    } else if (absNum < 10) {
-      return num.toFixed(1);
-    }
-    return Math.round(num);
-  }
-  function updateChart() {
-    const bins = getBins();
-    x.domain(d3.range(bins));
-    y.domain([Math.min(minY, 0), maxY]);
-    xAxis.call(d3.axisBottom(x).tickValues(x.domain().filter((d, i) => {
-      const interval = Math.ceil(bins / 10);
-      return i % interval === 0;
-    })));
-    yAxis.call(d3.axisLeft(y).ticks(10).tickFormat(formatAxisNumber));
-    grid.selectAll(".horizontal-grid").data(y.ticks(10)).enter().append("line").attr("class", "horizontal-grid").attr("x1", 0).attr("x2", width).attr("y1", (d) => y(d)).attr("y2", (d) => y(d)).attr("stroke", "#ddd").attr("stroke-opacity", 0.7);
-    Object.entries(collections).forEach(([key, collection]) => {
-      const bars = svg.select(`.${key}`).selectAll(".bar").data(collection.data);
-      bars.enter().append("rect").attr("class", "bar").merge(bars).attr("x", (d, i) => x(i)).attr("width", x.bandwidth()).attr("y", (d) => y(Math.max(0, d))).attr("height", (d) => Math.abs(y(0) - y(d))).attr("fill", collection.color);
-      bars.exit().remove();
-    });
-    updateDataOut();
-  }
   function updateDataOut() {
     data = [];
-    Object.keys(collections).forEach((key, i) => {
-      let values = collections[key].data;
-      values.forEach((value, j) => {
-        data.push({ collection: key, value, bin: j, color: collections[key].color });
+    const labels = getLabels();
+    keys.forEach((key) => {
+      collections[key].data.forEach((value, j) => {
+        const row = { collection: key, value, bin: j, color: collections[key].color };
+        if (labels)
+          row.label = String(labels[j]);
+        data.push(row);
       });
     });
     syncingDataOut = true;
@@ -9673,7 +9644,99 @@ function render({ model, el }) {
     model.save_changes();
     syncingDataOut = false;
   }
-  ;
+  seedFromModel();
+  updateDataOut();
+  const container = document.createElement("div");
+  container.setAttribute("class", "dd-bar-container");
+  container.style.maxWidth = `${totalWidth}px`;
+  function applyTheme() {
+    const theme = detectHostTheme();
+    container.classList.toggle("dd-bar-theme-dark", theme === "dark");
+    container.classList.toggle("dd-bar-theme-light", theme === "light");
+  }
+  applyTheme();
+  const themeObserver = new MutationObserver(applyTheme);
+  [document.body, document.documentElement].forEach((node) => {
+    if (node) {
+      themeObserver.observe(node, { attributes: true, attributeFilter: ["class", "data-theme", "data-jp-theme-light"] });
+    }
+  });
+  const controls = document.createElement("div");
+  controls.className = "dd-bar-controls";
+  container.appendChild(controls);
+  if (keys.length > 1) {
+    const group = document.createElement("div");
+    group.className = "dd-bar-collections";
+    keys.forEach((key) => {
+      const color = collections[key].color;
+      const btn = document.createElement("button");
+      btn.setAttribute("class", "dd-bar-control");
+      btn.type = "button";
+      btn.dataset.collection = key;
+      btn.setAttribute("aria-label", `Draw ${key}`);
+      btn.style.setProperty("--dd-collection-color", color);
+      btn.style.setProperty("--dd-collection-bg", hexToRgba(color, 0.18));
+      const dot = document.createElement("span");
+      dot.className = "dd-bar-dot";
+      const text = document.createElement("span");
+      text.textContent = key;
+      btn.appendChild(dot);
+      btn.appendChild(text);
+      group.appendChild(btn);
+    });
+    controls.appendChild(group);
+  }
+  const clear_btn = document.createElement("button");
+  clear_btn.setAttribute("class", "dd-bar-reset");
+  clear_btn.type = "button";
+  clear_btn.innerHTML = RESET_ICON + "<span>Clear</span>";
+  clear_btn.setAttribute("aria-label", "Clear all bars");
+  controls.appendChild(clear_btn);
+  const svgContainer = document.createElement("div");
+  svgContainer.className = "dd-bar-svg-container";
+  container.appendChild(svgContainer);
+  el.appendChild(container);
+  const svgRoot = d3.select(svgContainer).append("svg").attr("class", "dd-bar-svg").attr("viewBox", `0 0 ${totalWidth} ${totalHeight}`).attr("preserveAspectRatio", "xMidYMid meet").attr("width", "100%").attr("role", "img").attr("aria-label", "Bar chart drawing area").style("aspect-ratio", totalWidth / totalHeight).style("max-width", `${totalWidth}px`);
+  const svg = svgRoot.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+  const x = d3.scaleBand().range([0, width]).padding(0.15);
+  const y = d3.scaleLinear().range([height, 0]);
+  const grid = svg.append("g").attr("class", "dd-bar-grid");
+  const hoverBand = svg.append("rect").attr("class", "dd-bar-hover").attr("y", 0).attr("height", height).style("display", "none");
+  const barsLayer = svg.append("g").attr("class", "dd-bar-bars");
+  const xAxis = svg.append("g").attr("class", "dd-bar-axis").attr("transform", `translate(0,${height})`);
+  const yAxis = svg.append("g").attr("class", "dd-bar-axis");
+  const readout = svg.append("g").attr("class", "dd-bar-readout").style("display", "none");
+  const readoutBg = readout.append("rect").attr("rx", 4);
+  const readoutText = readout.append("text").attr("y", 0).attr("dy", "0.32em");
+  const readoutLabel = readoutText.append("tspan").attr("class", "dd-bar-readout-label");
+  const readoutValue = readoutText.append("tspan").attr("class", "dd-bar-readout-value");
+  const collectionGroups = {};
+  keys.forEach((key) => {
+    collectionGroups[key] = barsLayer.append("g").attr("class", "dd-bar-collection");
+  });
+  function updateChart() {
+    const bins = getBins();
+    x.domain(d3.range(bins));
+    y.domain([Math.min(minY, 0), maxY]);
+    xAxis.call(d3.axisBottom(x).tickSizeOuter(0).tickValues(tickBins(bins)).tickFormat(labelFor));
+    yAxis.call(d3.axisLeft(y).ticks(6).tickSize(0).tickPadding(8).tickFormat(formatAxisNumber));
+    yAxis.select(".domain").remove();
+    grid.selectAll("line").data(y.ticks(6)).join("line").attr("x1", 0).attr("x2", width).attr("y1", (d) => y(d)).attr("y2", (d) => y(d));
+    keys.forEach((key) => {
+      const collection = collections[key];
+      const isActive = key === activeCollection;
+      collectionGroups[key].classed("dd-bar-active", isActive).selectAll("rect.bar").data(collection.data).join("rect").attr("class", "bar").attr("x", (d, i) => x(i)).attr("width", x.bandwidth()).attr("y", (d) => y(Math.max(0, d))).attr("height", (d) => Math.abs(y(0) - y(d))).attr("rx", Math.min(3, x.bandwidth() / 4)).attr("fill", collection.color);
+    });
+    collectionGroups[activeCollection].raise();
+  }
+  function setActiveCollection(key) {
+    activeCollection = key;
+    container.querySelectorAll("button.dd-bar-control").forEach((b) => {
+      b.classList.toggle("dd-bar-active", b.dataset.collection === key);
+      b.setAttribute("aria-pressed", b.dataset.collection === key);
+    });
+    updateChart();
+  }
   model.on("change:data", function() {
     if (syncingDataOut)
       return;
@@ -9681,14 +9744,22 @@ function render({ model, el }) {
     updateChart();
   });
   model.on("change:n_bins", function() {
-    Object.keys(collections).forEach((key) => {
+    keys.forEach((key) => {
       const old = collections[key].data;
       collections[key].data = d3.range(getBins()).map(
         (i) => i < old.length ? old[i] : model.get("y_min")
       );
     });
+    hideHover();
     updateChart();
+    updateDataOut();
   });
+  model.on("change:x_labels", function() {
+    hideHover();
+    updateChart();
+    updateDataOut();
+  });
+  model.on("change:tooltip", hideHover);
   model.on("change:y_min", function() {
     minY = model.get("y_min");
     updateChart();
@@ -9697,48 +9768,103 @@ function render({ model, el }) {
     maxY = model.get("y_max");
     updateChart();
   });
-  const chartArea = svg.append("rect").attr("width", width).attr("height", height).attr("fill", "none").attr("pointer-events", "all");
-  function updateValue(event) {
-    const [xPos, yPos] = d3.pointer(event);
-    const binIndex = Math.floor(x.domain().length * xPos / width);
-    const value = y.invert(yPos);
-    if (binIndex >= 0 && binIndex < getBins()) {
-      collections[activeCollection].data[binIndex] = Math.max(minY, Math.min(maxY, value));
-      updateChart();
-    }
+  const chartArea = svg.append("rect").attr("class", "dd-bar-overlay").attr("width", width).attr("height", height).attr("fill", "none");
+  function pointerToBin(event) {
+    const [xPos, yPos] = d3.pointer(event, chartArea.node());
+    const bins = getBins();
+    const bin = Math.max(0, Math.min(bins - 1, Math.floor(bins * xPos / width)));
+    const value = Math.max(minY, Math.min(maxY, y.invert(yPos)));
+    return { bin, value };
   }
-  chartArea.on("mousedown", (event) => {
+  function showHover(bin) {
+    const step = x.step();
+    hoverBand.style("display", null).attr("x", x(bin) - (step - x.bandwidth()) / 2).attr("width", step);
+    if (!model.get("tooltip")) {
+      readout.style("display", "none");
+      return;
+    }
+    readoutLabel.text(labelFor(bin));
+    readoutValue.text(` \xB7 ${formatAxisNumber(collections[activeCollection].data[bin])}`);
+    readout.style("display", null);
+    const textWidth = readoutText.node().getComputedTextLength?.() || 0;
+    const padX = 6;
+    const boxWidth = textWidth + 2 * padX;
+    const center = x(bin) + x.bandwidth() / 2;
+    const left = Math.max(0, Math.min(width - boxWidth, center - boxWidth / 2));
+    readout.attr("transform", `translate(${left},${12})`);
+    readoutText.attr("x", padX);
+    readoutBg.attr("x", 0).attr("y", -9).attr("width", boxWidth).attr("height", 18);
+  }
+  function hideHover() {
+    hoverBand.style("display", "none");
+    readout.style("display", "none");
+  }
+  function updateValue(event) {
+    const point = pointerToBin(event);
+    const values = collections[activeCollection].data;
+    if (lastPoint && lastPoint.bin !== point.bin) {
+      const dir = point.bin > lastPoint.bin ? 1 : -1;
+      const span = Math.abs(point.bin - lastPoint.bin);
+      for (let k = 1; k < span; k++) {
+        const t = k / span;
+        values[lastPoint.bin + dir * k] = lastPoint.value + t * (point.value - lastPoint.value);
+      }
+    }
+    values[point.bin] = point.value;
+    lastPoint = point;
+    updateChart();
+    showHover(point.bin);
+  }
+  function stopDrawing(event) {
+    if (!isDrawing)
+      return;
+    isDrawing = false;
+    lastPoint = null;
+    if (event && svgNode.hasPointerCapture?.(event.pointerId)) {
+      svgNode.releasePointerCapture(event.pointerId);
+    }
+    updateDataOut();
+  }
+  const svgNode = svgRoot.node();
+  svgRoot.on("pointerdown", (event) => {
+    if (event.button !== void 0 && event.button !== 0)
+      return;
+    event.preventDefault();
     isDrawing = true;
+    lastPoint = null;
+    svgNode.setPointerCapture?.(event.pointerId);
     updateValue(event);
   });
-  chartArea.on("mousemove", (event) => {
+  svgRoot.on("pointermove", (event) => {
     if (isDrawing) {
       updateValue(event);
+    } else {
+      showHover(pointerToBin(event).bin);
     }
   });
-  chartArea.on("mouseup", () => {
-    isDrawing = false;
-  });
-  chartArea.on("mouseleave", () => {
-    isDrawing = false;
+  svgRoot.on("pointerup", stopDrawing);
+  svgRoot.on("pointercancel", stopDrawing);
+  svgRoot.on("lostpointercapture", stopDrawing);
+  svgRoot.on("pointerleave", () => {
+    if (!isDrawing)
+      hideHover();
   });
   container.querySelectorAll("button.dd-bar-control").forEach((button) => {
-    button.addEventListener("click", () => {
-      container.querySelectorAll("button.dd-bar-control").forEach((b) => b.classList.remove("dd-bar-active"));
-      button.classList.add("dd-bar-active");
-      activeCollection = button.querySelector("span").textContent;
-    });
+    button.addEventListener("click", () => setActiveCollection(button.dataset.collection));
   });
   clear_btn.addEventListener("click", () => {
-    Object.values(collections).forEach((collection) => {
-      collection.data = new Array(getBins()).fill(0);
+    keys.forEach((key) => {
+      collections[key].data = new Array(getBins()).fill(model.get("y_min"));
     });
     updateChart();
+    updateDataOut();
   });
-  if (Object.keys(collections).length > 1) {
+  if (keys.length > 1) {
     container.querySelector("button.dd-bar-control").click();
+  } else {
+    updateChart();
   }
-  updateChart();
+  return () => themeObserver.disconnect();
 }
 var bar_widget_default = { render };
 export {

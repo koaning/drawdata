@@ -10,6 +10,10 @@ BUNDLE = (ROOT / "drawdata/static/bar_widget.js").read_text(encoding="utf-8")
 def _selectors(css):
     css = re.sub(r"/\*.*?\*/", "", css, flags=re.DOTALL)
     for block in re.findall(r"([^{}]+)\{", css):
+        # Skip at-rules like @media; the rules nested inside them are
+        # still checked
+        if block.strip().startswith("@"):
+            continue
         for selector in block.split(","):
             yield selector.strip()
 
@@ -30,5 +34,6 @@ def test_bar_widget_root_element_gets_scoping_class():
 def test_bar_widget_buttons_use_scoped_classes():
     assert 'btn.setAttribute("class", "dd-bar-control")' in BUNDLE
     assert 'clear_btn.setAttribute("class", "dd-bar-reset")' in BUNDLE
-    assert 'button.classList.add("dd-bar-active")' in BUNDLE
+    assert '"dd-bar-active"' in BUNDLE
+    assert '"active"' not in SOURCE
     assert "document.querySelector" not in SOURCE

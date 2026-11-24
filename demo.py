@@ -35,7 +35,7 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(ScatterWidget, mo):
-    widget = mo.ui.anywidget(ScatterWidget(height=400, width=400))
+    widget = mo.ui.anywidget(ScatterWidget(height=400, width=400, eraser=True))
     widget
     return (widget,)
 
