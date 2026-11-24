@@ -51,15 +51,16 @@ function render({ model, el }) {
     // Create SVG
     getBins();
     let container = document.createElement("div");
-    
+    container.setAttribute("class", "dd-bar-container");
+
     let controls = document.createElement("div");
-    controls.setAttribute("class", "controls");
+    controls.setAttribute("class", "dd-bar-controls");
 
     // Only add collection buttons if there are multiple collections
     if (Object.keys(collections).length > 1) {
         Object.keys(collections).forEach(key => {
             let btn = document.createElement("button");
-            btn.setAttribute("class", "control")
+            btn.setAttribute("class", "dd-bar-control");
             btn.style.position = "relative";
             btn.style.paddingLeft = "30px";
             let circle = document.createElement("span");
@@ -85,7 +86,7 @@ function render({ model, el }) {
     }
     // Add a button to clear the chart
     let clear_btn = document.createElement("button");
-    clear_btn.setAttribute("class", "reset");
+    clear_btn.setAttribute("class", "dd-bar-reset");
     clear_btn.innerHTML = "Clear";
     if (Object.keys(collections).length > 1) {
         controls.appendChild(clear_btn);
@@ -302,10 +303,10 @@ function render({ model, el }) {
     // container: document-level queries throw when the view isn't attached
     // to the document yet (some hosts render before attaching), and make
     // multiple BarWidgets on a page switch each other's active collection.
-    container.querySelectorAll('button.control').forEach(button => {
+    container.querySelectorAll('button.dd-bar-control').forEach(button => {
         button.addEventListener('click', () => {
-            container.querySelectorAll('button.control').forEach(b => b.classList.remove('active'));
-            button.classList.add('active');
+            container.querySelectorAll('button.dd-bar-control').forEach(b => b.classList.remove('dd-bar-active'));
+            button.classList.add('dd-bar-active');
             activeCollection = button.querySelector('span').textContent;
         });
     });
@@ -319,7 +320,7 @@ function render({ model, el }) {
     });
 
     if (Object.keys(collections).length > 1) {
-        container.querySelector('button.control').click();
+        container.querySelector('button.dd-bar-control').click();
     }
 
     // Initialize chart

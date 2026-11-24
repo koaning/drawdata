@@ -34,5 +34,5 @@ def test_bar_widget_scopes_button_queries_to_its_container():
     assert 'document.querySelectorAll(\'button.control\')' not in BUNDLE
     assert 'document.querySelector("button.control")' not in BUNDLE
     assert 'document.querySelectorAll("button.control")' not in BUNDLE
-    assert 'container.querySelector("button.control")' in BUNDLE
-    assert 'container.querySelectorAll("button.control")' in BUNDLE
+    assert 'container.querySelector("button.dd-bar-control")' in BUNDLE
+    assert 'container.querySelectorAll("button.dd-bar-control")' in BUNDLE
