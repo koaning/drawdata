@@ -9615,13 +9615,7 @@ function render({ model, el }) {
     const step = width / bins;
     const raw = Math.max(1, Math.ceil((labelWidth + 24) / step));
     const k = NICE_STEPS.find((n) => n >= raw) || raw;
-    const ticks = d3.range(0, bins, k);
-    const last = bins - 1;
-    const gapBins = last - ticks[ticks.length - 1];
-    if (gapBins > 0 && gapBins >= 0.75 * k && gapBins * step >= labelWidth + 12) {
-      ticks.push(last);
-    }
-    return ticks;
+    return d3.range(0, bins, k);
   }
   function seedFromModel() {
     keys.forEach((key) => {
@@ -9725,12 +9719,6 @@ function render({ model, el }) {
     x.domain(d3.range(bins));
     y.domain([Math.min(minY, 0), maxY]);
     xAxis.call(d3.axisBottom(x).tickSizeOuter(0).tickValues(tickBins(bins)).tickFormat(labelFor));
-    const lastTickText = xAxis.select(".tick:last-of-type text");
-    const lastCenter = x(bins - 1) + x.bandwidth() / 2;
-    lastTickText.attr(
-      "text-anchor",
-      lastCenter + maxLabelWidth(bins) / 2 > width + margin.right ? "end" : null
-    );
     yAxis.call(d3.axisLeft(y).ticks(6).tickSize(0).tickPadding(8).tickFormat(formatAxisNumber));
     yAxis.select(".domain").remove();
     grid.selectAll("line").data(y.ticks(6)).join("line").attr("x1", 0).attr("x2", width).attr("y1", (d) => y(d)).attr("y2", (d) => y(d));

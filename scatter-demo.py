@@ -133,7 +133,7 @@ def _(alt, bar_widget, half_hours, mo):
         .encode(
             alt.X("label:O")
             .sort(half_hours)
-            .axis(values=half_hours[::4] + half_hours[-1:], labelAngle=0)
+            .axis(values=half_hours[::4], labelAngle=0)
             .title("time of day"),
             alt.Y("value:Q").scale(domain=(0, bar_widget.value["y_max"])),
             alt.Color("collection:N", scale=bar_colscale),

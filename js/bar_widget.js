@@ -109,23 +109,13 @@ function render({ model, el }) {
     // Pick which bins get an x label: every k-th bin starting at the first,
     // with k picked so labels don't overlap. k comes from a list of "round"
     // steps so e.g. 48 half-hour bins land on whole hours (00:00, 02:00, ...).
-    // The last bin also gets a label when that keeps the spacing even: it has
-    // to be at least 3/4 of a step after the previous label (so 48 half-hour
-    // bins end in "22:00, 23:30", but 24 numbered bins stay "..., 20, 22"
-    // rather than "..., 22, 23").
     const NICE_STEPS = [1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128];
     function tickBins(bins) {
         const labelWidth = maxLabelWidth(bins);
         const step = width / bins;
         const raw = Math.max(1, Math.ceil((labelWidth + 24) / step));
         const k = NICE_STEPS.find(n => n >= raw) || raw;
-        const ticks = d3.range(0, bins, k);
-        const last = bins - 1;
-        const gapBins = last - ticks[ticks.length - 1];
-        if (gapBins > 0 && gapBins >= 0.75 * k && gapBins * step >= labelWidth + 12) {
-            ticks.push(last);
-        }
-        return ticks;
+        return d3.range(0, bins, k);
     }
 
     // (Re)fill each collection's bins from the model's data, so data passed
@@ -291,11 +281,6 @@ function render({ model, el }) {
             .tickSizeOuter(0)
             .tickValues(tickBins(bins))
             .tickFormat(labelFor));
-        // Keep a long last label from running off the right edge of the SVG
-        const lastTickText = xAxis.select(".tick:last-of-type text");
-        const lastCenter = x(bins - 1) + x.bandwidth() / 2;
-        lastTickText.attr("text-anchor",
-            lastCenter + maxLabelWidth(bins) / 2 > width + margin.right ? "end" : null);
 
         yAxis.call(d3.axisLeft(y)
             .ticks(6)
