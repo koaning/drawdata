@@ -9568,6 +9568,8 @@ function render({ model, el }) {
   let selectedClassButton = null;
   let selectedColor = colors[0];
   let circle_brush;
+  let mode = "draw";
+  const ERASER_COLOR = "#6b7280";
   let classButtonsContainer = document.createElement("div");
   classButtonsContainer.style.display = n_classes === 1 ? "none" : "flex";
   classButtonsContainer.style.alignItems = "center";
@@ -9609,8 +9611,10 @@ function render({ model, el }) {
       button.style.backgroundColor = hexToRgba(colors[i], 0.25);
       button.style.borderColor = colors[i];
       button.style.color = "var(--dd-text-color)";
-      if (circle_brush) {
-        circle_brush.style("fill", selectedColor).style("fill-opacity", 0.3).style("stroke", selectedColor).style("stroke-width", 2);
+      if (mode !== "draw") {
+        set_mode("draw");
+      } else {
+        style_brush();
       }
     };
     classButtonsContainer.appendChild(button);
@@ -9677,8 +9681,66 @@ function render({ model, el }) {
   undo_btn.style.alignItems = "center";
   undo_btn.onclick = undo;
   controls.appendChild(undo_btn);
+  let eraser_btn = document.createElement("button");
+  eraser_btn.setAttribute("aria-label", "Eraser");
+  eraser_btn.setAttribute("aria-pressed", "false");
+  eraser_btn.setAttribute("title", "Eraser");
+  eraser_btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"></path><path d="M22 21H7"></path><path d="m5 11 9 9"></path></svg>';
+  eraser_btn.style.padding = "0.25rem";
+  eraser_btn.style.cursor = "pointer";
+  eraser_btn.style.border = "1px solid var(--dd-border-color)";
+  eraser_btn.style.borderRadius = "0.25rem";
+  eraser_btn.style.backgroundColor = "var(--dd-bg-color)";
+  eraser_btn.style.color = "var(--dd-text-color)";
+  eraser_btn.style.alignItems = "center";
+  eraser_btn.onclick = function() {
+    set_mode(mode === "erase" ? "draw" : "erase");
+  };
+  controls.appendChild(eraser_btn);
+  function update_eraser_visibility() {
+    const enabled = !!model.get("eraser");
+    eraser_btn.style.display = enabled ? "inline-flex" : "none";
+    if (!enabled && mode === "erase")
+      set_mode("draw");
+  }
+  update_eraser_visibility();
+  model.on("change:eraser", update_eraser_visibility);
+  function set_mode(newMode) {
+    mode = newMode;
+    const erasing = mode === "erase";
+    eraser_btn.setAttribute("aria-pressed", erasing ? "true" : "false");
+    eraser_btn.style.backgroundColor = erasing ? hexToRgba(ERASER_COLOR, 0.25) : "var(--dd-bg-color)";
+    eraser_btn.style.borderColor = erasing ? ERASER_COLOR : "var(--dd-border-color)";
+    if (selectedClassButton) {
+      selectedClassButton.style.backgroundColor = erasing ? "var(--dd-bg-color)" : hexToRgba(selectedColor, 0.25);
+      selectedClassButton.style.borderColor = erasing ? "var(--dd-border-color)" : selectedColor;
+    }
+    style_brush();
+  }
+  function style_brush() {
+    if (circle_brush) {
+      apply_brush_style();
+    }
+  }
+  function apply_brush_style() {
+    if (mode === "erase") {
+      circle_brush.style("fill", ERASER_COLOR).style("fill-opacity", 0.1).style("stroke", ERASER_COLOR).style("stroke-width", 2).style("stroke-dasharray", "6 4");
+    } else {
+      circle_brush.style("fill", selectedColor).style("fill-opacity", 0.3).style("stroke", selectedColor).style("stroke-width", 2).style("stroke-dasharray", null);
+    }
+  }
   el.appendChild(container);
   let data = [...model.get("data") || []];
+  const MAX_HISTORY = 50;
+  let history = [];
+  let lastSent = null;
+  let strokeSnapshot = null;
+  let strokeChanged = false;
+  function push_history(snapshot) {
+    history.push(snapshot);
+    if (history.length > MAX_HISTORY)
+      history.shift();
+  }
   let svg_container = document.createElement("div");
   svg_container.className = "dd-scatter-svg-container";
   container.appendChild(svg_container);
@@ -9707,7 +9769,11 @@ function render({ model, el }) {
   }
   redraw_from_scratch();
   model.on("change:data", function() {
-    data = [...model.get("data") || []];
+    const incoming = model.get("data") || [];
+    if (incoming !== lastSent && JSON.stringify(incoming) !== JSON.stringify(lastSent)) {
+      history = [];
+    }
+    data = [...incoming];
     redraw_from_scratch();
   });
   model.on("change:brushsize", function() {
@@ -9733,8 +9799,33 @@ function render({ model, el }) {
     }
   }
   circle_brush = svg.append("circle").attr("cx", width / 2).attr("cy", height / 2).attr("r", model.get("brushsize") * brushScale).style("fill", selectedColor).style("fill-opacity", 0.3).style("stroke", selectedColor).style("stroke-width", 2).style("stroke-opacity", 0.9).attr("class", "brush-indicator");
+  function begin_stroke() {
+    strokeSnapshot = data.slice();
+    strokeChanged = false;
+  }
+  function apply_brush(x, y) {
+    if (mode === "erase") {
+      if (erase_at(x, y))
+        strokeChanged = true;
+    } else {
+      let size = parseInt(size_input.value, 10) * brushScale;
+      let new_x = x + (Math.random() - 0.5) * size;
+      let new_y = y + (Math.random() - 0.5) * size;
+      add_point(new_x, new_y);
+      strokeChanged = true;
+    }
+  }
+  function end_stroke() {
+    if (strokeChanged) {
+      push_history(strokeSnapshot);
+      finish_batch();
+    }
+    strokeSnapshot = null;
+    strokeChanged = false;
+  }
   function drag_start(event) {
     isDragging = false;
+    begin_stroke();
   }
   function mousemove(event) {
     const [x, y] = d3.pointer(event, svg.node());
@@ -9743,12 +9834,24 @@ function render({ model, el }) {
   function mouseclick(event) {
     if (!isDragging) {
       const [x, y] = d3.pointer(event, svg.node());
-      let size = parseInt(size_input.value, 10) * brushScale;
-      let new_x = x + (Math.random() - 0.5) * size;
-      let new_y = y + (Math.random() - 0.5) * size;
-      add_point(new_x, new_y);
-      finish_batch();
+      begin_stroke();
+      apply_brush(x, y);
+      end_stroke();
     }
+  }
+  function erase_at(x, y) {
+    const r = parseInt(size_input.value, 10) * brushScale;
+    const r2 = r * r;
+    const before = data.length;
+    data = data.filter(function(d) {
+      const dx = d.x - x;
+      const dy = height - d.y - y;
+      return dx * dx + dy * dy > r2;
+    });
+    if (data.length === before)
+      return false;
+    redraw_from_scratch();
+    return true;
   }
   function update_brush(x, y) {
     circle_brush.attr("cx", x).attr("cy", y);
@@ -9770,27 +9873,29 @@ function render({ model, el }) {
       batch
     });
   }
-  function finish_batch() {
-    model.set("data", grab_data());
+  function sync_model() {
+    lastSent = grab_data();
+    model.set("data", lastSent);
     model.save_changes();
+  }
+  function next_batch() {
     if (data && data.length > 0) {
-      const batchValues = data.map((d) => d.batch || 0);
-      batch = Math.max(...batchValues) + 1;
-    } else {
-      batch = 0;
+      return Math.max(...data.map((d) => d.batch || 0)) + 1;
     }
+    return 0;
+  }
+  function finish_batch() {
+    sync_model();
+    batch = next_batch();
   }
   function dragged(event) {
     isDragging = true;
     const [x, y] = d3.pointer(event, svg.node());
-    let size = parseInt(size_input.value, 10) * brushScale;
-    let new_x = x + (Math.random() - 0.5) * size;
-    let new_y = y + (Math.random() - 0.5) * size;
-    add_point(new_x, new_y);
+    apply_brush(x, y);
     update_brush(x, y);
   }
   function drag_end(event) {
-    finish_batch();
+    end_stroke();
   }
   function grab_data() {
     if (!data)
@@ -9806,13 +9911,21 @@ function render({ model, el }) {
     });
   }
   function reset() {
+    if (data && data.length > 0)
+      push_history(data.slice());
     data = [];
-    model.set("data", []);
-    model.save_changes();
+    sync_model();
     svg.selectAll("circle.drawn").remove();
     batch = 0;
   }
   function undo() {
+    if (history.length > 0) {
+      data = history.pop();
+      redraw_from_scratch();
+      sync_model();
+      batch = next_batch();
+      return;
+    }
     if (!data || data.length === 0)
       return;
     try {
@@ -9825,8 +9938,8 @@ function render({ model, el }) {
       data = data.filter(function(d) {
         return (d.batch || 0) !== maxBatch;
       });
-      model.set("data", grab_data());
-      model.save_changes();
+      sync_model();
+      batch = next_batch();
     } catch (error) {
       console.error("Error in undo function:", error);
     }
