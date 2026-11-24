@@ -31,6 +31,12 @@ widget = ScatterWidget()
 widget
 ```
 
+If you want to be able to remove points with the brush, you can turn on the eraser. This adds an eraser toggle to the toolbar, and undo will also restore erased points.
+
+```python
+widget = ScatterWidget(eraser=True)
+```
+
 If you want to use the dataset that you've just drawn you can do so via: 
 
 ```python

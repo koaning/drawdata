@@ -17,6 +17,7 @@ class ScatterWidget(anywidget.AnyWidget):
     width = traitlets.Int(800).tag(sync=True)
     height = traitlets.Int(400).tag(sync=True)
     n_classes = traitlets.Int(4).tag(sync=True)
+    eraser = traitlets.Bool(False).tag(sync=True)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

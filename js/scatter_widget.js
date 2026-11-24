@@ -55,6 +55,10 @@ function render({ model, el }) {
   let selectedClassButton = null;
   let selectedColor = colors[0];
   let circle_brush;
+  // "draw" or "erase"; erase mode is only reachable when the `eraser` trait is on
+  let mode = "draw";
+  // Neutral gray that reads on both light and dark backgrounds
+  const ERASER_COLOR = "#6b7280";
 
   // Container for class buttons (hidden when n_classes === 1)
   let classButtonsContainer = document.createElement("div");
@@ -106,12 +110,11 @@ function render({ model, el }) {
       button.style.borderColor = colors[i];
       button.style.color = "var(--dd-text-color)";
 
-      if (circle_brush) {
-        circle_brush
-          .style("fill", selectedColor)
-          .style("fill-opacity", 0.3)
-          .style("stroke", selectedColor)
-          .style("stroke-width", 2);
+      // Picking a class always means "go back to drawing"
+      if (mode !== "draw") {
+        set_mode("draw");
+      } else {
+        style_brush();
       }
     };
 
@@ -194,9 +197,95 @@ function render({ model, el }) {
   undo_btn.onclick = undo;
   controls.appendChild(undo_btn);
 
+  // Eraser toggle - compact, icon only, hidden unless the `eraser` trait is on
+  let eraser_btn = document.createElement("button");
+  eraser_btn.setAttribute("aria-label", "Eraser");
+  eraser_btn.setAttribute("aria-pressed", "false");
+  eraser_btn.setAttribute("title", "Eraser");
+  eraser_btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"></path><path d="M22 21H7"></path><path d="m5 11 9 9"></path></svg>';
+  eraser_btn.style.padding = "0.25rem";
+  eraser_btn.style.cursor = "pointer";
+  eraser_btn.style.border = "1px solid var(--dd-border-color)";
+  eraser_btn.style.borderRadius = "0.25rem";
+  eraser_btn.style.backgroundColor = "var(--dd-bg-color)";
+  eraser_btn.style.color = "var(--dd-text-color)";
+  eraser_btn.style.alignItems = "center";
+  eraser_btn.onclick = function() {
+    set_mode(mode === "erase" ? "draw" : "erase");
+  };
+  controls.appendChild(eraser_btn);
+
+  function update_eraser_visibility() {
+    const enabled = !!model.get("eraser");
+    eraser_btn.style.display = enabled ? "inline-flex" : "none";
+    if (!enabled && mode === "erase") set_mode("draw");
+  }
+  update_eraser_visibility();
+  model.on("change:eraser", update_eraser_visibility);
+
+  function set_mode(newMode) {
+    mode = newMode;
+    const erasing = mode === "erase";
+    eraser_btn.setAttribute("aria-pressed", erasing ? "true" : "false");
+    // Concrete colors (not CSS vars) so the active state also shows in hosts
+    // where the --dd-* variables are not defined, like marimo
+    eraser_btn.style.backgroundColor = erasing ? hexToRgba(ERASER_COLOR, 0.25) : "var(--dd-bg-color)";
+    eraser_btn.style.borderColor = erasing ? ERASER_COLOR : "var(--dd-border-color)";
+    // Dim the selected class while erasing so it is clear what the brush does
+    if (selectedClassButton) {
+      selectedClassButton.style.backgroundColor = erasing
+        ? "var(--dd-bg-color)"
+        : hexToRgba(selectedColor, 0.25);
+      selectedClassButton.style.borderColor = erasing ? "var(--dd-border-color)" : selectedColor;
+    }
+    style_brush();
+  }
+
+  function style_brush() {
+    // Called from the class button handler during init, before the brush exists
+    if (circle_brush) {
+      apply_brush_style();
+    }
+  }
+
+  function apply_brush_style() {
+    if (mode === "erase") {
+      circle_brush
+        .style("fill", ERASER_COLOR)
+        .style("fill-opacity", 0.1)
+        .style("stroke", ERASER_COLOR)
+        .style("stroke-width", 2)
+        .style("stroke-dasharray", "6 4");
+    } else {
+      circle_brush
+        .style("fill", selectedColor)
+        .style("fill-opacity", 0.3)
+        .style("stroke", selectedColor)
+        .style("stroke-width", 2)
+        .style("stroke-dasharray", null);
+    }
+  }
+
   el.appendChild(container);
 
   let data = [...(model.get("data") || [])];
+
+  // Undo history: snapshots of `data` taken before each user action
+  // (draw stroke, click, erase stroke, reset). Points are never mutated,
+  // so shallow copies are enough.
+  const MAX_HISTORY = 50;
+  let history = [];
+  // The last array we handed to model.set, used to tell our own changes
+  // apart from changes made on the Python side.
+  let lastSent = null;
+  // State for the stroke in progress
+  let strokeSnapshot = null;
+  let strokeChanged = false;
+
+  function push_history(snapshot) {
+    history.push(snapshot);
+    if (history.length > MAX_HISTORY) history.shift();
+  }
   
   // Create SVG with responsive dimensions
   let svg_container = document.createElement("div");
@@ -286,7 +375,12 @@ function render({ model, el }) {
   
   // Set up model change handlers
   model.on("change:data", function() {
-    data = [...(model.get("data") || [])];
+    const incoming = model.get("data") || [];
+    // Data replaced from Python: the undo history no longer applies
+    if (incoming !== lastSent && JSON.stringify(incoming) !== JSON.stringify(lastSent)) {
+      history = [];
+    }
+    data = [...incoming];
     redraw_from_scratch();
   });
 
@@ -336,8 +430,36 @@ function render({ model, el }) {
     .style("stroke-opacity", 0.9)
     .attr("class", "brush-indicator");
 
+  function begin_stroke() {
+    strokeSnapshot = data.slice();
+    strokeChanged = false;
+  }
+
+  // Apply the brush once at (x, y): draw a jittered point or erase nearby points
+  function apply_brush(x, y) {
+    if (mode === "erase") {
+      if (erase_at(x, y)) strokeChanged = true;
+    } else {
+      let size = parseInt(size_input.value, 10) * brushScale;
+      let new_x = x + (Math.random() - 0.5) * size;
+      let new_y = y + (Math.random() - 0.5) * size;
+      add_point(new_x, new_y);
+      strokeChanged = true;
+    }
+  }
+
+  function end_stroke() {
+    if (strokeChanged) {
+      push_history(strokeSnapshot);
+      finish_batch();
+    }
+    strokeSnapshot = null;
+    strokeChanged = false;
+  }
+
   function drag_start(event) {
     isDragging = false;
+    begin_stroke();
   }
 
   function mousemove(event) {
@@ -350,12 +472,26 @@ function render({ model, el }) {
     if (!isDragging) {
       // Use d3.pointer for more reliable coordinate detection
       const [x, y] = d3.pointer(event, svg.node());
-      let size = parseInt(size_input.value, 10) * brushScale;
-      let new_x = x + (Math.random() - 0.5) * size;
-      let new_y = y + (Math.random() - 0.5) * size;
-      add_point(new_x, new_y);
-      finish_batch();
+      begin_stroke();
+      apply_brush(x, y);
+      end_stroke();
     }
+  }
+
+  // Remove all points within the brush radius of (x, y), in SVG coordinates.
+  // Returns true when at least one point was removed.
+  function erase_at(x, y) {
+    const r = parseInt(size_input.value, 10) * brushScale;
+    const r2 = r * r;
+    const before = data.length;
+    data = data.filter(function(d) {
+      const dx = d.x - x;
+      const dy = (height - d.y) - y;
+      return dx * dx + dy * dy > r2;
+    });
+    if (data.length === before) return false;
+    redraw_from_scratch();
+    return true;
   }
 
   function update_brush(x, y) {
@@ -395,34 +531,36 @@ function render({ model, el }) {
     });
   }
 
+  function sync_model() {
+    lastSent = grab_data();
+    model.set("data", lastSent);
+    model.save_changes();
+  }
+
+  function next_batch() {
+    if (data && data.length > 0) {
+      return Math.max(...data.map(d => d.batch || 0)) + 1;
+    }
+    return 0;
+  }
+
   function finish_batch() {
     // The `model.save_changes` method might be depending on what we've
     // drawn, so we only run it once dragging is done. Saves bunch of compute!
-    model.set("data", grab_data());
-    model.save_changes();
-    
-    // Calculate next batch number safely
-    if (data && data.length > 0) {
-      const batchValues = data.map(d => d.batch || 0);
-      batch = Math.max(...batchValues) + 1;
-    } else {
-      batch = 0;
-    }
+    sync_model();
+    batch = next_batch();
   }
 
   function dragged(event) {
     isDragging = true;
     // Use d3.pointer for more reliable coordinate detection
     const [x, y] = d3.pointer(event, svg.node());
-    let size = parseInt(size_input.value, 10) * brushScale;
-    let new_x = x + (Math.random() - 0.5) * size;
-    let new_y = y + (Math.random() - 0.5) * size;
-    add_point(new_x, new_y);
+    apply_brush(x, y);
     update_brush(x, y);
   }
 
   function drag_end(event) {
-    finish_batch();
+    end_stroke();
   }
 
   function grab_data() {
@@ -440,16 +578,26 @@ function render({ model, el }) {
   }
 
   function reset() {
+    if (data && data.length > 0) push_history(data.slice());
     data = [];
-    model.set("data", []);
-    model.save_changes();
+    sync_model();
     svg.selectAll("circle.drawn").remove();
     batch = 0;
   }
 
   function undo() {
+    // Prefer the history: it can step back through draws, erases and resets
+    if (history.length > 0) {
+      data = history.pop();
+      redraw_from_scratch();
+      sync_model();
+      batch = next_batch();
+      return;
+    }
+
+    // No history (e.g. data was set from Python): drop the last batch
     if (!data || data.length === 0) return;
-    
+
     try {
       // Find max batch number
       let maxBatch = 0;
@@ -462,8 +610,8 @@ function render({ model, el }) {
       data = data.filter(function(d) { return (d.batch || 0) !== maxBatch; });
       
       // Update model
-      model.set("data", grab_data());
-      model.save_changes();
+      sync_model();
+      batch = next_batch();
     } catch (error) {
       console.error("Error in undo function:", error);
     }
